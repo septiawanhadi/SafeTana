@@ -7,7 +7,7 @@ import {
 // Integrasi Firebase & Komponen
 import { requestForToken, onMessageListener } from './firebase';
 import MapComponent from './MapComponent';
-import AIChatbot from './AIChatbot';
+import AIChatbot from './AIChatbot.jsx';
 import CommandCenter from './CommandCenter';
 import EducationDashboard from './EducationDashboard';
 
