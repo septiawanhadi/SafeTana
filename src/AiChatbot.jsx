@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, X, Bot, ShieldAlert } from 'lucide-react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const AIChatbot = ({ onClose, isSOS }) => {
+const AiChatbot = ({ onClose, isSOS }) => {
   // Initial Message dengan muatan edukasi Tas Siaga & Sesar Lembang sesuai insight BPBD
   const [messages, setMessages] = useState([
     { 
