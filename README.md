@@ -1,16 +1,42 @@
-# React + Vite
+# SafeTana AI - BPBD Integrated Disaster Monitoring
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+SafeTana AI adalah platform mitigasi bencana cerdas yang dirancang untuk meningkatkan resiliensi masyarakat terhadap potensi bencana alam, khususnya di wilayah Jawa Barat. Aplikasi ini mengintegrasikan data real-time dari otoritas resmi untuk memberikan peringatan dini yang akurat dan personal.
 
-Currently, two official plugins are available:
+## 🌟 Fitur Utama
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 1. Halaman Pengenalan (Onboarding)
+Saat pertama kali dibuka, aplikasi menyambut pengguna dengan informasi kritis mengenai:
+* **Urgensi Kesiapsiagaan**: Penjelasan mengenai risiko bencana di wilayah "Ring of Fire".
+* **Pantauan Terpadu**: Bagaimana aplikasi mengintegrasikan data aktivitas seismik dan cuaca ekstrem berdasarkan koordinat GPS pengguna.
+* **Validitas Data**: Penekanan bahwa seluruh informasi terhubung langsung dengan sistem komando BPBD untuk mencegah hoaks.
 
-## React Compiler
+### 2. Dashboard Monitoring & Berita Terkini
+Halaman utama yang menyediakan informasi real-time bagi warga:
+* **Update Bencana Terkini**: Daftar otomatis gempa bumi (data BMKG) dan cuaca ekstrem (data Open-Meteo) lengkap dengan koordinat dan tingkat risiko.
+* **Peta Interaktif**: Visualisasi titik bencana dan lokasi pengguna.
+* **AI Risk Analysis**: Analisis risiko (Rendah, Sedang, Tinggi) berdasarkan parameter lingkungan di sekitar pengguna.
+* **Pesan Darurat Admin**: Fitur broadcast pesan instruksi evakuasi langsung dari pusat komando.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 3. Pusat Literasi & Edukasi
+Modul edukasi untuk mempersiapkan warga menghadapi situasi darurat:
+* **SOP Mitigasi**: Panduan langkah demi langkah menghadapi Gempa Bumi (Sesar Lembang) dan Banjir Luapan Sungai.
+* **Kontak Darurat Jabar**: Akses cepat ke Call Center 112 untuk bantuan segera.
 
-## Expanding the ESLint configuration
+### 4. Pusat Komando (Admin)
+Halaman khusus otoritas untuk memantau status keamanan warga di lapangan dan mengirimkan instruksi broadcast massal.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🛠️ Teknologi yang Digunakan
+
+* **Frontend**: React.js & Vite
+* **Styling**: Tailwind CSS
+* **Icons**: Lucide React
+* **Real-time Data**:
+    * BMKG API (Gempa Terkini)
+    * Open-Meteo API (Cuaca Lokal)
+* **Firebase**: Cloud Messaging untuk notifikasi darurat.
+
+## 🚀 Cara Menjalankan Project
+
+1. **Clone Repository**
+   ```bash
+   git clone [https://github.com/septiawanhadi/safetana.git](https://github.com/septiawanhadi/safetana.git)
