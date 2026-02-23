@@ -132,4 +132,4 @@ const AiChatbot = ({ onClose, isSOS }) => {
   );
 };
 
-export default AIChatbot;
+export default AiChatbot;
