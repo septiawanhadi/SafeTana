@@ -40,3 +40,12 @@ Halaman khusus otoritas untuk memantau status keamanan warga di lapangan dan men
 1. **Clone Repository**
    ```bash
    git clone [https://github.com/septiawanhadi/safetana.git](https://github.com/septiawanhadi/safetana.git)
+
+2. **Install Dependensi**
+```bash
+npm install
+
+3. **Menjalankan Aplikasi**
+
+```bash
+npm run dev
