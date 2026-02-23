@@ -45,6 +45,7 @@ Halaman khusus otoritas untuk memantau status keamanan warga di lapangan dan men
 ```bash
 npm install
 
+```
 3. **Menjalankan Aplikasi**
 
 ```bash
