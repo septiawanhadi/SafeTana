@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import {
   AlertTriangle, Activity, ShieldCheck, Navigation,
   MessageSquare, Globe, Waves, MapPin, LayoutDashboard,
@@ -10,12 +11,18 @@ import MapComponent from './MapComponent';
 import AiChatbot from './AiChatbot';
 import CommandCenter from './CommandCenter';
 import EducationDashboard from './EducationDashboard';
+import AdminLogin from './AdminLogin';
+import { maskName, maskPhone } from './securityUtils';
+import { db } from './firebase';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 const App = () => {
+  const navigate = useNavigate();
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+
   // --- STATES NAVIGASI ---
   const [showEducation, setShowEducation] = useState(true);
   const [showChat, setShowChat] = useState(false);
-  const [showAdmin, setShowAdmin] = useState(false);
 
   // --- STATES DATA ---
   const [reports, setReports] = useState([]);
@@ -26,45 +33,7 @@ const App = () => {
   const [isSOSActive, setIsSOSActive] = useState(false);
   const [latestBroadcast, setLatestBroadcast] = useState(null);
 
-  <div class="max-w-2xl mx-auto bg-[#FFFF00] border-2 border-gray-400 rounded-xl overflow-hidden shadow-2xl font-sans text-black">
-    <div class="p-6">
-      <div class="flex items-start gap-6 mb-4">
-        <div class="w-24 h-24 bg-black flex items-center justify-center rounded-sm">
-          <svg viewBox="0 0 24 24" class="w-20 h-20 fill-[#FFFF00]" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L2 12h3v8h14v-8h3L12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6zm4 4h-2v-2h2v2zm0-4h-2V9h2v4z" />
-            <path d="M3 14l2-2m14 0l2 2m-18 4l2-2m14 0l2 2" stroke="currentColor" stroke-width="2" />
-          </svg>
-        </div>
-        <h1 class="text-6xl font-bold tracking-tight">Earthquake</h1>
-      </div>
 
-      <div class="ml-4">
-        <h2 class="text-4xl font-bold mb-4">Alert <span class="ml-12">18/02/2026 09:15 (WIB)</span></h2>
-
-        <div class="space-y-4 text-xl font-semibold leading-tight">
-          <p>Earthquake mag:5.7, 18-Feb-26 02:15:28 UTC, (148 km NorthWest MALUKUTENGGARABRT) ::BMKG -- PRELI...</p>
-
-          <p>Info Gempa kekuatan:5.7 SR, 18-Feb-26 09:15:28 WIB, (148 km BaratLaut MALUKUTENGGARABRT) ::BMKG -- ...</p>
-        </div>
-      </div>
-
-      <div class="flex justify-between mt-10">
-        <button class="flex flex-col items-center justify-center border-2 border-black py-2 px-8 hover:bg-yellow-100 transition-colors">
-          <svg class="w-10 h-10 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" />
-          </svg>
-          <span class="text-xl font-bold">Confirmation</span>
-        </button>
-
-        <button class="flex flex-col items-center justify-center border-2 border-black py-2 px-8 hover:bg-yellow-100 transition-colors">
-          <svg class="w-10 h-10 mb-1" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
-          </svg>
-          <span class="text-xl font-bold">Show Details</span>
-        </button>
-      </div>
-    </div>
-  </div>
   // --- DATABASE TITIK AMAN ---
   const safeZones = [
     {
@@ -214,7 +183,7 @@ const App = () => {
       // 2. Fetch PetaBencana API (Last 7 Days, Indonesia)
       let petabencana = [];
       try {
-        const resPB = await fetch('https://data.petabencana.id/reports?timeperiod=604800&admin=ID');
+        const resPB = await fetch('https://data.petabencana.id/reports?timeperiod=604800');
         const dataPB = await resPB.json();
 
         if (dataPB && dataPB.result && dataPB.result.features) {
@@ -243,9 +212,9 @@ const App = () => {
             return {
               source: 'PetaBencana',
               type: typeMap,
-              loc: locName,
+              loc: maskName(locName), // Apply masking to location name/reporter name if any PII exists
               position: position,
-              desc: props.tags?.description || `Status: ${props.status} / Publik`,
+              desc: maskName(props.tags?.description) || `Status: ${props.status} / Publik`,
               statusColor: colorMap
             };
           });
@@ -286,16 +255,54 @@ const App = () => {
 
   useEffect(() => {
     fetchHazards();
+
+    let uid = localStorage.getItem('safetana_user_id');
+    if (!uid) {
+      uid = 'user-' + Math.random().toString(36).substring(2, 9);
+      localStorage.setItem('safetana_user_id', uid);
+    }
+
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        setUserLocation([pos.coords.latitude, pos.coords.longitude]);
-      });
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          setUserLocation([lat, lng]);
+
+          // Sync initial location to Firestore
+          try {
+            await setDoc(doc(db, 'active_users', uid), {
+              name: `Pengguna ${uid.substring(5, 9).toUpperCase()}`,
+              status: isSOSActive ? 'Butuh Evakuasi' : 'Aman',
+              pos: [lat, lng],
+              lastActive: serverTimestamp()
+            }, { merge: true });
+          } catch (e) {
+            console.error("Gagal sinkronisasi lokasi pengguna:", e);
+          }
+        },
+        (err) => console.warn("Akses lokasi ditolak atau gagal:", err)
+      );
     }
   }, []);
 
-  return (
-    <div className="min-h-screen bg-[#020617] text-slate-200 font-sans">
+  // UseEffect terpisah untuk merespons perubahan isSOSActive setelah location ditemukan
+  useEffect(() => {
+    if (userLocation) {
+      const uid = localStorage.getItem('safetana_user_id');
+      try {
+        setDoc(doc(db, 'active_users', uid), {
+          status: isSOSActive ? 'Butuh Evakuasi' : 'Aman',
+          lastActive: serverTimestamp()
+        }, { merge: true });
+      } catch (e) {
+        console.error("Gagal update status SOS:", e);
+      }
+    }
+  }, [isSOSActive, userLocation]);
 
+  const MainContent = (
+    <>
       {/* 1. LAYER ONBOARDING / EDUKASI */}
       {showEducation && (
         <EducationDashboard onClose={() => setShowEducation(false)} />
@@ -315,11 +322,13 @@ const App = () => {
               <button onClick={() => setShowEducation(true)} className="p-2.5 bg-slate-800 rounded-xl hover:text-white transition shadow-lg">
                 <BookOpen size={20} />
               </button>
-              <button onClick={() => setShowAdmin(true)} className="p-2.5 bg-slate-800 rounded-xl hover:text-white transition shadow-lg">
+              <button onClick={() => navigate('/safetana-admin')} className="p-2.5 bg-slate-800 rounded-xl hover:text-white transition shadow-lg">
                 <LayoutDashboard size={20} />
               </button>
             </div>
           </nav>
+
+          {/* TAMPILAN BROADCAST DINAMIS DIPINDAHKAN KE BAWAH */}
 
           <main className="max-w-[1600px] mx-auto p-4 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-700">
             {/* PANEL PETA */}
@@ -433,12 +442,67 @@ const App = () => {
               </button>
             </div>
           </main>
+
+          {/* CHAT MODAL UNTUK DASHBOARD */}
+          {showChat && <AiChatbot onClose={() => { setShowChat(false); setIsSOSActive(false); }} isSOS={isSOSActive} userLocation={userLocation} />}
         </>
       )}
+    </>
+  );
 
-      {/* MODALS */}
-      {showAdmin && <CommandCenter users={[]} onClose={() => setShowAdmin(false)} onFocusUser={(pos) => { setSelectedReportPosition(pos); setShowAdmin(false); }} />}
-      {showChat && <AiChatbot onClose={() => { setShowChat(false); setIsSOSActive(false); }} isSOS={isSOSActive} />}
+  return (
+    <div className="min-h-screen bg-[#020617] text-slate-200 font-sans">
+      {/* TAMPILAN BROADCAST DINAMIS (OVERLAY) */}
+      {latestBroadcast && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="max-w-2xl w-full mx-auto bg-[#FFFF00] border-[8px] border-black rounded-3xl overflow-hidden shadow-[0_0_100px_rgba(255,255,0,0.4)] font-sans text-black animate-pulse-slow">
+            <div className="p-6 md:p-10">
+              <div className="flex items-start gap-6 mb-8">
+                <div className="w-24 h-24 bg-black flex items-center justify-center rounded-2xl shrink-0">
+                  <svg viewBox="0 0 24 24" className="w-16 h-16 fill-[#FFFF00]" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 12h3v8h14v-8h3L12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6zm4 4h-2v-2h2v2zm0-4h-2V9h2v4z" />
+                    <path d="M3 14l2-2m14 0l2 2m-18 4l2-2m14 0l2 2" stroke="currentColor" strokeWidth="2" />
+                  </svg>
+                </div>
+                <div>
+                  <h1 className="text-4xl md:text-5xl font-black tracking-tight uppercase leading-none">Peringatan<br />Darurat</h1>
+                </div>
+              </div>
+
+              <div className="bg-black/5 p-6 rounded-2xl border-2 border-black/10 mb-8">
+                <h2 className="text-sm font-black mb-4 flex justify-between items-center text-slate-800">
+                  <span>PUSAT KOMANDO BPBD</span>
+                  <span>{new Date().toLocaleTimeString('id-ID')}</span>
+                </h2>
+
+                <div className="space-y-4 text-2xl md:text-3xl font-black leading-tight">
+                  <p>{latestBroadcast}</p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setLatestBroadcast(null)}
+                className="flex flex-col items-center justify-center border-[4px] border-black bg-white py-4 px-8 hover:bg-black hover:text-[#FFFF00] transition-colors w-full rounded-2xl group"
+              >
+                <span className="text-2xl font-black uppercase tracking-widest mt-1">SAYA MENGERTI (TUTUP)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <Routes>
+        <Route path="/" element={MainContent} />
+        <Route path="/safetana-admin" element={
+          isAdminAuthenticated ? (
+            <div className="min-h-screen bg-[#020617] w-full relative z-10">
+              <CommandCenter users={[]} onClose={() => navigate('/')} onSendBroadcast={setLatestBroadcast} />
+            </div>
+          ) : (
+            <AdminLogin onLogin={() => setIsAdminAuthenticated(true)} onClose={() => navigate('/')} />
+          )
+        } />
+      </Routes>
     </div>
   );
 };

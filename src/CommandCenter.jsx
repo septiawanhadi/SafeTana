@@ -1,14 +1,32 @@
-import React, { useState } from 'react';
-import { 
-  Users, MapPin, Battery, AlertCircle, CheckCircle, 
+import React, { useState, useEffect } from 'react';
+import {
+  Users, MapPin, Battery, AlertCircle, CheckCircle,
   Clock, X, Search, ShieldAlert, Send, Radio, Smartphone, MessageSquare
 } from 'lucide-react';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { functions, db } from './firebase';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 
-const CommandCenter = ({ users, onClose, onFocusUser, onSendBroadcast }) => {
+const CommandCenter = ({ onClose, onSendBroadcast }) => {
+  const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [broadcastMessage, setBroadcastMessage] = useState('');
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [broadcastSuccess, setBroadcastSuccess] = useState(false);
+  const [broadcastError, setBroadcastError] = useState('');
+
+  useEffect(() => {
+    const q = query(collection(db, 'active_users'), orderBy('lastActive', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const activeUsers = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setUsers(activeUsers);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const stats = {
     total: users?.length || 0,
@@ -16,18 +34,42 @@ const CommandCenter = ({ users, onClose, onFocusUser, onSendBroadcast }) => {
     safe: users?.filter(u => u.status === 'Aman').length || 0
   };
 
-  const handleBroadcast = (e) => {
+  const handleBroadcast = async (e) => {
     e.preventDefault();
     if (!broadcastMessage.trim()) return;
 
     setIsBroadcasting(true);
-    setTimeout(() => {
-      if (onSendBroadcast) onSendBroadcast(broadcastMessage); // Memicu fungsi di App.jsx
-      setIsBroadcasting(false);
+    setBroadcastError('');
+
+    try {
+      /* 
+        ========================================================================
+        BAGIAN INI DIMATIKAN SEMENTARA AGAR TIDAK MUNCUL ERROR CORS DI CONSOLE 
+        KARENA CLOUD FUNCTION BERLUM BISA DI-DEPLOY (BUTUH FIREBASE BLAZE PLAN).
+        
+        Kode Asli untuk Production Seharusnya Seperti Ini:
+        ------------------------------------------------------------------------
+        const sendBroadcastFn = httpsCallable(functions, 'sendBroadcastNotification');
+        const payload = { title: "Peringatan", body: broadcastMessage, topic: "all_users" };
+        const result = await sendBroadcastFn(payload);
+        ========================================================================
+      */
+
+      // Simulasi delay jaringan
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Jika simulasi berhasil:
+      if (onSendBroadcast) onSendBroadcast(broadcastMessage);
       setBroadcastSuccess(true);
       setBroadcastMessage('');
       setTimeout(() => setBroadcastSuccess(false), 4000);
-    }, 1500);
+
+    } catch (error) {
+      console.error("Kesalahan saat Broadcast FCM:", error);
+      setBroadcastError(error.message || "Gagal menghubungi server");
+    } finally {
+      setIsBroadcasting(false);
+    }
   };
 
   return (
@@ -45,7 +87,7 @@ const CommandCenter = ({ users, onClose, onFocusUser, onSendBroadcast }) => {
 
       <div className="flex-1 p-6 lg:p-10 overflow-y-auto space-y-8 custom-scrollbar">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
+
           {/* BROADCAST PANEL */}
           <div className="lg:col-span-4 space-y-6">
             <div className="bg-gradient-to-br from-blue-900/20 to-slate-900 border border-blue-800/30 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden text-white">
@@ -55,6 +97,9 @@ const CommandCenter = ({ users, onClose, onFocusUser, onSendBroadcast }) => {
 
               <form onSubmit={handleBroadcast} className="space-y-4">
                 <textarea value={broadcastMessage} onChange={(e) => setBroadcastMessage(e.target.value)} placeholder="Instruksi Evakuasi..." className="w-full h-32 bg-slate-950 border border-slate-700 rounded-3xl p-5 text-xs text-white outline-none focus:ring-2 focus:ring-blue-500/50 resize-none" />
+
+                {broadcastError && <p className="text-red-500 text-[10px] uppercase font-bold text-center">{broadcastError}</p>}
+
                 <button type="submit" disabled={isBroadcasting} className={`w-full py-5 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-3 ${broadcastSuccess ? 'bg-green-600 text-white' : 'bg-white text-slate-900 hover:bg-slate-200'}`}>
                   {isBroadcasting ? <div className="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" /> : <Send size={16} />}
                   {broadcastSuccess ? 'Berhasil Terkirim' : 'Eksekusi Broadcast'}
@@ -72,11 +117,15 @@ const CommandCenter = ({ users, onClose, onFocusUser, onSendBroadcast }) => {
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <tbody className="divide-y divide-slate-800/50 text-xs">
-                  {users.filter(u => u.name.toLowerCase().includes(searchTerm.toLowerCase())).map((user) => (
+                  {users?.filter(u => u?.name?.toLowerCase().includes(searchTerm.toLowerCase())).map((user) => (
                     <tr key={user.id} className="hover:bg-white/[0.02] transition-all">
                       <td className="p-6 font-bold">{user.name}</td>
                       <td className="p-6"><span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase ${user.status === 'Butuh Evakuasi' ? 'bg-red-600 text-white' : 'bg-green-600/20 text-green-500 border border-green-500/30'}`}>{user.status}</span></td>
-                      <td className="p-6 text-right"><button onClick={() => onFocusUser(user.pos)} className="bg-blue-600 px-4 py-2 rounded-xl text-[9px] font-black uppercase">Lacak</button></td>
+                      <td className="p-6 text-right">
+                        {user.pos && (
+                          <a href={`https://maps.google.com/?q=${user.pos[0]},${user.pos[1]}`} target="_blank" rel="noopener noreferrer" className="bg-blue-600 px-4 py-2 rounded-xl text-[9px] font-black uppercase inline-block">Lacak</a>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

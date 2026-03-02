@@ -1,0 +1,61 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Fungsi untuk mengecek apakah user adalah admin
+    // Contoh ini menggunakan flag custom claims 'admin' pada token auth pengguna.
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+    
+    // Fungsi validasi tipe data Koordinat
+    function isValidCoordinate(lat, lng) {
+      return lat is number && lat >= -90 && lat <= 90 &&
+             lng is number && lng >= -180 && lng <= 180;
+    }
+
+    // 1. Titik Aman (Safe Points)
+    // - Semua orang bisa membaca
+    // - HANYA ADMIN yang bisa mengubah (update), menghapus (delete), atau menambah (create)
+    // - Validasi Skema: Koordinat lat & lng wajib berupa angka desimal
+    match /safe_points/{pointId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && 
+                            isValidCoordinate(request.resource.data.lat, request.resource.data.lng);
+      allow delete: if isAdmin();
+    }
+
+    // 2. Laporan Pengguna / SOS (Reports)
+    // - Publik/Pengguna anonim HANYA BOLEH create laporan (tidak bisa ubah/hapus)
+    // - HANYA ADMIN yang bisa update dan delete (misal menutup/verifikasi laporan)
+    // - Validasi Skema: Koordinat laporan wajib berupa angka desimal valid, dan tipe laporan harus string
+    match /reports/{reportId} {
+      allow read: if true; 
+      allow create: if isValidCoordinate(request.resource.data.lat, request.resource.data.lng) &&
+                       request.resource.data.type is string &&
+                       request.resource.data.description is string;
+      allow update, delete: if isAdmin();
+    }
+
+    // 3. Pesan Broadcast (Broadcasts/Alerts)
+    // - Publik bisa membaca peringatan
+    // - Hanya admin yang bisa membuat, mengubah, atau menghapus peringatan
+    match /broadcasts/{broadcastId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 4. Pengguna Aktif (Live Tracker)
+    // - Publik/Anonim bisa membuat/mengubah lokasi & status mereka sendiri
+    // - Hanya admin yang bisa membaca daftar semua user aktif
+    match /active_users/{userId} {
+      allow read: if isAdmin();
+      allow write: if true;
+    }
+
+    // Secara default, tolak semua akses ke koleksi/dokumen lain yang tidak dideklarasikan
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

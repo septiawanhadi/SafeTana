@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Send, MapPin, Camera, X } from 'lucide-react';
+import { sanitizeInput } from './securityUtils';
 
 const ReportForm = ({ onClose }) => {
   const [report, setReport] = useState({
@@ -10,6 +11,15 @@ const ReportForm = ({ onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Sanitize before submitting to database (demonstrated here)
+    const sanitizedReport = {
+      ...report,
+      type: sanitizeInput(report.type),
+      description: sanitizeInput(report.description),
+    };
+
+    console.log("Submitting Sanitized Report:", sanitizedReport);
     alert("Laporan Anda telah terkirim dan sedang dianalisis AI.");
     onClose();
   };
@@ -29,10 +39,10 @@ const ReportForm = ({ onClose }) => {
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
             <label className="text-xs font-bold text-slate-500 uppercase">Jenis Bencana</label>
-            <select 
+            <select
               className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 mt-1 text-white focus:ring-2 focus:ring-red-500 outline-none"
               value={report.type}
-              onChange={(e) => setReport({...report, type: e.target.value})}
+              onChange={(e) => setReport({ ...report, type: e.target.value })}
             >
               <option>Banjir</option>
               <option>Gempa Bumi</option>
@@ -44,11 +54,11 @@ const ReportForm = ({ onClose }) => {
 
           <div>
             <label className="text-xs font-bold text-slate-500 uppercase">Detail Kejadian</label>
-            <textarea 
+            <textarea
               rows="3"
               placeholder="Contoh: Air setinggi pinggang, butuh perahu karet..."
               className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 mt-1 text-white focus:ring-2 focus:ring-red-500 outline-none"
-              onChange={(e) => setReport({...report, description: e.target.value})}
+              onChange={(e) => setReport({ ...report, description: e.target.value })}
             ></textarea>
           </div>
 

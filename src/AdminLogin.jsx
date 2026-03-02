@@ -1,17 +1,26 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Lock, User, AlertCircle, X } from 'lucide-react';
+import { ShieldCheck, Lock, User, AlertCircle, X, Loader2 } from 'lucide-react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from './firebase';
 
 const AdminLogin = ({ onLogin, onClose }) => {
-  const [credentials, setCredentials] = useState({ username: '', password: '' });
+  const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Credential Demo untuk Juri (Berdasarkan template Project Brief)
-    if (credentials.username === 'admin_safetana' && credentials.password === 'idcamp2026') {
+    setLoading(true);
+    setError('');
+
+    try {
+      await signInWithEmailAndPassword(auth, credentials.email, credentials.password);
       onLogin();
-    } else {
+    } catch (err) {
+      console.error(err);
       setError('Kredensial tidak valid. Silakan coba lagi.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -33,20 +42,21 @@ const AdminLogin = ({ onLogin, onClose }) => {
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="relative">
             <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-            <input 
-              type="text" 
-              placeholder="Username" 
+            <input
+              type="email"
+              placeholder="Email Administrator"
               className="w-full bg-slate-950 border border-slate-800 rounded-2xl py-4 pl-12 pr-4 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-              onChange={(e) => setCredentials({...credentials, username: e.target.value})}
+              onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+              required
             />
           </div>
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-            <input 
-              type="password" 
-              placeholder="Password" 
+            <input
+              type="password"
+              placeholder="Password"
               className="w-full bg-slate-950 border border-slate-800 rounded-2xl py-4 pl-12 pr-4 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-              onChange={(e) => setCredentials({...credentials, password: e.target.value})}
+              onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
             />
           </div>
 
@@ -56,8 +66,9 @@ const AdminLogin = ({ onLogin, onClose }) => {
             </div>
           )}
 
-          <button type="submit" className="w-full bg-white text-slate-950 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all shadow-xl">
-            Verify Identity
+          <button disabled={loading} type="submit" className="w-full flex justify-center items-center gap-2 bg-white text-slate-950 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all shadow-xl disabled:opacity-50">
+            {loading ? <Loader2 size={16} className="animate-spin" /> : null}
+            {loading ? 'Verifying...' : 'Verify Identity'}
           </button>
         </form>
       </div>
