@@ -14,7 +14,20 @@ import EducationDashboard from './EducationDashboard';
 import AdminLogin from './AdminLogin';
 import { maskName, maskPhone } from './securityUtils';
 import { db } from './firebase';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
+
+// Helper: Menghitung jarak antara dua koordinat (Haversine Formula) dalam KM
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  const R = 6371; // Radius bumi dalam kilometer
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
 
 const App = () => {
   const navigate = useNavigate();
@@ -301,6 +314,45 @@ const App = () => {
     }
   }, [isSOSActive, userLocation]);
 
+  // --- LISTENER BROADCAST FIRESTORE ---
+  useEffect(() => {
+    if (!userLocation) return;
+
+    // Listen to the latest broadcast
+    const q = query(collection(db, 'broadcasts'), orderBy('timestamp', 'desc'), limit(1));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      if (!snapshot.empty) {
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === "added") {
+            const broadcast = change.doc.data();
+
+            // Periksa jika broadcast baru saja ditambahkan (bukan data lama dari local cache/fetch awal)
+            // Asumsi: Jika waktu serverTimestamp belum ada (null/pending), ini adalah data baru yang di-trigger lokal.
+            // Atau jika timestamp ada, kita bisa cek apakah ia baru terjadi dalam 1 menit terakhir.
+            const isRecent = broadcast.timestamp
+              ? (Date.now() - broadcast.timestamp.toMillis() < 60000)
+              : true;
+
+            if (isRecent && broadcast.position && userLocation) {
+              // Hitung jarak (Haversine)
+              const distance = calculateDistance(
+                userLocation[0], userLocation[1],
+                broadcast.position[0], broadcast.position[1]
+              );
+
+              // Jika jarak kurang dari 100 KM (dapat disesuaikan)
+              if (distance <= 100) {
+                setLatestBroadcast({ ...broadcast, distance });
+              }
+            }
+          }
+        });
+      }
+    });
+
+    return () => unsubscribe();
+  }, [userLocation]);
+
   const MainContent = (
     <>
       {/* 1. LAYER ONBOARDING / EDUKASI */}
@@ -465,19 +517,47 @@ const App = () => {
                   </svg>
                 </div>
                 <div>
-                  <h1 className="text-4xl md:text-5xl font-black tracking-tight uppercase leading-none">Peringatan<br />Darurat</h1>
+                  <h1 className="text-4xl md:text-5xl font-black tracking-tight leading-none">{latestBroadcast.type}</h1>
                 </div>
               </div>
 
-              <div className="bg-black/5 p-6 rounded-2xl border-2 border-black/10 mb-8">
-                <h2 className="text-sm font-black mb-4 flex justify-between items-center text-slate-800">
-                  <span>PUSAT KOMANDO BPBD</span>
-                  <span>{new Date().toLocaleTimeString('id-ID')}</span>
+              <div className="bg-transparent mb-8">
+                <h2 className="text-2xl font-black mb-4 flex justify-start items-center gap-4 text-black">
+                  <span>Alert</span>
+                  <span className="font-medium text-xl">{new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })} (WIB)</span>
                 </h2>
 
-                <div className="space-y-4 text-2xl md:text-3xl font-black leading-tight">
-                  <p>{latestBroadcast}</p>
+                <div className="space-y-4 text-lg font-medium leading-relaxed text-black">
+                  <p>{latestBroadcast.desc}</p>
+                  <p>Terdeteksi pada koordinat: {latestBroadcast.position[0].toFixed(2)}, {latestBroadcast.position[1].toFixed(2)} ({latestBroadcast.source})</p>
+                  <p className="font-bold text-red-600 mt-2">
+                    Anda berada dalam radius bahaya ({latestBroadcast.distance.toFixed(1)} km dari pusat bencana). Segera cari tempat aman!
+                  </p>
                 </div>
+              </div>
+
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setLatestBroadcast(null)}
+                  className="flex flex-col items-center justify-center border-2 border-black bg-transparent py-4 px-6 hover:bg-black/10 transition-colors w-40 h-24"
+                >
+                  <svg viewBox="0 0 24 24" className="w-8 h-8 mb-2 stroke-black" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 13l4 4L19 7" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span className="text-xs font-medium">Confirmation</span>
+                </button>
+                <div className="flex-1"></div>
+                <button
+                  onClick={() => navigate('/safetana-admin')} // Atau rute lain untuk detail
+                  className="flex flex-col items-center justify-center border-2 border-black bg-transparent py-4 px-6 hover:bg-black/10 transition-colors w-40 h-24"
+                >
+                  <svg viewBox="0 0 24 24" className="w-8 h-8 mb-2 fill-black" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="4" width="18" height="16" rx="2" stroke="black" strokeWidth="2" fill="none" />
+                    <line x1="3" y1="10" x2="21" y2="10" stroke="black" strokeWidth="2" />
+                    <line x1="7" y1="15" x2="17" y2="15" stroke="black" strokeWidth="2" />
+                  </svg>
+                  <span className="text-xs font-medium">Show Details</span>
+                </button>
               </div>
 
               <button
@@ -496,7 +576,7 @@ const App = () => {
         <Route path="/safetana-admin" element={
           isAdminAuthenticated ? (
             <div className="min-h-screen bg-[#020617] w-full relative z-10">
-              <CommandCenter users={[]} onClose={() => navigate('/')} onSendBroadcast={setLatestBroadcast} />
+              <CommandCenter reports={reports} users={[]} onClose={() => navigate('/')} onSendBroadcast={() => { }} />
             </div>
           ) : (
             <AdminLogin onLogin={() => setIsAdminAuthenticated(true)} onClose={() => navigate('/')} />

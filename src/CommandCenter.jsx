@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
   Users, MapPin, Battery, AlertCircle, CheckCircle,
-  Clock, X, Search, ShieldAlert, Send, Radio, Smartphone, MessageSquare
+  Clock, X, Search, ShieldAlert, Send, Radio, Smartphone, MessageSquare, AlertTriangle
 } from 'lucide-react';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { functions, db } from './firebase';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp } from 'firebase/firestore';
 
-const CommandCenter = ({ onClose, onSendBroadcast }) => {
+const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [broadcastMessage, setBroadcastMessage] = useState('');
@@ -34,39 +34,27 @@ const CommandCenter = ({ onClose, onSendBroadcast }) => {
     safe: users?.filter(u => u.status === 'Aman').length || 0
   };
 
-  const handleBroadcast = async (e) => {
-    e.preventDefault();
-    if (!broadcastMessage.trim()) return;
-
+  const handleBroadcast = async (disaster) => {
     setIsBroadcasting(true);
     setBroadcastError('');
 
     try {
-      /* 
-        ========================================================================
-        BAGIAN INI DIMATIKAN SEMENTARA AGAR TIDAK MUNCUL ERROR CORS DI CONSOLE 
-        KARENA CLOUD FUNCTION BERLUM BISA DI-DEPLOY (BUTUH FIREBASE BLAZE PLAN).
-        
-        Kode Asli untuk Production Seharusnya Seperti Ini:
-        ------------------------------------------------------------------------
-        const sendBroadcastFn = httpsCallable(functions, 'sendBroadcastNotification');
-        const payload = { title: "Peringatan", body: broadcastMessage, topic: "all_users" };
-        const result = await sendBroadcastFn(payload);
-        ========================================================================
-      */
+      // Create broadcast document in Firestore
+      await addDoc(collection(db, 'broadcasts'), {
+        type: disaster.type,
+        loc: disaster.loc,
+        position: disaster.position,
+        desc: disaster.desc,
+        source: disaster.source,
+        timestamp: serverTimestamp()
+      });
 
-      // Simulasi delay jaringan
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Jika simulasi berhasil:
-      if (onSendBroadcast) onSendBroadcast(broadcastMessage);
       setBroadcastSuccess(true);
-      setBroadcastMessage('');
       setTimeout(() => setBroadcastSuccess(false), 4000);
 
     } catch (error) {
-      console.error("Kesalahan saat Broadcast FCM:", error);
-      setBroadcastError(error.message || "Gagal menghubungi server");
+      console.error("Kesalahan saat Broadcast ke Firestore:", error);
+      setBroadcastError(error.message || "Gagal menyimpan broadcast");
     } finally {
       setIsBroadcasting(false);
     }
@@ -88,23 +76,43 @@ const CommandCenter = ({ onClose, onSendBroadcast }) => {
       <div className="flex-1 p-6 lg:p-10 overflow-y-auto space-y-8 custom-scrollbar">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-          {/* BROADCAST PANEL */}
+          {/* BROADCAST PANEL - DISASTERS LIST */}
           <div className="lg:col-span-4 space-y-6">
-            <div className="bg-gradient-to-br from-blue-900/20 to-slate-900 border border-blue-800/30 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden text-white">
+            <div className="bg-gradient-to-br from-blue-900/20 to-slate-900 border border-blue-800/30 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden text-white h-full flex flex-col">
               <div className="absolute top-0 right-0 p-4 opacity-10"><Radio size={80} className="text-blue-500" /></div>
               <h4 className="font-black uppercase tracking-tighter text-lg mb-4 flex items-center gap-3"><Send size={20} className="text-blue-400" /> Omni-Broadcast</h4>
-              <p className="text-[10px] text-slate-400 font-bold mb-6 leading-relaxed uppercase tracking-widest">Kirim Peringatan (SMS/WA/APP)</p>
+              <p className="text-[10px] text-slate-400 font-bold mb-6 leading-relaxed uppercase tracking-widest">Kirim Peringatan Berbasis Lokasi Bencana</p>
 
-              <form onSubmit={handleBroadcast} className="space-y-4">
-                <textarea value={broadcastMessage} onChange={(e) => setBroadcastMessage(e.target.value)} placeholder="Instruksi Evakuasi..." className="w-full h-32 bg-slate-950 border border-slate-700 rounded-3xl p-5 text-xs text-white outline-none focus:ring-2 focus:ring-blue-500/50 resize-none" />
+              {broadcastError && <p className="text-red-500 text-[10px] uppercase font-bold text-center mb-4">{broadcastError}</p>}
+              {broadcastSuccess && <p className="text-green-500 text-[10px] uppercase font-bold text-center mb-4 bg-green-500/20 p-2 rounded-xl">Berhasil Terkirim ke Firestore</p>}
 
-                {broadcastError && <p className="text-red-500 text-[10px] uppercase font-bold text-center">{broadcastError}</p>}
+              <div className="space-y-4 overflow-y-auto flex-1 custom-scrollbar pr-2">
+                {reports.length === 0 ? (
+                  <p className="text-xs text-slate-500 italic text-center py-10">Tidak ada data bencana aktif saat ini.</p>
+                ) : (
+                  reports.map((r, i) => (
+                    <div key={i} className="bg-slate-950/50 p-4 rounded-3xl border border-slate-800 hover:border-blue-500/50 transition-all group">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle size={14} className="text-red-500" />
+                          <h5 className="text-xs font-black text-white uppercase tracking-tighter">{r.type}</h5>
+                        </div>
+                        <span className="text-[8px] font-black text-blue-500 uppercase tracking-widest bg-blue-500/10 px-2 py-1 rounded-full">{r.source}</span>
+                      </div>
+                      <p className="text-[9px] text-slate-400 font-bold italic mb-3 line-clamp-2">{r.loc}</p>
 
-                <button type="submit" disabled={isBroadcasting} className={`w-full py-5 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-3 ${broadcastSuccess ? 'bg-green-600 text-white' : 'bg-white text-slate-900 hover:bg-slate-200'}`}>
-                  {isBroadcasting ? <div className="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" /> : <Send size={16} />}
-                  {broadcastSuccess ? 'Berhasil Terkirim' : 'Eksekusi Broadcast'}
-                </button>
-              </form>
+                      <button
+                        onClick={() => handleBroadcast(r)}
+                        disabled={isBroadcasting}
+                        className="w-full py-3 rounded-2xl font-black text-[9px] uppercase tracking-[0.2em] transition-all bg-white text-slate-900 hover:bg-slate-200 flex items-center justify-center gap-2 disabled:opacity-50"
+                      >
+                        {isBroadcasting ? <div className="w-3 h-3 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" /> : <Send size={12} />}
+                        Eksekusi Broadcast
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
 
