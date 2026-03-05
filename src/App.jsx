@@ -175,12 +175,17 @@ const App = () => {
     }
 
     try {
-      // 1. Fetch BMKG Earthquake Data
-      const resBMKG = await fetch('https://data.bmkg.go.id/DataMKG/TEWS/gempaterkini.json');
+      // 1. Fetch BMKG Earthquake Data (Daftar Gempa Dirasakan skala berapapun)
+      const resBMKG = await fetch('https://data.bmkg.go.id/DataMKG/TEWS/gempadirasakan.json');
       const dataBMKG = await resBMKG.json();
-      const bmkg = dataBMKG.Infogempa.gempa.slice(0, 2).map(item => ({
-        source: 'BMKG', type: `Gempa M ${item.Magnitude}`, loc: item.Wilayah,
-        position: item.Coordinates.split(',').map(Number), desc: `Skala MMI: ${item.Felt || 'II'}`,
+
+      // gempadirasakan.json mengembalikan array gempa yang dirasakan tanpa batas magnitudo minimum
+      const bmkg = dataBMKG.Infogempa.gempa.slice(0, 5).map(item => ({
+        source: 'BMKG',
+        type: `Gempa M ${item.Magnitude}`,
+        loc: item.Wilayah,
+        position: item.Coordinates.split(',').map(Number),
+        desc: `Skala MMI: ${item.Dirasakan || 'Belum diketahui'}`,
         statusColor: 'bg-red-600'
       }));
 
