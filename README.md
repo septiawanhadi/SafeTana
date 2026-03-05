@@ -1,52 +1,57 @@
-# SafeTana AI - BPBD Integrated Disaster Monitoring
+SafeTana AI - Cerdas Berbagi, Sigap Mitigasi
+SafeTana AI adalah platform mitigasi bencana cerdas berbasis web yang dirancang untuk meningkatkan resiliensi masyarakat terhadap potensi bencana alam. Dengan mengintegrasikan data real-time dari otoritas resmi dan analisis kecerdasan buatan, aplikasi ini memberikan peringatan dini yang akurat, personal, dan berbasis lokasi.
 
-SafeTana AI adalah platform mitigasi bencana cerdas yang dirancang untuk meningkatkan resiliensi masyarakat terhadap potensi bencana alam, khususnya di wilayah Jawa Barat. Aplikasi ini mengintegrasikan data real-time dari otoritas resmi untuk memberikan peringatan dini yang akurat dan personal.
+🌟 Fitur Utama
+1. Dashboard Monitoring Real-Time
+Update Bencana Terkini: Integrasi otomatis dengan API BMKG untuk data gempa bumi dan Open-Meteo untuk kondisi cuaca ekstrem.
 
-## 🌟 Fitur Utama
+Peta Interaktif: Visualisasi titik bencana, lokasi aman (safe zones), dan posisi pengguna menggunakan react-leaflet.
 
-### 1. Halaman Pengenalan (Onboarding)
-Saat pertama kali dibuka, aplikasi menyambut pengguna dengan informasi kritis mengenai:
-* **Urgensi Kesiapsiagaan**: Penjelasan mengenai risiko bencana di wilayah "Ring of Fire".
-* **Pantauan Terpadu**: Bagaimana aplikasi mengintegrasikan data aktivitas seismik dan cuaca ekstrem berdasarkan koordinat GPS pengguna.
-* **Validitas Data**: Penekanan bahwa seluruh informasi terhubung langsung dengan sistem komando BPBD untuk mencegah hoaks.
+Tracking Lokasi Aktif: Pemantauan lokasi pengguna secara anonim untuk memetakan sebaran warga di area terdampak.
 
-### 2. Dashboard Monitoring & Berita Terkini
-Halaman utama yang menyediakan informasi real-time bagi warga:
-* **Update Bencana Terkini**: Daftar otomatis gempa bumi (data BMKG) dan cuaca ekstrem (data Open-Meteo) lengkap dengan koordinat dan tingkat risiko.
-* **Peta Interaktif**: Visualisasi titik bencana dan lokasi pengguna.
-* **AI Risk Analysis**: Analisis risiko (Rendah, Sedang, Tinggi) berdasarkan parameter lingkungan di sekitar pengguna.
-* **Pesan Darurat Admin**: Fitur broadcast pesan instruksi evakuasi langsung dari pusat komando.
+2. AI Early Detection Engine (Gemini AI)
+Spatial Threat Matrix: Analisis risiko otomatis menggunakan algoritma Haversine untuk menghitung jarak antara lokasi pengguna dengan titik bencana terdekat.
 
-### 3. Pusat Literasi & Edukasi
-Modul edukasi untuk mempersiapkan warga menghadapi situasi darurat:
-* **SOP Mitigasi**: Panduan langkah demi langkah menghadapi Gempa Bumi (Sesar Lembang) dan Banjir Luapan Sungai.
-* **Kontak Darurat Jabar**: Akses cepat ke Call Center 112 untuk bantuan segera.
+Asisten Mitigasi Pintar: Chatbot interaktif berbasis Google Gemini AI yang memberikan panduan keselamatan spesifik berdasarkan matriks ancaman di sekitar pengguna.
 
-### 4. Pusat Komando (Admin)
-Halaman khusus otoritas untuk memantau status keamanan warga di lapangan dan mengirimkan instruksi broadcast massal.
+3. Sistem Peringatan & SOS
+Location-Based Broadcasting: Sistem siaran pesan darurat dari pusat komando yang hanya akan muncul jika pengguna berada dalam radius bahaya tertentu.
 
-## 🛠️ Teknologi yang Digunakan
+Tombol SOS: Fitur darurat satu-klik untuk mengirimkan sinyal "Butuh Evakuasi" ke pusat komando secara real-time melalui Firebase.
 
-* **Frontend**: React.js & Vite
-* **Styling**: Tailwind CSS
-* **Icons**: Lucide React
-* **Real-time Data**:
-    * BMKG API (Gempa Terkini)
-    * Open-Meteo API (Cuaca Lokal)
-* **Firebase**: Cloud Messaging untuk notifikasi darurat.
+4. Pusat Komando (Admin)
+Monitoring Warga: Dashboard khusus otoritas untuk melihat sebaran pengguna dan status keamanan mereka (Aman/Butuh Evakuasi).
 
-## 🚀 Cara Menjalankan Project
+Kendali Informasi: Fitur untuk menyebarkan instruksi evakuasi langsung ke perangkat warga yang terdampak.
 
-1. **Clone Repository**
-   ```bash
-   git clone [https://github.com/septiawanhadi/safetana.git](https://github.com/septiawanhadi/safetana.git)
+🛠️ Teknologi yang Digunakan
+Core: React.js 19 & Vite (Rolldown).
 
-2. **Install Dependensi**
-```bash
+Styling: Tailwind CSS 4 & Lucide React Icons.
+
+Database & Real-time: Firebase (Firestore & Cloud Messaging).
+
+Mapping: Leaflet & React-Leaflet.
+
+AI: Google Generative AI (Gemini SDK).
+
+Data Sources: BMKG API & Open-Meteo API.
+
+🚀 Cara Menjalankan Project
+Clone Repository
+
+Bash
+git clone https://github.com/septiawanhadi/safetana.git
+cd safetana
+Install Dependensi
+
+Bash
 npm install
+Konfigurasi Environment
+Buat file .env di root direktori dan masukkan API Key yang diperlukan (Firebase & Gemini AI).
 
-```
-3. **Menjalankan Aplikasi**
+Menjalankan Aplikasi
 
-```bash
+Bash
 npm run dev
+SafeTana AI dikembangkan untuk mendukung upaya BPBD dalam digitalisasi manajemen bencana di wilayah Jawa Barat.
