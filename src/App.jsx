@@ -3,7 +3,7 @@ import { Routes, Route, useNavigate } from 'react-router-dom';
 import {
   AlertTriangle, Activity, ShieldCheck, Navigation,
   MessageSquare, Globe, Waves, MapPin, LayoutDashboard,
-  Info, Radio, BookOpen, ChevronRight
+  Info, Radio, BookOpen, ChevronRight, Newspaper
 } from 'lucide-react';
 
 // Integrasi Komponen
@@ -12,6 +12,7 @@ import AiChatbot from './AiChatbot';
 import CommandCenter from './CommandCenter';
 import EducationDashboard from './EducationDashboard';
 import AdminLogin from './AdminLogin';
+import NewsDashboard from './NewsDashboard';
 import { maskName, maskPhone } from './securityUtils';
 import { db } from './firebase';
 import { doc, setDoc, serverTimestamp, collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
@@ -371,6 +372,10 @@ const App = () => {
               <h1 className="font-black text-xl text-white uppercase tracking-tighter leading-none">SafeTana <span className="text-red-500">AI</span></h1>
             </div>
             <div className="flex gap-3 text-white">
+              <button onClick={() => navigate('/news')} className="p-2.5 bg-slate-800 rounded-xl hover:text-white transition shadow-lg group relative" title="Pusat Berita">
+                <Newspaper size={20} className="group-hover:text-blue-400 transition-colors" />
+                <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-black text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Berita</span>
+              </button>
               <button onClick={() => setShowEducation(true)} className="p-2.5 bg-slate-800 rounded-xl hover:text-white transition shadow-lg">
                 <BookOpen size={20} />
               </button>
@@ -573,6 +578,7 @@ const App = () => {
 
       <Routes>
         <Route path="/" element={MainContent} />
+        <Route path="/news" element={<NewsDashboard />} />
         <Route path="/safetana-admin" element={
           isAdminAuthenticated ? (
             <div className="min-h-screen bg-[#020617] w-full relative z-10">
