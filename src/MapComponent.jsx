@@ -24,7 +24,7 @@ function MapController({ center }) {
 }
 
 const MapComponent = ({ reports, selectedReportPosition, showSafeZones, safeZones, userLocation }) => {
-  
+
   // 2. Perbaikan Custom Icon: Menambahkan iconAnchor agar ujung lancip marker tepat di koordinat
   const createIcon = (iconComponent, color) => L.divIcon({
     html: `<div style="
@@ -73,8 +73,8 @@ const MapComponent = ({ reports, selectedReportPosition, showSafeZones, safeZone
 
       {/* 3. Perbaikan Marker User: Pastikan userLocation valid */}
       {userLocation && Array.isArray(userLocation) && userLocation.length === 2 && (
-        <Marker 
-          position={userLocation} 
+        <Marker
+          position={userLocation}
           icon={createIcon(<User size={20} />, '#3b82f6')}
         >
           <Popup>
@@ -87,42 +87,60 @@ const MapComponent = ({ reports, selectedReportPosition, showSafeZones, safeZone
       )}
 
       {/* Marker Laporan Bencana */}
-      {reports.map((r, i) => (
-        r.position && (
-          <Marker 
-            key={`report-${i}`} 
-            position={r.position} 
-            icon={createIcon(r.source === 'BMKG' ? <Activity size={18}/> : <Waves size={18}/>, '#ef4444')}
+      {reports.map((r, i) => {
+        if (!r.position) return null;
+
+        // Tentukan warna dan icon berdasarkan jenis bencana
+        let markerColor = '#ef4444'; // Default Merah (e.g., Gempa, Kebakaran)
+        let IconComponent = <Waves size={18} />;
+
+        if (r.source === 'BMKG') {
+          IconComponent = <Activity size={18} />;
+        } else if (r.type === 'Banjir') {
+          markerColor = '#3b82f6'; // Biru untuk Banjir
+          IconComponent = <Waves size={18} />;
+        } else if (r.type === 'Kebakaran' || r.type === 'Gunung Api') {
+          markerColor = '#ea580c'; // Oranye tua
+        } else if (r.type === 'Angin Kencang') {
+          markerColor = '#64748b'; // Slate/Abu-abu
+        }
+
+        return (
+          <Marker
+            key={`report-${i}`}
+            position={r.position}
+            icon={createIcon(IconComponent, markerColor)}
           >
             <Popup>
               <div className="font-sans">
-                <h4 className="font-black text-xs uppercase">{r.type}</h4>
+                <h4 className="font-black text-xs uppercase" style={{ color: markerColor }}>{r.type}</h4>
                 <p className="text-[10px] text-slate-500">{r.loc}</p>
+                <p className="text-[9px] text-slate-400 mt-1 italic">{r.source}</p>
               </div>
             </Popup>
           </Marker>
-        )
-      ))}
+        );
+      })}
 
       {/* Marker Titik Aman */}
- {showSafeZones && safeZones.map((zone) => (
-  <Marker 
-    key={zone.id} 
-    position={zone.position} 
-    icon={createIcon(zone.type === "Kesehatan" ? <HeartPulse size={18}/> : <ShieldCheck size={18}/>, '#10b981')}
-  >
-    <Popup>
-      <div className="font-sans p-1">
-        <h4 className="font-black text-xs text-green-600 uppercase">{zone.name}</h4>
-        <p className="text-[9px] text-slate-500 font-bold mb-2">{zone.addr}</p>
-        <div className="border-t border-slate-100 pt-2 space-y-1">
-          <p className="text-[8px]"><span className="font-bold">Faskes:</span> {zone.faskes}</p>
-          <p className="text-[8px]"><span className="font-bold">Alt:</span> {zone.alt}</p>
-        </div>
-      </div>
-    </Popup>
-  </Marker>
-))}
+      {showSafeZones && safeZones.map((zone) => (
+        <Marker
+          key={zone.id}
+          position={zone.position}
+          icon={createIcon(zone.type === "Kesehatan" ? <HeartPulse size={18} /> : <ShieldCheck size={18} />, '#10b981')}
+        >
+          <Popup>
+            <div className="font-sans p-1">
+              <h4 className="font-black text-xs text-green-600 uppercase">{zone.name}</h4>
+              <p className="text-[9px] text-slate-500 font-bold mb-2">{zone.addr}</p>
+              <div className="border-t border-slate-100 pt-2 space-y-1">
+                <p className="text-[8px]"><span className="font-bold">Faskes:</span> {zone.faskes}</p>
+                <p className="text-[8px]"><span className="font-bold">Alt:</span> {zone.alt}</p>
+              </div>
+            </div>
+          </Popup>
+        </Marker>
+      ))}
     </MapContainer>
   );
 };
