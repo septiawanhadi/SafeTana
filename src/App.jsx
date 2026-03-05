@@ -16,19 +16,9 @@ import NewsDashboard from './NewsDashboard';
 import { maskName, maskPhone } from './securityUtils';
 import { db } from './firebase';
 import { doc, setDoc, serverTimestamp, collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
+import { calculateDistance } from './utils/geoUtils';
 
-// Helper: Menghitung jarak antara dua koordinat (Haversine Formula) dalam KM
-const calculateDistance = (lat1, lon1, lat2, lon2) => {
-  const R = 6371; // Radius bumi dalam kilometer
-  const dLat = (lat2 - lat1) * (Math.PI / 180);
-  const dLon = (lon2 - lon1) * (Math.PI / 180);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-};
+
 
 const App = () => {
   const navigate = useNavigate();
@@ -366,8 +356,8 @@ const App = () => {
         <>
           <nav className="border-b border-slate-800 p-4 sticky top-0 z-[50] bg-[#020617]/95 backdrop-blur-md flex justify-between items-center shadow-2xl">
             <div className="flex items-center gap-4">
-              <div className="bg-red-600 p-2 rounded-xl shadow-lg shadow-red-600/20">
-                <ShieldCheck size={24} className="text-white" />
+              <div className="bg-white p-1 rounded-2xl shadow-lg h-10 w-10 flex items-center justify-center overflow-hidden">
+                <img src="/logo.png" alt="SafeTana AI Logo" className="w-full h-full object-contain" />
               </div>
               <h1 className="font-black text-xl text-white uppercase tracking-tighter leading-none">SafeTana <span className="text-red-500">AI</span></h1>
             </div>
@@ -501,7 +491,7 @@ const App = () => {
           </main>
 
           {/* CHAT MODAL UNTUK DASHBOARD */}
-          {showChat && <AiChatbot onClose={() => { setShowChat(false); setIsSOSActive(false); }} isSOS={isSOSActive} userLocation={userLocation} />}
+          {showChat && <AiChatbot onClose={() => { setShowChat(false); setIsSOSActive(false); }} isSOS={isSOSActive} userLocation={userLocation} reports={reports} />}
         </>
       )}
     </>

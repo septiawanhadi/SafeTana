@@ -32,8 +32,8 @@ const AdminLogin = ({ onLogin, onClose }) => {
         </button>
 
         <div className="flex flex-col items-center mb-8">
-          <div className="bg-red-600 p-4 rounded-2xl mb-4 shadow-lg shadow-red-600/20">
-            <ShieldCheck size={32} className="text-white" />
+          <div className="bg-white p-2 rounded-2xl mb-4 shadow-lg h-16 w-16 flex items-center justify-center overflow-hidden">
+            <img src="/logo.png" alt="SafeTana AI Logo" className="w-full h-full object-contain" />
           </div>
           <h2 className="text-xl font-black uppercase tracking-tighter text-white">Admin Verification</h2>
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Authorized Personnel Only</p>
