@@ -75,4 +75,9 @@ npm run dev
 ## 🤝 Kontribusi
 Kami sangat terbuka untuk kontribusi dalam meningkatkan algoritma deteksi dini, penambahan sumber data BMKG langsung, atau penyempurnaan alur evakuasi. Silakan lakukan *Pull Request* atau ajukan *Issue*.
 
+## 🔗 Live Demo
+Anda dapat mencoba langsung aplikasi SafeTana AI melalui tautan berikut:
+
+**https://safetana-56tx4unuc-septiis-projects.vercel.app/**
+
 **SafeTana AI - Menjaga Keselamatan Melalui Kecerdasan Data.**

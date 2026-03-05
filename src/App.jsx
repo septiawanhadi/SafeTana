@@ -285,7 +285,12 @@ const App = () => {
             console.error("Gagal sinkronisasi lokasi pengguna:", e);
           }
         },
-        (err) => console.warn("Akses lokasi ditolak atau gagal:", err)
+        (err) => {
+          console.warn("Akses lokasi ditolak atau gagal:", err);
+          // Set lokasi default (misal Jakarta) jika akses ditolak agar fitur lain tetap jalan
+          setUserLocation([-6.200000, 106.816666]);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     }
   }, []);
@@ -377,9 +382,9 @@ const App = () => {
 
           {/* TAMPILAN BROADCAST DINAMIS DIPINDAHKAN KE BAWAH */}
 
-          <main className="max-w-[1600px] mx-auto p-4 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-700">
+          <main className="max-w-[1600px] mx-auto p-4 md:p-6 lg:p-8 flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-8 animate-in fade-in duration-700 min-h-[calc(100vh-80px)]">
             {/* PANEL PETA */}
-            <div className="lg:col-span-8 h-[650px] rounded-[3.5rem] overflow-hidden border border-slate-800 relative shadow-2xl">
+            <div className="lg:col-span-8 h-[50vh] min-h-[400px] lg:h-[650px] rounded-[2.5rem] lg:rounded-[3.5rem] overflow-hidden border border-slate-800 relative shadow-2xl shrink-0 order-1 lg:order-none">
               <MapComponent
                 reports={reports}
                 selectedReportPosition={selectedReportPosition}
@@ -390,21 +395,21 @@ const App = () => {
             </div>
 
             {/* PANEL SIDEBAR */}
-            <div className="lg:col-span-4 space-y-6 flex flex-col h-[650px]">
+            <div className="lg:col-span-4 space-y-6 flex flex-col h-auto lg:h-[650px] order-2 lg:order-none">
               <div className="grid grid-cols-2 gap-4">
-                <button onClick={() => { setIsSOSActive(true); setShowChat(true); }} className="p-7 bg-red-600 rounded-[2.5rem] flex flex-col items-center animate-pulse shadow-xl">
-                  <AlertTriangle size={32} className="text-white mb-2" />
-                  <span className="text-[11px] font-black uppercase text-white tracking-widest">SOS</span>
+                <button onClick={() => { setIsSOSActive(true); setShowChat(true); }} className="p-5 lg:p-7 bg-red-600 rounded-[2rem] lg:rounded-[2.5rem] flex flex-col items-center animate-pulse shadow-xl active:scale-95 transition-transform">
+                  <AlertTriangle size={28} className="text-white mb-2 lg:w-8 lg:h-8" />
+                  <span className="text-[10px] lg:text-[11px] font-black uppercase text-white tracking-widest">SOS</span>
                 </button>
-                <button onClick={() => setShowSafeZones(!showSafeZones)} className={`p-7 rounded-[2.5rem] flex flex-col items-center ${showSafeZones ? 'bg-green-600' : 'bg-blue-600'} shadow-xl transition-all`}>
-                  <Navigation size={32} className="text-white mb-2" />
-                  <span className="text-[11px] font-black uppercase text-white tracking-widest">{showSafeZones ? "Peta Bencana" : "Titik Aman"}</span>
+                <button onClick={() => setShowSafeZones(!showSafeZones)} className={`p-5 lg:p-7 rounded-[2rem] lg:rounded-[2.5rem] flex flex-col items-center ${showSafeZones ? 'bg-green-600' : 'bg-blue-600'} shadow-xl transition-all active:scale-95`}>
+                  <Navigation size={28} className="text-white mb-2 lg:w-8 lg:h-8" />
+                  <span className="text-[10px] lg:text-[11px] font-black uppercase text-white tracking-widest text-center">{showSafeZones ? "Peta Bencana" : "Titik Aman"}</span>
                 </button>
               </div>
 
-              <div className="bg-slate-900/40 rounded-[3rem] border border-slate-800 p-8 flex-1 flex flex-col overflow-hidden shadow-inner relative">
-                <header className="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-500">
+              <div className="bg-slate-900/40 rounded-[2.5rem] lg:rounded-[3rem] border border-slate-800 p-6 lg:p-8 flex-1 flex flex-col overflow-hidden shadow-inner relative min-h-[400px] lg:min-h-0">
+                <header className="flex justify-between items-center mb-5 lg:mb-6 border-b border-slate-800 pb-4 shrink-0">
+                  <h3 className="text-[10px] lg:text-[11px] font-black uppercase tracking-[0.2em] lg:tracking-[0.3em] text-slate-500">
                     {showSafeZones ? "TITIK EVAKUASI BANDUNG" : "UPDATE BENCANA TERKINI"}
                   </h3>
                 </header>
@@ -484,8 +489,8 @@ const App = () => {
                 </div>
               </div>
 
-              <button onClick={() => setShowChat(true)} className="group w-full bg-white hover:bg-slate-200 text-slate-950 p-6 rounded-[2.5rem] font-black text-[12px] uppercase tracking-[0.3em] flex items-center justify-center gap-3 shadow-2xl transition-all">
-                <MessageSquare size={20} /> ASISTEN AI SAFETANA
+              <button onClick={() => setShowChat(true)} className="group w-full bg-white hover:bg-slate-200 text-slate-950 p-4 lg:p-6 rounded-[2rem] lg:rounded-[2.5rem] font-black text-[10px] lg:text-[12px] uppercase tracking-[0.2em] lg:tracking-[0.3em] flex items-center justify-center gap-2 lg:gap-3 shadow-2xl transition-all active:scale-95 shrink-0 mt-auto">
+                <MessageSquare size={18} className="lg:w-5 lg:h-5" /> ASISTEN AI SAFETANA
               </button>
             </div>
           </main>

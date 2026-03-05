@@ -82,14 +82,30 @@ const NewsDashboard = () => {
                 return;
             }
 
-            // Query berita: Bencana, Gempa, Banjir fokus di Indonesia
-            const response = await fetch(`https://gnews.io/api/v4/search?q=bencana OR gempa OR banjir OR tsunami OR erupsi&lang=id&country=id&topic=nation&apikey=${API_KEY}&max=10`);
+            // Request ke Vercel Serverless Function (Backend kita)
+            let response;
+
+            // Cek apakah jalan di lokal (Vite Dev Server) atau Vercel Production
+            if (import.meta.env.DEV) {
+                // Jika di lokal, panggil GNews langsung (Vite dev server tidak mengeksekusi api/news.js)
+                response = await fetch(`https://gnews.io/api/v4/search?q=bencana OR gempa OR banjir OR tsunami OR erupsi&lang=id&country=id&topic=nation&apikey=${API_KEY}&max=10`);
+            } else {
+                // Jika di Vercel, panggil Backend Serverless Vercel kita
+                response = await fetch(`/api/news`);
+            }
 
             if (!response.ok) {
                 throw new Error("Gagal mengambil berita. API Key mungkin melebihi batas (limit) atau tidak valid.");
             }
 
-            const data = await response.json();
+            const textResponse = await response.text();
+
+            // Pencegahan tambahan jika response mengembalikan file statis JS (saat config lokal salah)
+            if (textResponse.trim().startsWith('export')) {
+                throw new Error("Local dev server is serving static JS instead of executing function.");
+            }
+
+            const data = JSON.parse(textResponse);
 
             if (data.articles && data.articles.length > 0) {
                 setNews(data.articles);
@@ -98,7 +114,7 @@ const NewsDashboard = () => {
             }
 
         } catch (err) {
-            console.error(err);
+            console.warn(err);
             setError("Gagal memuat berita terkini dari server. Menampilkan arsip/simulasi berita.");
             setNews(MOCK_NEWS); // Fallback data
         } finally {
