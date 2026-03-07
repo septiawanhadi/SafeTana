@@ -115,38 +115,38 @@ const AiChatbot = ({ onClose, isSOS, userLocation, reports }) => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[2000] w-[400px] h-[550px] bg-[#0f172a] border border-slate-800 rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-6">
+    <div className="fixed inset-0 md:inset-auto md:bottom-6 md:right-6 z-[5000] w-full h-full md:w-[400px] md:h-[550px] bg-[#0f172a] md:border border-slate-800 md:rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-6">
 
       {/* Header dengan identitas instansi */}
-      <div className={`p-5 flex justify-between items-center text-white ${isSOS ? 'bg-red-600' : 'bg-blue-600 shadow-lg'}`}>
+      <div className={`p-4 md:p-5 flex justify-between items-center text-white ${isSOS ? 'bg-red-600' : 'bg-blue-600 shadow-lg'}`}>
         <div className="flex items-center gap-3">
           <div className="bg-white/20 p-1.5 rounded-lg">
             {isSOS ? <ShieldAlert size={20} className="animate-pulse" /> : <Bot size={20} />}
           </div>
           <div>
-            <span className="text-xs font-black tracking-widest block leading-none uppercase">
+            <span className="text-xs md:text-sm font-black tracking-widest block leading-none uppercase">
               {isSOS ? 'Sinyal SOS Aktif' : 'Asisten SafeTana'}
             </span>
             <div className="flex items-center gap-1 mt-1">
-              <span className="text-[8px] font-bold opacity-70 uppercase tracking-tighter">
+              <span className="text-[8px] md:text-[9px] font-bold opacity-70 uppercase tracking-tighter">
                 Mitigasi BPBD & KOMDIGI
               </span>
               {!isSOS && userLocation && (
                 <div className="flex items-center gap-1 ml-2 bg-black/20 px-2 py-0.5 rounded-full" title={closestHazard ? `${closestHazard.type} ${closestHazard.distance.toFixed(1)}km` : 'Aman'}>
                   <div className={`w-1.5 h-1.5 rounded-full ${riskColor}`}></div>
-                  <span className="text-[7px] font-bold uppercase">{riskLevel}</span>
+                  <span className="text-[7px] md:text-[8px] font-bold uppercase">{riskLevel}</span>
                 </div>
               )}
             </div>
           </div>
         </div>
-        <button onClick={onClose} className="hover:bg-black/20 p-2 rounded-full transition-colors">
+        <button onClick={onClose} className="hover:bg-black/20 p-2 rounded-full transition-colors active:scale-90">
           <X size={20} />
         </button>
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-950/20 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-4 md:p-5 space-y-4 bg-slate-950/20 custom-scrollbar">
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[85%] p-4 rounded-[1.5rem] text-[11px] leading-relaxed whitespace-pre-wrap shadow-sm ${msg.role === 'user'
@@ -172,14 +172,14 @@ const AiChatbot = ({ onClose, isSOS, userLocation, reports }) => {
 
       {/* Auto-Trigger SOS UI if threat < 20km */}
       {!isSOS && closestHazard && closestHazard.distance < 20 && (
-        <div className="bg-red-500/20 border-t border-red-500/50 p-3 flex items-center justify-between">
+        <div className="bg-red-500/20 border-t border-red-500/50 p-3 md:p-4 flex items-center justify-between">
           <div className="flex items-center gap-2 text-red-400">
             <AlertTriangle size={14} className="animate-pulse" />
-            <span className="text-[9px] font-bold uppercase tracking-wider">Awas! {closestHazard.type} berjarak {closestHazard.distance.toFixed(1)}km</span>
+            <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-wider line-clamp-2 leading-tight">Awas! {closestHazard.type} berjarak {closestHazard.distance.toFixed(1)}km</span>
           </div>
           <button
             onClick={() => setInput('Tunjukkan Rute Evakuasi atau Titik Aman terdekat dari lokasi saya sekarang.')}
-            className="text-[9px] font-black uppercase bg-red-600 hover:bg-red-500 transition px-3 py-1.5 rounded-full text-white shadow-lg"
+            className="text-[8px] md:text-[9px] font-black uppercase bg-red-600 hover:bg-red-500 transition px-2 py-1.5 md:px-3 rounded-full text-white shadow-lg whitespace-nowrap"
           >
             Tanya Titik Evakuasi
           </button>
@@ -187,18 +187,18 @@ const AiChatbot = ({ onClose, isSOS, userLocation, reports }) => {
       )}
 
       {/* Input Area */}
-      <form onSubmit={handleSend} className="p-5 bg-slate-900/80 border-t border-slate-800 flex gap-3">
+      <form onSubmit={handleSend} className="p-4 md:p-5 bg-slate-900/80 border-t border-slate-800 flex gap-2 md:gap-3 shrink-0">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Tanyakan mitigasi atau lokasi aman..."
-          className="flex-1 bg-slate-800/50 border border-slate-700 rounded-2xl px-5 py-3 text-xs text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-slate-500 shadow-inner"
+          className="flex-1 bg-slate-800/50 border border-slate-700 rounded-xl md:rounded-2xl px-4 py-3 md:px-5 text-xs text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-slate-500 shadow-inner"
         />
         <button
           type="submit"
           disabled={isTyping}
-          className="bg-white text-slate-900 p-3 rounded-2xl hover:bg-slate-200 transition-all active:scale-90 shadow-lg disabled:opacity-50"
+          className="bg-white text-slate-900 p-3 rounded-xl md:rounded-2xl hover:bg-slate-200 transition-all active:scale-90 shadow-lg disabled:opacity-50 shrink-0"
         >
           <Send size={18} />
         </button>
