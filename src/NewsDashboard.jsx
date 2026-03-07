@@ -143,26 +143,28 @@ const NewsDashboard = () => {
     return (
         <div className="min-h-screen bg-[#020617] text-slate-200 font-sans p-4 lg:p-8">
             {/* Header / Navigasi Atas */}
-            <nav className="max-w-[1600px] mx-auto flex justify-between items-center mb-10 pb-6 border-b border-slate-800">
+            <nav className="max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0 mt-4 md:mt-0 mb-6 md:mb-10 pb-6 border-b border-slate-800">
                 <button
                     onClick={() => navigate('/')}
-                    className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
+                    className="flex md:self-auto self-start items-center gap-2 text-slate-400 hover:text-white transition-colors group"
                 >
                     <div className="bg-slate-800 p-2 rounded-xl group-hover:bg-slate-700 transition">
                         <ChevronLeft size={20} />
                     </div>
-                    <span className="font-bold uppercase tracking-widest text-sm">Kembali ke Peta</span>
                 </button>
 
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col md:flex-row items-center gap-3 text-center md:text-left">
                     <div className="bg-blue-600/20 p-2.5 rounded-xl border border-blue-600/30">
                         <Newspaper size={24} className="text-blue-500" />
                     </div>
                     <div>
-                        <h1 className="font-black text-2xl text-white uppercase tracking-tighter leading-none">Pusat Berita <span className="text-blue-500">Bencana</span></h1>
-                        <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Update Terkini Wilayah Indonesia</p>
+                        <h1 className="font-black text-xl md:text-2xl text-white uppercase tracking-tighter leading-none">Pusat Berita <span className="text-blue-500">Bencana</span></h1>
+                        <p className="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Update Terkini Wilayah Indonesia</p>
                     </div>
                 </div>
+
+                {/* Spacer for flex-between alignment on desktop */}
+                <div className="hidden md:block w-10"></div>
             </nav>
 
             {/* Main Content */}
