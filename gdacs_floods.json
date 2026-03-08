@@ -1,0 +1,188 @@
+[
+  {
+    "type": "Feature",
+    "bbox": [
+      110.0044145,
+      -7.3032412,
+      110.0044145,
+      -7.3032412
+    ],
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        110.0044145,
+        -7.3032412
+      ]
+    },
+    "properties": {
+      "eventtype": "FL",
+      "eventid": 1103786,
+      "episodeid": 3,
+      "eventname": "",
+      "glide": "",
+      "name": "Flood in Indonesia",
+      "description": "Flood in Indonesia",
+      "htmldescription": "Green Flood in Indonesia from: 02 Mar 2026 01 to: 05 Mar 2026 01.",
+      "icon": "https://www.gdacs.org/images/gdacs_icons/maps/Green/FL.png",
+      "iconoverall": null,
+      "url": {
+        "geometry": "https://www.gdacs.org/gdacsapi/api/polygons/getgeometry?eventtype=FL&eventid=1103786&episodeid=3",
+        "report": "https://www.gdacs.org/report.aspx?eventid=1103786&episodeid=3&eventtype=FL",
+        "details": "https://www.gdacs.org/gdacsapi/api/events/geteventdata?eventtype=FL&eventid=1103786"
+      },
+      "alertlevel": "Green",
+      "alertscore": 1,
+      "episodealertlevel": "Green",
+      "episodealertscore": 0.5,
+      "istemporary": "false",
+      "iscurrent": "true",
+      "country": "Indonesia",
+      "fromdate": "2026-03-02T01:00:00",
+      "todate": "2026-03-05T01:00:00",
+      "datemodified": "2026-03-07T07:22:55",
+      "iso3": "IDN",
+      "source": "GLOFAS",
+      "sourceid": "708952cc-d56b-41c9-b808-43495a0ddd31",
+      "polygonlabel": "Centroid",
+      "Class": "Point_Centroid",
+      "affectedcountries": [
+        {
+          "iso2": "ID",
+          "iso3": "IDN",
+          "countryname": "Indonesia"
+        }
+      ],
+      "severitydata": {
+        "severity": 0,
+        "severitytext": "Magnitude 0 ",
+        "severityunit": ""
+      }
+    }
+  },
+  {
+    "type": "Feature",
+    "bbox": [
+      110.20427193015892,
+      -6.2255807757638415,
+      110.20427193015892,
+      -6.2255807757638415
+    ],
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        110.20427193015892,
+        -6.2255807757638415
+      ]
+    },
+    "properties": {
+      "eventtype": "FL",
+      "eventid": 1103786,
+      "episodeid": 3,
+      "eventname": "",
+      "glide": "",
+      "name": "Flood in Indonesia",
+      "description": "Flood in Indonesia",
+      "htmldescription": "Green Flood in Indonesia from: 02 Mar 2026 01 to: 05 Mar 2026 01.",
+      "icon": "https://www.gdacs.org/images/gdacs_icons/maps/Green/FL.png",
+      "iconoverall": null,
+      "url": {
+        "geometry": "https://www.gdacs.org/gdacsapi/api/polygons/getgeometry?eventtype=FL&eventid=1103786&episodeid=3",
+        "report": "https://www.gdacs.org/report.aspx?eventid=1103786&episodeid=3&eventtype=FL",
+        "details": "https://www.gdacs.org/gdacsapi/api/events/geteventdata?eventtype=FL&eventid=1103786"
+      },
+      "alertlevel": "Green",
+      "alertscore": 1,
+      "episodealertlevel": "Green",
+      "episodealertscore": 0.5,
+      "istemporary": "false",
+      "iscurrent": "true",
+      "country": "Indonesia",
+      "fromdate": "2026-03-02T01:00:00",
+      "todate": "2026-03-05T01:00:00",
+      "datemodified": "2026-03-07T07:22:55",
+      "iso3": "IDN",
+      "source": "GLOFAS",
+      "sourceid": "708952cc-d56b-41c9-b808-43495a0ddd31",
+      "polygondate": "2026-03-05T01:00:00",
+      "polygonlabel": "Affected area",
+      "affectedcountries": [
+        {
+          "iso2": "ID",
+          "iso3": "IDN",
+          "countryname": "Indonesia"
+        }
+      ],
+      "severitydata": {
+        "severity": 0,
+        "severitytext": "Magnitude 0 ",
+        "severityunit": ""
+      },
+      "Class": "Point_Affected",
+      "iconeventlink": "https://www.gdacs.org/images/gdacs_icons/maps/Green/FL.png",
+      "iconitemlink": "https://www.gdacs.org/images/gdacs_icons/maps/Green/FL.png"
+    }
+  },
+  {
+    "type": "Feature",
+    "bbox": [
+      112.40448149350075,
+      -6.597294486099903,
+      112.40448149350075,
+      -6.597294486099903
+    ],
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        112.40448149350075,
+        -6.597294486099903
+      ]
+    },
+    "properties": {
+      "eventtype": "FL",
+      "eventid": 1103786,
+      "episodeid": 3,
+      "eventname": "",
+      "glide": "",
+      "name": "Flood in Indonesia",
+      "description": "Flood in Indonesia",
+      "htmldescription": "Green Flood in Indonesia from: 02 Mar 2026 01 to: 05 Mar 2026 01.",
+      "icon": "https://www.gdacs.org/images/gdacs_icons/maps/Green/FL.png",
+      "iconoverall": null,
+      "url": {
+        "geometry": "https://www.gdacs.org/gdacsapi/api/polygons/getgeometry?eventtype=FL&eventid=1103786&episodeid=3",
+        "report": "https://www.gdacs.org/report.aspx?eventid=1103786&episodeid=3&eventtype=FL",
+        "details": "https://www.gdacs.org/gdacsapi/api/events/geteventdata?eventtype=FL&eventid=1103786"
+      },
+      "alertlevel": "Green",
+      "alertscore": 1,
+      "episodealertlevel": "Green",
+      "episodealertscore": 0.5,
+      "istemporary": "false",
+      "iscurrent": "true",
+      "country": "Indonesia",
+      "fromdate": "2026-03-02T01:00:00",
+      "todate": "2026-03-05T01:00:00",
+      "datemodified": "2026-03-07T07:22:55",
+      "iso3": "IDN",
+      "source": "GLOFAS",
+      "sourceid": "708952cc-d56b-41c9-b808-43495a0ddd31",
+      "polygondate": "2026-03-05T01:00:00",
+      "polygonlabel": "Global area",
+      "affectedcountries": [
+        {
+          "iso2": "ID",
+          "iso3": "IDN",
+          "countryname": "Indonesia"
+        }
+      ],
+      "severitydata": {
+        "severity": 0,
+        "severitytext": "Magnitude 0 ",
+        "severityunit": ""
+      },
+      "Class": "Point_Global",
+      "iconeventlink": "https://www.gdacs.org/images/gdacs_icons/maps/Green/FL.png",
+      "iconitemlink": "https://www.gdacs.org/images/gdacs_icons/maps/Green/FL.png"
+    }
+  }
+]

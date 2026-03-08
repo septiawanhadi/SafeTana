@@ -16,7 +16,7 @@ import NewsDashboard from './NewsDashboard';
 import { maskName, maskPhone } from './securityUtils';
 import { db } from './firebase';
 import { doc, setDoc, serverTimestamp, collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
-import { calculateDistance } from './utils/geoUtils';
+import { calculateDistance, reverseGeocode } from './utils/geoUtils';
 
 
 
@@ -232,7 +232,60 @@ const App = () => {
         console.warn("Gagal mengambil data PetaBencana:", pbError);
       }
 
-      const combinedReports = [...bmkg, ...petabencana];
+      // 3. Fetch GDACS API (Global Disaster Alert and Coordination System)
+      let gdacsData = [];
+      try {
+        const resGDACS = await fetch('https://www.gdacs.org/gdacsapi/api/events/geteventlist/MAP');
+        const dataGDACS = await resGDACS.json();
+        if (dataGDACS && dataGDACS.features) {
+          // Filter hanya untuk Indonesia
+          const idnEvents = dataGDACS.features.filter(f =>
+            f.properties && f.properties.country && f.properties.country.toLowerCase().includes('indonesia')
+          );
+
+          gdacsData = await Promise.all(idnEvents.map(async feature => {
+            const props = feature.properties;
+            const coords = feature.geometry.coordinates;
+
+            let typeMap = props.eventtype;
+            if (props.eventtype === 'EQ') typeMap = 'Gempa Bumi';
+            else if (props.eventtype === 'TC') typeMap = 'Siklon Tropis';
+            else if (props.eventtype === 'FL') typeMap = 'Banjir';
+            else if (props.eventtype === 'VO') typeMap = 'Gunung Api';
+            else if (props.eventtype === 'DR') typeMap = 'Kekeringan';
+            else if (props.eventtype === 'WF') typeMap = 'Kebakaran Hutan';
+
+            let colorMap = 'bg-slate-500';
+            if (props.alertlevel === 'Red') colorMap = 'bg-red-600';
+            else if (props.alertlevel === 'Orange') colorMap = 'bg-orange-500';
+            else if (props.alertlevel === 'Green') colorMap = 'bg-green-500';
+
+            let rawLoc = props.eventname || props.country;
+            if (!rawLoc || rawLoc.trim().toLowerCase() === 'indonesia' || rawLoc.trim() === '') {
+              // Jika lokasi terlalu generik (misal hanya "Indonesia"), gunakan reverse geocoding
+              const geoLoc = await reverseGeocode(coords[1], coords[0]);
+              if (geoLoc) {
+                rawLoc = geoLoc;
+              } else {
+                rawLoc = 'Wilayah Terdampak (GDACS)';
+              }
+            }
+
+            return {
+              source: 'GDACS',
+              type: typeMap,
+              loc: maskName(rawLoc),
+              position: [coords[1], coords[0]],
+              desc: maskName(props.description) || `Alert Level: ${props.alertlevel}`,
+              statusColor: colorMap
+            };
+          }));
+        }
+      } catch (gdacsError) {
+        console.warn("Gagal mengambil data GDACS:", gdacsError);
+      }
+
+      const combinedReports = [...bmkg, ...petabencana, ...gdacsData];
       setReports(combinedReports);
 
       // Simpan ke LocalStorage agar saat offline/reload cepat, data tetap ada

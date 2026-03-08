@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import ReactDOMServer from 'react-dom/server';
-import { Activity, ShieldCheck, HeartPulse, User, Waves } from 'lucide-react';
+import { Activity, ShieldCheck, HeartPulse, User, Waves, Globe } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
 // 1. Perbaikan Default Icon (Penting agar tidak error/hilang)
@@ -96,6 +96,12 @@ const MapComponent = ({ reports, selectedReportPosition, showSafeZones, safeZone
 
         if (r.source === 'BMKG') {
           IconComponent = <Activity size={18} />;
+        } else if (r.source === 'GDACS') {
+          IconComponent = <Globe size={18} />;
+          if (r.statusColor.includes('red')) markerColor = '#dc2626';
+          else if (r.statusColor.includes('orange') || r.statusColor.includes('yellow')) markerColor = '#f97316';
+          else if (r.statusColor.includes('green')) markerColor = '#22c55e';
+          else if (r.statusColor.includes('blue')) markerColor = '#3b82f6';
         } else if (r.type === 'Banjir') {
           markerColor = '#3b82f6'; // Biru untuk Banjir
           IconComponent = <Waves size={18} />;
