@@ -6,9 +6,11 @@ import {
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { functions, db } from './firebase';
 import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp } from 'firebase/firestore';
+import SafeZoneManager from './SafeZoneManager';
 
 const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
   const [users, setUsers] = useState([]);
+  const [activeTab, setActiveTab] = useState('users'); // 'users', 'safezones'
   const [searchTerm, setSearchTerm] = useState('');
   const [broadcastMessage, setBroadcastMessage] = useState('');
   const [isBroadcasting, setIsBroadcasting] = useState(false);
@@ -116,29 +118,46 @@ const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
             </div>
           </div>
 
-          {/* TABLE PANEL */}
+          {/* MAIN PANEL */}
           <div className="lg:col-span-8 bg-slate-900/30 border border-slate-800 rounded-[3rem] overflow-hidden flex flex-col text-white">
-            <div className="p-8 border-b border-slate-800 flex justify-between items-center">
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Live User Analytics</h3>
-              <input type="text" placeholder="Cari User..." className="bg-slate-950 border border-slate-700 rounded-2xl py-2 px-4 text-xs text-white outline-none" onChange={(e) => setSearchTerm(e.target.value)} />
+            <div className="flex border-b border-slate-800">
+              <button onClick={() => setActiveTab('users')} className={`flex-1 py-4 text-xs font-black uppercase tracking-widest transition-colors ${activeTab === 'users' ? 'bg-blue-600/20 text-blue-400 border-b-2 border-blue-500' : 'text-slate-500 hover:text-slate-300'}`}>
+                User Analytics
+              </button>
+              <button onClick={() => setActiveTab('safezones')} className={`flex-1 py-4 text-xs font-black uppercase tracking-widest transition-colors ${activeTab === 'safezones' ? 'bg-green-600/20 text-green-400 border-b-2 border-green-500' : 'text-slate-500 hover:text-slate-300'}`}>
+                Manajemen Titik Aman
+              </button>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <tbody className="divide-y divide-slate-800/50 text-xs">
-                  {users?.filter(u => u?.name?.toLowerCase().includes(searchTerm.toLowerCase())).map((user) => (
-                    <tr key={user.id} className="hover:bg-white/[0.02] transition-all">
-                      <td className="p-6 font-bold">{user.name}</td>
-                      <td className="p-6"><span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase ${user.status === 'Butuh Evakuasi' ? 'bg-red-600 text-white' : 'bg-green-600/20 text-green-500 border border-green-500/30'}`}>{user.status}</span></td>
-                      <td className="p-6 text-right">
-                        {user.pos && (
-                          <a href={`https://maps.google.com/?q=${user.pos[0]},${user.pos[1]}`} target="_blank" rel="noopener noreferrer" className="bg-blue-600 px-4 py-2 rounded-xl text-[9px] font-black uppercase inline-block">Lacak</a>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+
+            {activeTab === 'users' ? (
+              <>
+                <div className="p-8 border-b border-slate-800 flex justify-between items-center">
+                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Live User Analytics</h3>
+                  <input type="text" placeholder="Cari User..." className="bg-slate-950 border border-slate-700 rounded-2xl py-2 px-4 text-xs text-white outline-none" onChange={(e) => setSearchTerm(e.target.value)} />
+                </div>
+                <div className="overflow-x-auto flex-1 h-[500px] overflow-y-auto custom-scrollbar">
+                  <table className="w-full text-left">
+                    <tbody className="divide-y divide-slate-800/50 text-xs">
+                      {users?.filter(u => u?.name?.toLowerCase().includes(searchTerm.toLowerCase())).map((user) => (
+                        <tr key={user.id} className="hover:bg-white/[0.02] transition-all">
+                          <td className="p-6 font-bold">{user.name}</td>
+                          <td className="p-6"><span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase ${user.status === 'Butuh Evakuasi' ? 'bg-red-600 text-white' : 'bg-green-600/20 text-green-500 border border-green-500/30'}`}>{user.status}</span></td>
+                          <td className="p-6 text-right">
+                            {user.pos && (
+                              <a href={`https://maps.google.com/?q=${user.pos[0]},${user.pos[1]}`} target="_blank" rel="noopener noreferrer" className="bg-blue-600 px-4 py-2 rounded-xl text-[9px] font-black uppercase inline-block">Lacak</a>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            ) : (
+              <div className="h-full">
+                <SafeZoneManager />
+              </div>
+            )}
           </div>
         </div>
       </div>
