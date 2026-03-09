@@ -292,21 +292,29 @@ const App = () => {
           if (change.type === "added") {
             const broadcast = change.doc.data();
 
-            // Periksa jika broadcast baru saja ditambahkan (bukan data lama dari local cache/fetch awal)
-            // Asumsi: Jika waktu serverTimestamp belum ada (null/pending), ini adalah data baru yang di-trigger lokal.
-            // Atau jika timestamp ada, kita bisa cek apakah ia baru terjadi dalam 1 menit terakhir.
+            // Pengecualian khusus simulasi demo untuk presentasi
+            // Agar selalu tampil berapapun delay server / jarak palsu
+            if (broadcast.source === 'Dummy System') {
+              const distanceXY = broadcast.position && userLocation ? calculateDistance(
+                userLocation[0], userLocation[1],
+                broadcast.position[0], broadcast.position[1]
+              ) : 5.0; // dummy distance
+
+              setLatestBroadcast({ ...broadcast, distance: distanceXY });
+              return;
+            }
+
+            // Normal Flow
             const isRecent = broadcast.timestamp
               ? (Date.now() - broadcast.timestamp.toMillis() < 60000)
               : true;
 
             if (isRecent && broadcast.position && userLocation) {
-              // Hitung jarak (Haversine)
               const distance = calculateDistance(
                 userLocation[0], userLocation[1],
                 broadcast.position[0], broadcast.position[1]
               );
 
-              // Jika jarak kurang dari 100 KM (dapat disesuaikan)
               if (distance <= 100) {
                 setLatestBroadcast({ ...broadcast, distance });
               }
