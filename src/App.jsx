@@ -245,6 +245,25 @@ const App = () => {
       } catch (e) {
         console.error("Gagal update status SOS:", e);
       }
+
+      // --- TAMBAHAN DUMMY TEST UNTUK BROADCASTING ---
+      setReports((prevReports) => {
+        // Cek agar tidak terjadi duplikasi dummy data
+        if (prevReports.some(r => r.source === 'Dummy System')) return prevReports;
+
+        const dummyDisaster = {
+          source: 'Dummy System',
+          type: 'BENCANA SIMULASI (TESTING PITCH)',
+          loc: 'Koordinat Mendekati Posisi Anda',
+          // Geser koordinat sedikit (sekitar 1-2km)
+          position: [userLocation[0] + 0.01, userLocation[1] + 0.01],
+          desc: 'Ini adalah data simulasi khusus demo. Bencana dummy ini berada di dalam radius bahaya dari posisi spesifik pengguna saat ini untuk dapat memicu munculnya Warning Layar Kuning ketika diklik Eksekusi Broadcast oleh pihak Otoritas/Admin.',
+          statusColor: 'bg-yellow-500'
+        };
+
+        return [dummyDisaster, ...prevReports];
+      });
+      // ----------------------------------------------
     }
   }, [isSOSActive, userLocation]);
 
@@ -458,6 +477,9 @@ const App = () => {
       {/* TAMPILAN BROADCAST DINAMIS (OVERLAY) */}
       {latestBroadcast && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          {/* HTML5 Audio API to play alarm automatically */}
+          <audio autoPlay loop src="https://assets.mixkit.co/active_storage/sfx/995/995-preview.mp3" />
+
           <div className="max-w-2xl w-full mx-auto bg-[#FFFF00] border-[8px] border-black rounded-3xl overflow-hidden shadow-[0_0_100px_rgba(255,255,0,0.4)] font-sans text-black animate-pulse-slow">
             <div className="p-6 md:p-10">
               <div className="flex items-start gap-6 mb-8">
