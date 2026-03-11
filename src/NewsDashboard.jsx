@@ -70,6 +70,17 @@ const NewsDashboard = () => {
         setLoading(true);
         setError(null);
         try {
+            // 0. Cek Cache Berita (Durasi 15 menit = 900.000 ms) agar hemat kuota GNews
+            const cachedNews = localStorage.getItem('safetana_news_cache');
+            const lastFetch = localStorage.getItem('safetana_news_time');
+            const now = new Date().getTime();
+
+            if (cachedNews && lastFetch && (now - parseInt(lastFetch, 10)) < 900000) {
+                setNews(JSON.parse(cachedNews));
+                setLoading(false);
+                return; // Hentikan eksekusi dan gunakan cache saja
+            }
+
             // Menggunakan GNews API gratis. Ganti dengan key Anda jika ingin live, fallback ke mock jika tidak ada key atau error.
             const API_KEY = import.meta.env.VITE_NEWS_API_KEY;
 
@@ -109,6 +120,9 @@ const NewsDashboard = () => {
 
             if (data.articles && data.articles.length > 0) {
                 setNews(data.articles);
+                // 3. Simpan memori respon ke cache browser
+                localStorage.setItem('safetana_news_cache', JSON.stringify(data.articles));
+                localStorage.setItem('safetana_news_time', now.toString());
             } else {
                 throw new Error("Tidak ada berita ditemukan dari API.");
             }
@@ -141,24 +155,24 @@ const NewsDashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#020617] text-slate-200 font-sans p-4 lg:p-8">
+        <div className="min-h-screen bg-slate-100 dark:bg-[#020617] text-slate-900 dark:text-slate-200 font-sans p-4 lg:p-8 transition-colors duration-300">
             {/* Header / Navigasi Atas */}
-            <nav className="max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0 mt-4 md:mt-0 mb-6 md:mb-10 pb-6 border-b border-slate-800">
+            <nav className="max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0 mt-4 md:mt-0 mb-6 md:mb-10 pb-6 border-b border-slate-200 dark:border-slate-800 transition-colors duration-300">
                 <button
                     onClick={() => navigate('/')}
-                    className="flex md:self-auto self-start items-center gap-2 text-slate-400 hover:text-white transition-colors group"
+                    className="flex md:self-auto self-start items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors group"
                 >
-                    <div className="bg-slate-800 p-2 rounded-xl group-hover:bg-slate-700 transition">
+                    <div className="bg-white dark:bg-slate-800 p-2 rounded-xl group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition shadow-sm dark:shadow-none border border-slate-200 dark:border-transparent">
                         <ChevronLeft size={20} />
                     </div>
                 </button>
 
                 <div className="flex flex-col md:flex-row items-center gap-3 text-center md:text-left">
-                    <div className="bg-blue-600/20 p-2.5 rounded-xl border border-blue-600/30">
-                        <Newspaper size={24} className="text-blue-500" />
+                    <div className="bg-blue-100 dark:bg-blue-600/20 p-2.5 rounded-xl border border-blue-200 dark:border-blue-600/30">
+                        <Newspaper size={24} className="text-blue-600 dark:text-blue-500" />
                     </div>
                     <div>
-                        <h1 className="font-black text-xl md:text-2xl text-white uppercase tracking-tighter leading-none">Pusat Berita <span className="text-blue-500">Bencana</span></h1>
+                        <h1 className="font-black text-xl md:text-2xl text-slate-900 dark:text-white uppercase tracking-tighter leading-none transition-colors duration-300">Pusat Berita <span className="text-blue-600 dark:text-blue-500">Bencana</span></h1>
                         <p className="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Update Terkini Wilayah Indonesia</p>
                     </div>
                 </div>
@@ -172,22 +186,22 @@ const NewsDashboard = () => {
 
                 {/* Banner Alert jika error */}
                 {error && (
-                    <div className="bg-red-950/40 border border-red-900/50 p-4 rounded-2xl flex items-start gap-4 mb-8">
+                    <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 p-4 rounded-2xl flex items-start gap-4 mb-8">
                         <AlertCircle size={24} className="text-red-500 shrink-0 mt-0.5" />
                         <div>
-                            <h4 className="font-black text-white uppercase tracking-tight text-sm">Peringatan Koneksi</h4>
-                            <p className="text-slate-400 text-xs font-medium mt-1">{error}</p>
+                            <h4 className="font-black text-slate-900 dark:text-white uppercase tracking-tight text-sm">Peringatan Koneksi</h4>
+                            <p className="text-slate-600 dark:text-slate-400 text-xs font-medium mt-1">{error}</p>
                         </div>
-                        <button onClick={fetchNews} className="ml-auto bg-slate-800 hover:bg-slate-700 p-2 rounded-xl text-white transition flex items-center gap-2 text-xs font-bold uppercase">
+                        <button onClick={fetchNews} className="ml-auto bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded-xl text-slate-900 dark:text-white transition flex items-center gap-2 text-xs font-bold uppercase border border-slate-200 dark:border-transparent shadow-sm dark:shadow-none">
                             <RefreshCw size={14} className={loading ? "animate-spin" : ""} /> Coba Lagi
                         </button>
                     </div>
                 )}
 
                 <div className="flex justify-between items-end mb-6">
-                    <h2 className="text-xl font-black text-white uppercase tracking-widest flex items-center gap-2">
+                    <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2 transition-colors duration-300">
                         Sorotan Terkini
-                        {loading && <RefreshCw size={16} className="text-blue-500 animate-spin" />}
+                        {loading && <RefreshCw size={16} className="text-blue-600 dark:text-blue-500 animate-spin" />}
                     </h2>
                 </div>
 
@@ -196,13 +210,13 @@ const NewsDashboard = () => {
                     {loading && !news.length ? (
                         // Skeleton Loading Cards
                         [...Array(8)].map((_, i) => (
-                            <div key={i} className="bg-slate-900/50 rounded-3xl border border-slate-800 overflow-hidden min-h-[400px] flex flex-col p-2 animate-pulse">
-                                <div className="w-full h-48 bg-slate-800/80 rounded-2xl mb-4" />
+                            <div key={i} className="bg-white dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden min-h-[400px] flex flex-col p-2 animate-pulse shadow-sm dark:shadow-none">
+                                <div className="w-full h-48 bg-slate-200 dark:bg-slate-800/80 rounded-2xl mb-4" />
                                 <div className="p-4 flex-1 flex flex-col gap-3">
-                                    <div className="w-24 h-4 bg-slate-800 rounded-lg" />
-                                    <div className="w-full h-6 bg-slate-800 rounded-lg" />
-                                    <div className="w-3/4 h-6 bg-slate-800 rounded-lg" />
-                                    <div className="w-full h-16 bg-slate-800 rounded-lg mt-auto" />
+                                    <div className="w-24 h-4 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+                                    <div className="w-full h-6 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+                                    <div className="w-3/4 h-6 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+                                    <div className="w-full h-16 bg-slate-200 dark:bg-slate-800 rounded-lg mt-auto" />
                                 </div>
                             </div>
                         ))
@@ -217,7 +231,7 @@ const NewsDashboard = () => {
                                     href={item.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="group bg-slate-900/40 hover:bg-slate-800/60 rounded-[2rem] border border-slate-800 hover:border-blue-500/50 overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_40px_-15px_rgba(59,130,246,0.2)] p-2"
+                                    className="group bg-white dark:bg-slate-900/40 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-[2rem] border border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-500/50 overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-[0_10px_40px_-15px_rgba(59,130,246,0.2)] p-2 shadow-sm dark:shadow-none"
                                 >
                                     <div className="relative w-full h-52 rounded-tl-[1.5rem] rounded-tr-[1.5rem] overflow-hidden">
                                         <img
@@ -228,35 +242,35 @@ const NewsDashboard = () => {
                                                 e.target.src = "https://images.unsplash.com/photo-1542159670-ef1d7ad795b8?auto=format&fit=crop&q=80&w=800"; // Fallback image if broken
                                             }}
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent dark:from-[#020617] dark:via-transparent dark:to-transparent" />
 
                                         {/* Badge Tipe Bencana */}
-                                        <div className={`absolute top-3 left-3 px-3 py-1.5 rounded-xl font-black text-[10px] uppercase tracking-widest border backdrop-blur-md ${tag.bg} ${tag.color} border-current border-opacity-30 flex items-center gap-1.5`}>
+                                        <div className={`absolute top-3 left-3 px-3 py-1.5 rounded-xl font-black text-[10px] uppercase tracking-widest border backdrop-blur-md ${tag.bg} ${tag.color} border-current border-opacity-30 dark:border-opacity-30 flex items-center gap-1.5`}>
                                             {item.icon || <AlertCircle size={12} />}
                                             {item.type || tag.type}
                                         </div>
 
                                         {/* Badge Sumber */}
-                                        <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center text-xs font-bold text-white z-10">
-                                            <span className="bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10">{item.source.name}</span>
+                                        <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center text-xs font-bold text-slate-800 dark:text-white z-10">
+                                            <span className="bg-white/80 dark:bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/10">{item.source.name}</span>
                                         </div>
                                     </div>
 
-                                    <div className="p-5 flex-1 flex flex-col bg-gradient-to-b from-[#020617]/50 to-transparent rounded-bl-[1.5rem] rounded-br-[1.5rem]">
+                                    <div className="p-5 flex-1 flex flex-col bg-gradient-to-b from-slate-50 to-white dark:from-[#020617]/50 dark:to-transparent rounded-bl-[1.5rem] rounded-br-[1.5rem]">
                                         <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-3">
                                             <Calendar size={12} />
                                             {formatDate(item.publishedAt)}
                                         </div>
 
-                                        <h3 className="text-base font-black text-white leading-snug mb-3 group-hover:text-blue-400 transition-colors line-clamp-2">
+                                        <h3 className="text-base font-black text-slate-900 dark:text-white leading-snug mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
                                             {item.title}
                                         </h3>
 
-                                        <p className="text-xs text-slate-400 leading-relaxed font-medium line-clamp-3 mb-5 flex-1">
+                                        <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium line-clamp-3 mb-5 flex-1">
                                             {item.description}
                                         </p>
 
-                                        <div className="mt-auto pt-4 border-t border-slate-800/80 flex items-center justify-between text-blue-500 font-bold uppercase tracking-widest text-[10px]">
+                                        <div className="mt-auto pt-4 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-blue-600 dark:text-blue-500 font-bold uppercase tracking-widest text-[10px]">
                                             BACA SELENGKAPNYA
                                             <ExternalLink size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                                         </div>

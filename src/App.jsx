@@ -3,7 +3,7 @@ import { Routes, Route, useNavigate } from 'react-router-dom';
 import {
   AlertTriangle, Activity, ShieldCheck, Navigation,
   MessageSquare, Globe, Waves, MapPin, LayoutDashboard,
-  Info, Radio, BookOpen, ChevronRight, Newspaper
+  Info, Radio, BookOpen, ChevronRight, Newspaper, Sun, Moon
 } from 'lucide-react';
 
 // Integrasi Komponen
@@ -23,6 +23,27 @@ import { calculateDistance, reverseGeocode } from './utils/geoUtils';
 const App = () => {
   const navigate = useNavigate();
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+
+  // --- THEME STATE ---
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    // Check local storage 
+    const savedTheme = localStorage.getItem('safetana_theme');
+    if (savedTheme) {
+      return savedTheme === 'dark';
+    }
+    return false; // Default ke mode terang secara paksa
+  });
+
+  // Apply theme to document element
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('safetana_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('safetana_theme', 'light');
+    }
+  }, [isDarkMode]);
 
   // --- STATES NAVIGASI ---
   const [showEducation, setShowEducation] = useState(true);
@@ -44,11 +65,24 @@ const App = () => {
   const fetchHazards = async () => {
     // 0. Cek Cache LocalStorage
     const cachedReports = localStorage.getItem('safetana_reports_cache');
-    if (cachedReports) {
+    const lastFetchTime = localStorage.getItem('safetana_last_fetch_time');
+    const now = new Date().getTime();
+
+    // Jika waktu fetch terakhir kurang dari 5 menit (300000 ms), gunakan cache saja agar hemat kuota API
+    if (cachedReports && lastFetchTime && (now - parseInt(lastFetchTime, 10)) < 300000) {
+      try {
+        setReports(JSON.parse(cachedReports));
+        setLoading(false);
+        return; // Hentikan eksekusi, mencegah fetch API sama sekali
+      } catch (e) {
+        console.error("Gagal membaca cache:", e);
+      }
+    } else if (cachedReports) {
+      // Jika sudah lebih dari 5 menit, tampilkan cache sementara menunggu fetch selesai
       try {
         setReports(JSON.parse(cachedReports));
       } catch (e) {
-        console.error("Gagal membaca cache:", e);
+        console.error("Gagal membaca cache lama:", e);
       }
     } else {
       setLoading(true); // Hanya tampilkan loading penuh jika tidak ada cache sama sekali
@@ -327,6 +361,27 @@ const App = () => {
     return () => unsubscribe();
   }, [userLocation]);
 
+  // --- EFEK TEXT-TO-SPEECH (TTS) UNTUK BROADCAST ---
+  useEffect(() => {
+    if (latestBroadcast) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel(); // Hentikan suara yang sedang berjalan
+        
+        const textToRead = `Peringatan Bahaya Darurat. ${latestBroadcast.type} terdeteksi. ${latestBroadcast.desc}. Jarak sekitar ${latestBroadcast.distance.toFixed(1)} kilometer. Segera cari tempat aman!`;
+        const utterance = new SpeechSynthesisUtterance(textToRead);
+        utterance.lang = 'id-ID';
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+        
+        window.speechSynthesis.speak(utterance);
+      }
+    } else {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    }
+  }, [latestBroadcast]);
+
   const MainContent = (
     <>
       {/* 1. LAYER ONBOARDING / EDUKASI */}
@@ -337,22 +392,42 @@ const App = () => {
       {/* 2. DASHBOARD UTAMA */}
       {!showEducation && (
         <>
-          <nav className="border-b border-slate-800 p-4 sticky top-0 z-[50] bg-[#020617]/95 backdrop-blur-md flex justify-between items-center shadow-2xl">
+          <nav className="border-b border-slate-200 dark:border-slate-800 p-4 sticky top-0 z-[50] bg-white/95 dark:bg-[#020617]/95 backdrop-blur-md flex justify-between items-center shadow-md dark:shadow-2xl transition-colors duration-300">
             <div className="flex items-center gap-4">
               <div className="bg-white p-1 rounded-2xl shadow-lg h-10 w-10 flex items-center justify-center overflow-hidden">
                 <img src="/logo.png" alt="SafeTana AI Logo" className="w-full h-full object-contain" />
               </div>
-              <h1 className="font-black text-xl text-white uppercase tracking-tighter leading-none">SafeTana <span className="text-red-500">AI</span></h1>
+              <h1 className="font-black text-xl text-slate-900 dark:text-white uppercase tracking-tighter leading-none transition-colors duration-300">SafeTana <span className="text-red-500">AI</span></h1>
             </div>
-            <div className="flex gap-3 text-white">
-              <button onClick={() => navigate('/news')} className="p-2.5 bg-slate-800 rounded-xl hover:text-white transition shadow-lg group relative" title="Pusat Berita">
-                <Newspaper size={20} className="group-hover:text-blue-400 transition-colors" />
-                <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-black text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Berita</span>
+            <div className="flex gap-2 lg:gap-3 text-slate-700 dark:text-white transition-colors duration-300">
+              <button 
+                onClick={() => setIsDarkMode(!isDarkMode)} 
+                className="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition shadow-sm dark:shadow-lg" 
+                aria-label={isDarkMode ? "Beralih ke Mode Terang" : "Beralih ke Mode Gelap"}
+              >
+                {isDarkMode ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} className="text-indigo-600" />}
               </button>
-              <button onClick={() => setShowEducation(true)} className="p-2.5 bg-slate-800 rounded-xl hover:text-white transition shadow-lg">
+              <button 
+                onClick={() => navigate('/news')} 
+                className="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:text-white rounded-xl transition shadow-sm dark:shadow-lg group relative" 
+                title="Pusat Berita" 
+                aria-label="Buka Pusat Berita"
+              >
+                <Newspaper size={20} className="group-hover:text-blue-500 transition-colors" />
+                <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-black text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity text-white">Berita</span>
+              </button>
+              <button 
+                onClick={() => setShowEducation(true)} 
+                className="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:text-white rounded-xl transition shadow-sm dark:shadow-lg" 
+                aria-label="Buka Modul Edukasi Bencana"
+              >
                 <BookOpen size={20} />
               </button>
-              <button onClick={() => navigate('/safetana-admin')} className="p-2.5 bg-slate-800 rounded-xl hover:text-white transition shadow-lg">
+              <button 
+                onClick={() => navigate('/safetana-admin')} 
+                className="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:text-white rounded-xl transition shadow-sm dark:shadow-lg" 
+                aria-label="Buka Dashboard Admin"
+              >
                 <LayoutDashboard size={20} />
               </button>
             </div>
@@ -375,19 +450,27 @@ const App = () => {
             {/* PANEL SIDEBAR */}
             <div className="lg:col-span-4 space-y-6 flex flex-col h-auto lg:h-[650px] order-2 lg:order-none">
               <div className="grid grid-cols-2 gap-4">
-                <button onClick={() => { setIsSOSActive(true); setShowChat(true); }} className="p-5 lg:p-7 bg-red-600 rounded-[2rem] lg:rounded-[2.5rem] flex flex-col items-center animate-pulse shadow-xl active:scale-95 transition-transform">
+                <button 
+                  onClick={() => { setIsSOSActive(true); setShowChat(true); }} 
+                  className="p-5 lg:p-7 bg-red-600 rounded-[2rem] lg:rounded-[2.5rem] flex flex-col items-center animate-pulse shadow-xl active:scale-95 transition-transform" 
+                  aria-label="Tombol Darurat SOS"
+                >
                   <AlertTriangle size={28} className="text-white mb-2 lg:w-8 lg:h-8" />
                   <span className="text-[10px] lg:text-[11px] font-black uppercase text-white tracking-widest">SOS</span>
                 </button>
-                <button onClick={() => setShowSafeZones(!showSafeZones)} className={`p-5 lg:p-7 rounded-[2rem] lg:rounded-[2.5rem] flex flex-col items-center ${showSafeZones ? 'bg-green-600' : 'bg-blue-600'} shadow-xl transition-all active:scale-95`}>
+                <button 
+                  onClick={() => setShowSafeZones(!showSafeZones)} 
+                  className={`p-5 lg:p-7 rounded-[2rem] lg:rounded-[2.5rem] flex flex-col items-center ${showSafeZones ? 'bg-green-600' : 'bg-blue-600'} shadow-xl transition-all active:scale-95`} 
+                  aria-label={showSafeZones ? "Tampilkan Peta Bencana" : "Tampilkan Titik Evakuasi Aman"}
+                >
                   <Navigation size={28} className="text-white mb-2 lg:w-8 lg:h-8" />
                   <span className="text-[10px] lg:text-[11px] font-black uppercase text-white tracking-widest text-center">{showSafeZones ? "Peta Bencana" : "Titik Aman"}</span>
                 </button>
               </div>
 
-              <div className="bg-slate-900/40 rounded-[2.5rem] lg:rounded-[3rem] border border-slate-800 p-6 lg:p-8 flex-1 flex flex-col overflow-hidden shadow-inner relative min-h-[400px] lg:min-h-0">
-                <header className="flex justify-between items-center mb-5 lg:mb-6 border-b border-slate-800 pb-4 shrink-0">
-                  <h3 className="text-[10px] lg:text-[11px] font-black uppercase tracking-[0.2em] lg:tracking-[0.3em] text-slate-500">
+              <div className="bg-slate-50 dark:bg-slate-900/40 rounded-[2.5rem] lg:rounded-[3rem] border border-slate-200 dark:border-slate-800 p-6 lg:p-8 flex-1 flex flex-col overflow-hidden shadow-inner relative min-h-[400px] lg:min-h-0 transition-colors duration-300">
+                <header className="flex justify-between items-center mb-5 lg:mb-6 border-b border-slate-200 dark:border-slate-800 pb-4 shrink-0 transition-colors duration-300">
+                  <h3 className="text-[10px] lg:text-[11px] font-black uppercase tracking-[0.2em] lg:tracking-[0.3em] text-slate-500 dark:text-slate-500">
                     {showSafeZones ? "TITIK EVAKUASI BANDUNG" : "UPDATE BENCANA TERKINI"}
                   </h3>
                 </header>
@@ -396,7 +479,7 @@ const App = () => {
                   {loading ? (
                     <div className="flex flex-col items-center justify-center h-full opacity-50">
                       <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
-                      <p className="text-[10px] font-black uppercase tracking-widest text-white">Sinkronisasi...</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white">Sinkronisasi...</p>
                     </div>
                   ) : (
                     <>
@@ -405,20 +488,20 @@ const App = () => {
                           <div
                             key={zone.id}
                             onClick={() => setSelectedReportPosition(zone.position)}
-                            className="p-5 bg-green-950/20 rounded-[2.5rem] border border-green-900/30 hover:border-green-500 transition-all cursor-pointer group mb-2"
+                            className="p-5 bg-green-50 dark:bg-green-950/20 rounded-[2.5rem] border border-green-200 dark:border-green-900/30 hover:border-green-500 dark:hover:border-green-500 transition-all cursor-pointer group mb-2"
                           >
                             {/* ... bagian header kartu ... */}
-                            <h4 className="text-sm font-bold text-white leading-tight">{zone.name}</h4>
-                            <p className="text-[9px] text-slate-400 mt-1 uppercase font-bold tracking-tighter">{zone.addr}</p>
+                            <h4 className="text-sm font-bold text-slate-900 dark:text-white leading-tight">{zone.name}</h4>
+                            <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-1 uppercase font-bold tracking-tighter">{zone.addr}</p>
 
                             <div className="mt-4 grid grid-cols-2 gap-2">
-                              <div className="bg-slate-950 p-2 rounded-xl text-[8px] border border-slate-800">
-                                <p className="text-slate-500 font-black uppercase mb-1">Fas. Medis</p>
-                                <p className="font-bold text-slate-300">{zone.faskes}</p> {/* Menampilkan data faskes */}
+                              <div className="bg-white dark:bg-slate-950 p-2 rounded-xl text-[8px] border border-slate-200 dark:border-slate-800">
+                                <p className="text-slate-500 dark:text-slate-500 font-black uppercase mb-1">Fas. Medis</p>
+                                <p className="font-bold text-slate-700 dark:text-slate-300">{zone.faskes}</p> {/* Menampilkan data faskes */}
                               </div>
-                              <div className="bg-slate-950 p-2 rounded-xl text-[8px] border border-slate-800">
-                                <p className="text-slate-500 font-black uppercase mb-1">Status</p>
-                                <p className="font-bold text-green-400">Siaga Aman</p>
+                              <div className="bg-white dark:bg-slate-950 p-2 rounded-xl text-[8px] border border-slate-200 dark:border-slate-800">
+                                <p className="text-slate-500 dark:text-slate-500 font-black uppercase mb-1">Status</p>
+                                <p className="font-bold text-green-600 dark:text-green-400">Siaga Aman</p>
                               </div>
                             </div>
                             {/* ... bagian footer kartu ... */}
@@ -430,34 +513,34 @@ const App = () => {
                           <div
                             key={i}
                             onClick={() => setSelectedReportPosition(r.position)}
-                            className="p-5 bg-slate-800/20 rounded-[2.5rem] border border-slate-800 hover:border-blue-500 transition-all cursor-pointer group relative overflow-hidden"
+                            className="p-5 bg-white xl:bg-white dark:bg-slate-800/20 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 hover:border-blue-500 dark:hover:border-blue-500 transition-all cursor-pointer group relative overflow-hidden shadow-sm dark:shadow-none"
                           >
                             <div className="flex justify-between items-center mb-3">
-                              <span className="text-[8px] font-black text-blue-500 uppercase tracking-widest bg-blue-500/10 px-3 py-1 rounded-full">{r.source}</span>
+                              <span className="text-[8px] font-black text-blue-600 dark:text-blue-500 uppercase tracking-widest bg-blue-100 dark:bg-blue-500/10 px-3 py-1 rounded-full">{r.source}</span>
                               <div className={`w-2 h-2 rounded-full ${r.statusColor} animate-pulse`} />
                             </div>
-                            <h4 className="text-sm font-black text-white group-hover:text-blue-400 transition uppercase tracking-tighter">{r.type}</h4>
-                            <p className="text-[10px] text-slate-400 mt-1 font-bold italic">{r.loc}</p>
+                            <h4 className="text-sm font-black text-slate-900 dark:text-white group-hover:text-blue-500 dark:group-hover:text-blue-400 transition uppercase tracking-tighter">{r.type}</h4>
+                            <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 font-bold italic">{r.loc}</p>
 
                             <div className="mt-4 grid grid-cols-2 gap-2">
-                              <div className="bg-slate-950/50 p-3 rounded-2xl border border-slate-800/50">
-                                <p className="text-[7px] font-black text-slate-500 uppercase mb-1">Koordinat</p>
-                                <p className="text-[9px] font-bold text-slate-300">
+                              <div className="bg-slate-50 dark:bg-slate-950/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-800/50">
+                                <p className="text-[7px] font-black text-slate-400 dark:text-slate-500 uppercase mb-1">Koordinat</p>
+                                <p className="text-[9px] font-bold text-slate-700 dark:text-slate-300">
                                   {r.position[0].toFixed(2)}, {r.position[1].toFixed(2)}
                                 </p>
                               </div>
-                              <div className="bg-slate-950/50 p-3 rounded-2xl border border-slate-800/50">
-                                <p className="text-[7px] font-black text-slate-500 uppercase mb-1">Keterangan</p>
-                                <p className="text-[9px] font-bold text-blue-400 uppercase">Pantauan</p>
+                              <div className="bg-slate-50 dark:bg-slate-950/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-800/50">
+                                <p className="text-[7px] font-black text-slate-400 dark:text-slate-500 uppercase mb-1">Keterangan</p>
+                                <p className="text-[9px] font-bold text-blue-600 dark:text-blue-400 uppercase">Pantauan</p>
                               </div>
                             </div>
 
-                            <div className="mt-3 pt-3 border-t border-slate-800/50 flex justify-between items-center">
-                              <div className="flex items-center gap-2 text-slate-500">
+                            <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/50 flex justify-between items-center">
+                              <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500">
                                 <MapPin size={10} />
                                 <span className="text-[8px] font-black uppercase tracking-widest">Fokus Lokasi</span>
                               </div>
-                              <ChevronRight size={14} className="text-slate-700 group-hover:text-blue-500 transition" />
+                              <ChevronRight size={14} className="text-slate-400 dark:text-slate-700 group-hover:text-blue-500 transition" />
                             </div>
                           </div>
                         ))
@@ -467,7 +550,11 @@ const App = () => {
                 </div>
               </div>
 
-              <button onClick={() => setShowChat(true)} className="group w-full bg-white hover:bg-slate-200 text-slate-950 p-4 lg:p-6 rounded-[2rem] lg:rounded-[2.5rem] font-black text-[10px] lg:text-[12px] uppercase tracking-[0.2em] lg:tracking-[0.3em] flex items-center justify-center gap-2 lg:gap-3 shadow-2xl transition-all active:scale-95 shrink-0 mt-auto">
+              <button 
+                onClick={() => setShowChat(true)} 
+                className="group w-full bg-slate-900 text-white dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-200 dark:text-slate-950 p-4 lg:p-6 rounded-[2rem] lg:rounded-[2.5rem] font-black text-[10px] lg:text-[12px] uppercase tracking-[0.2em] lg:tracking-[0.3em] flex items-center justify-center gap-2 lg:gap-3 shadow-xl dark:shadow-2xl transition-all active:scale-95 shrink-0 mt-auto" 
+                aria-label="Buka Asisten AI SafeTana"
+              >
                 <MessageSquare size={18} className="lg:w-5 lg:h-5" /> ASISTEN AI SAFETANA
               </button>
             </div>
@@ -481,14 +568,18 @@ const App = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-200 font-sans">
+    <div className="min-h-screen bg-slate-100 dark:bg-[#020617] text-slate-900 dark:text-slate-200 font-sans transition-colors duration-300">
       {/* TAMPILAN BROADCAST DINAMIS (OVERLAY) */}
       {latestBroadcast && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           {/* HTML5 Audio API to play alarm automatically */}
           <audio autoPlay loop src="https://assets.mixkit.co/active_storage/sfx/995/995-preview.mp3" />
 
-          <div className="max-w-2xl w-full mx-auto bg-[#FFFF00] border-[8px] border-black rounded-3xl overflow-hidden shadow-[0_0_100px_rgba(255,255,0,0.4)] font-sans text-black animate-pulse-slow">
+          <div 
+            role="alert" 
+            aria-live="assertive"
+            className="max-w-2xl w-full mx-auto bg-[#FFFF00] border-[8px] border-black rounded-3xl overflow-hidden shadow-[0_0_100px_rgba(255,255,0,0.4)] font-sans text-black animate-pulse-slow"
+          >
             <div className="p-6 md:p-10">
               <div className="flex items-start gap-6 mb-8">
                 <div className="w-24 h-24 bg-black flex items-center justify-center rounded-2xl shrink-0">

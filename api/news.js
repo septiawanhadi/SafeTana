@@ -37,6 +37,10 @@ export default async function handler(request, response) {
 
         const data = await apiResponse.json();
 
+        // Tambahkan header caching Vercel Network Edge (Vercel Cache) sebelum merespon (Maksimal 30 Menit)
+        // Ini akan sangat menghemat GNews API. Ratusan pengguna tidak akan membuat ratusan request, melainkan 1 request per setengah jam!
+        response.setHeader('Cache-Control', 's-maxage=1800, stale-while-revalidate=86400');
+
         // Kirim respons kembali ke aplikasi React/Vite
         return response.status(200).json(data);
     } catch (error) {
