@@ -17,8 +17,8 @@ import { maskName, maskPhone } from './securityUtils';
 import { db } from './firebase';
 import { doc, setDoc, serverTimestamp, collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 import { calculateDistance, reverseGeocode } from './utils/geoUtils';
-
-
+import { bandungSafeZones } from './data/safeZones';
+import { kabBandungSafeZones } from './data/kabBandungSafeZones';
 
 const App = () => {
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ const App = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showSafeZones, setShowSafeZones] = useState(false);
-  const [safeZones, setSafeZones] = useState([]); // State for safe zones from Firestore
+  const [safeZones, setSafeZones] = useState([...bandungSafeZones, ...kabBandungSafeZones]);
   const [selectedReportPosition, setSelectedReportPosition] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [isSOSActive, setIsSOSActive] = useState(false);
@@ -300,19 +300,6 @@ const App = () => {
       // ----------------------------------------------
     }
   }, [isSOSActive, userLocation]);
-
-  // --- LISTENER SAFE ZONES ---
-  useEffect(() => {
-    const q = query(collection(db, 'safe_zones')); // Fetch all without order or limit for now
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const zones = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setSafeZones(zones);
-    });
-    return () => unsubscribe();
-  }, []);
 
   // --- LISTENER BROADCAST FIRESTORE ---
   useEffect(() => {
