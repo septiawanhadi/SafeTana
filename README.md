@@ -9,21 +9,24 @@ SafeTana AI adalah platform progresif yang dirancang untuk memperkuat resiliensi
 
 ## ✨ Fitur Utama
 
-### 🤖 AI Early Detection Engine (Spatial Threat Matrix)
-SafeTana mengintegrasikan **Gemini AI** untuk memahami risiko bencana di lokasi Anda. Chatbot kami tidak hanya sekadar menjawab pertanyaan, tetapi membaca koordinat Anda dan memberikan instruksi keselamatan serta mitigasi yang instan, akurat, dan sangat relevan dengan ancaman sekitar Anda.
+### 🤖 AI Early Detection Engine & Voice Assistant (TTS)
+SafeTana mengintegrasikan **Gemini AI** untuk memahami risiko bencana di lokasi Anda secara spesifik. Chatbot cerdas kami dapat memandu evakuasi dan kini dilengkapi dengan fitur **Text-to-Speech (TTS)**—suara asisten virtual yang membacakan rute peringatan, menjadikannya ramah pengguna bagi lansia maupun difabel penglihatan.
 
 ### 📍 Live User Tracking & SOS System
 * **Anonymous Tracking**: Memantau lokasi dan status keamanan pengguna secara *real-time* tanpa mewajibkan proses login yang rumit saat terjadi keadaan darurat.
 * **Status Updates & SOS**: Pengguna dapat dengan mudah memperbarui status mereka (Aman / Butuh Evakuasi) hanya dengan satu klik.
 
-### 📡 Location-Based Broadcasting
-Dilengkapi dengan fitur **Command Center** untuk peran admin. Pihak berwenang dapat mengirimkan notifikasi darurat (broadcast) secara massal yang ditargetkan secara spesifik kepada pengguna yang berada di dalam zona bahaya (radius tertentu dari titik bencana).
+### 🗺️ Peta Bencana Live & Titik Aman (Safe Zones) Terpadu
+Visualisasi antarmuka peta interaktif 24/7 menggunakan *Leaflet* yang tidak hanya menampilkan koordinat bencana (Data BMKG, PetaBencana & GDACS), namun kini telah dilengkapi dengan **61 Titik Kumpul Evakuasi Terpadu** yang memetakan seluruh kecamatan di Kota dan Kabupaten Bandung lengkap beserta jarak spesifik ke setiap Fasilitas Kesehatan.
 
-### 🗺️ Interactive Disaster Map (Real-Time)
-Memvisualisasikan lokasi pengguna yang sedang aktif beserta status keamanan mereka (termasuk peringatan SOS) pada antarmuka peta interaktif yang disajikan menggunakan *Leaflet*.
+### 📡 Location-Based Broadcasting
+Dilengkapi dengan fitur **Command Center** untuk peran admin. Pihak berwenang dapat mengirimkan notifikasi darurat (broadcast) secara massal yang ditargetkan secara spesifik kepada pengguna yang berada di dalam zona bahaya. Peringatan *Broadcast* ini juga otomatis didukung *Voice Assistant* yang akan membacakan peringatan secara lantang dari browser!
+
+### 🌗 Aksesibilitas: Mode Gelap & Terang (Dark/Light Mode)
+Antarmuka pengguna didesain secara adaptif dengan saklar *Theme Toggle* manual beserta sistem penyimpanan histori *local*. Semua elemen *UI* (termasuk panel berita dan edukasi) dirancang elegan agar tidak menyakiti mata di malam hari dan tetap prima di bawah terik sinar matahari darurat.
 
 ### 📚 Education & News Dashboard
-Platform ini juga menyediakan portal edukasi panduan mitigasi komprehensif serta informasi berita bencana terkini, membangun kesadaran dan kesiapsiagaan masyarakat jangka panjang.
+Platform ini juga menyediakan portal edukasi panduan mitigasi komprehensif serta informasi berita bencana terkini, membangun kesadaran masyarakat jangka panjang.
 
 ## 🛠️ Tech Stack
 - **Frontend**: [React.js](https://reactjs.org/) + [Vite](https://vitejs.dev/)
