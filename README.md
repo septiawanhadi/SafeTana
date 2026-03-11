@@ -81,6 +81,6 @@ Kami sangat terbuka untuk kontribusi dalam meningkatkan algoritma deteksi dini, 
 ## 🔗 Live Demo
 Anda dapat mencoba langsung aplikasi SafeTana AI melalui tautan berikut:
 
-**https://safetana-56tx4unuc-septiis-projects.vercel.app/**
+**https://safetana.vercel.app/**
 
 **SafeTana AI - Menjaga Keselamatan Melalui Kecerdasan Data.**
