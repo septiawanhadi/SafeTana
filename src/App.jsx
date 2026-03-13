@@ -3,7 +3,7 @@ import { Routes, Route, useNavigate } from 'react-router-dom';
 import {
   AlertTriangle, Activity, ShieldCheck, Navigation,
   MessageSquare, Globe, Waves, MapPin, LayoutDashboard,
-  Info, Radio, BookOpen, ChevronRight, Newspaper, Sun, Moon
+  Info, Radio, BookOpen, ChevronRight, Newspaper, Sun, Moon, Heart
 } from 'lucide-react';
 
 // Integrasi Komponen
@@ -13,6 +13,11 @@ import CommandCenter from './CommandCenter';
 import EducationDashboard from './EducationDashboard';
 import AdminLogin from './AdminLogin';
 import NewsDashboard from './NewsDashboard';
+import HealthDashboard from './components/health/HealthDashboard';
+import HealthAuth from './components/health/HealthAuth';
+import HealthScreening from './components/health/HealthScreening';
+import MoodTracker from './components/health/MoodTracker';
+import HealthChatbot from './components/health/HealthChatbot';
 import { maskName, maskPhone } from './securityUtils';
 import { db } from './firebase';
 import { doc, setDoc, serverTimestamp, collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
@@ -411,6 +416,13 @@ const App = () => {
                 <BookOpen size={20} />
               </button>
               <button 
+                onClick={() => navigate('/health')} 
+                className="flex items-center gap-1.5 p-2.5 px-4 bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/40 dark:text-blue-400 dark:hover:bg-blue-900/60 rounded-xl transition shadow-sm font-bold text-sm tracking-wide border border-blue-200 dark:border-blue-800" 
+                aria-label="Buka Layanan Kesehatan"
+              >
+                <Heart size={18} className="animate-pulse" /> <span className="hidden sm:inline">Klinik AI</span>
+              </button>
+              <button 
                 onClick={() => navigate('/safetana-admin')} 
                 className="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:text-white rounded-xl transition shadow-sm dark:shadow-lg" 
                 aria-label="Buka Dashboard Admin"
@@ -633,6 +645,14 @@ const App = () => {
       <Routes>
         <Route path="/" element={MainContent} />
         <Route path="/news" element={<NewsDashboard />} />
+        
+        {/* SAGAHEALTH ROUTES */}
+        <Route path="/health" element={<HealthDashboard />} />
+        <Route path="/health/auth" element={<HealthAuth />} />
+        <Route path="/health/screening" element={<HealthScreening />} />
+        <Route path="/health/mood" element={<MoodTracker />} />
+        <Route path="/health/chat" element={<HealthChatbot />} />
+        
         <Route path="/safetana-admin" element={
           isAdminAuthenticated ? (
             <div className="min-h-screen bg-[#020617] w-full relative z-10">
