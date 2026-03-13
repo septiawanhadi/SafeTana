@@ -99,6 +99,6 @@ npm run dev
 ## 🤝 Kontribusi
 Kami menyambut baik inovasi maupun perbaikan _bug_ dari para kontributor. Silakan lakukan Fork pada proyek ini dan ajukan _Pull Request_.
 
-<<< ## 🔗 Live Deployments
+## 🔗 Live Deployments
 Anda dapat mecoba langsung aplikasi ini:
 **https://safetana.vercel.app/**
