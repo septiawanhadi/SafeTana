@@ -1,39 +1,60 @@
-# 🛡️ SafeTana AI
-> **"Cerdas Berbagi, Sigap Mitigasi"**
-> *Sistem Mitigasi Bencana Terintegrasi Berbasis AI & Real-Time Geospatial Data.*
+# 🛡️ SafeTana AI & Klinik AI (SagaHealth)
+> **"Cerdas Berbagi, Sigap Mitigasi, & Peduli Kesehatan"**
+> *Sistem Mitigasi Bencana Terintegrasi Berbasis AI & Platform Layanan Kesehatan Mandiri.*
 
 ---
 
 ## 📌 Tentang SafeTana AI
-SafeTana AI adalah platform progresif yang dirancang untuk memperkuat resiliensi masyarakat terhadap bencana alam. Dengan menggabungkan data real-time, pelacakan lokasi pengguna secara anonim, dan mesin kecerdasan buatan (**Gemini AI**), SafeTana memberikan deteksi dini yang hiper-lokal, strategi mitigasi yang personal, dan alat komando darurat bagi pihak berwenang.
+SafeTana AI adalah platform progresif yang dirancang untuk memperkuat resiliensi masyarakat terhadap bencana alam dan krisis kesehatan. Dengan menggabungkan pemetaan data geospasial real-time, kecerdasan buatan (**Gemini AI**), dan modul layanan medis prediktif (**Klinik AI/SagaHealth**), platform ini memberikan perlindungan menyeluruh—baik dari ancaman alam maupun risiko kesehatan personal.
 
-## ✨ Fitur Utama
+---
+
+## ✨ Fitur Utama Mitigasi Bencana (SafeTana)
 
 ### 🤖 AI Early Detection Engine & Voice Assistant (TTS)
-SafeTana mengintegrasikan **Gemini AI** untuk memahami risiko bencana di lokasi Anda secara spesifik. Chatbot cerdas kami dapat memandu evakuasi dan kini dilengkapi dengan fitur **Text-to-Speech (TTS)**—suara asisten virtual yang membacakan rute peringatan, menjadikannya ramah pengguna bagi lansia maupun difabel penglihatan.
+SafeTana mengintegrasikan **Gemini AI** untuk memahami risiko bencana di lokasi Anda secara spesifik. Chatbot cerdas kami dapat memandu evakuasi dan kini dilengkapi dengan fitur **Text-to-Speech (TTS)**—suara asisten virtual yang membacakan rute peringatan dengan lantang.
 
 ### 📍 Live User Tracking & SOS System
-* **Anonymous Tracking**: Memantau lokasi dan status keamanan pengguna secara *real-time* tanpa mewajibkan proses login yang rumit saat terjadi keadaan darurat.
-* **Status Updates & SOS**: Pengguna dapat dengan mudah memperbarui status mereka (Aman / Butuh Evakuasi) hanya dengan satu klik.
+* **Anonymous Tracking**: Memantau lokasi dan status keamanan pengguna secara *real-time* menggunakan algoritma Haversine.
+* **Status Updates & SOS**: Pengguna dapat dengan mudah memperbarui status (Aman / Butuh Evakuasi) hanya dengan satu klik.
 
-### 🗺️ Peta Bencana Live & Titik Aman (Safe Zones) Terpadu
-Visualisasi antarmuka peta interaktif 24/7 menggunakan *Leaflet* yang tidak hanya menampilkan koordinat bencana (Data BMKG, PetaBencana & GDACS), namun kini telah dilengkapi dengan **61 Titik Kumpul Evakuasi Terpadu** yang memetakan seluruh kecamatan di Kota dan Kabupaten Bandung lengkap beserta jarak spesifik ke setiap Fasilitas Kesehatan.
+### 🗺️ Peta Bencana Live & Titik Aman Terpadu
+Visualisasi peta interaktif 24/7 menggunakan *Leaflet* yang menampilkan titik bencana dari sumber terpercaya (GDACS, BMKG) beserta **61 Titik Kumpul Evakuasi Terpadu** di wilayah Bandung, lengkap beserta panduan jarak spesifik ke setiap Fasilitas Kesehatan.
 
-### 📡 Location-Based Broadcasting
-Dilengkapi dengan fitur **Command Center** untuk peran admin. Pihak berwenang dapat mengirimkan notifikasi darurat (broadcast) secara massal yang ditargetkan secara spesifik kepada pengguna yang berada di dalam zona bahaya. Peringatan *Broadcast* ini juga otomatis didukung *Voice Assistant* yang akan membacakan peringatan secara lantang dari browser!
+### 📡 Command Center & Location-Based Broadcasting
+Dashboard komando bagi pihak berwenang untuk melacak dan mengirimkan notifikasi peringatan massal (dibacakan secara otomatis via Voice Assistant) kepada korban di zona bahaya secara spesifik.
 
-### 🌗 Aksesibilitas: Mode Gelap & Terang (Dark/Light Mode)
-Antarmuka pengguna didesain secara adaptif dengan saklar *Theme Toggle* manual beserta sistem penyimpanan histori *local*. Semua elemen *UI* (termasuk panel berita dan edukasi) dirancang elegan agar tidak menyakiti mata di malam hari dan tetap prima di bawah terik sinar matahari darurat.
+---
 
-### 📚 Education & News Dashboard
-Platform ini juga menyediakan portal edukasi panduan mitigasi komprehensif serta informasi berita bencana terkini, membangun kesadaran masyarakat jangka panjang.
+## ⚕️ Fitur Utama Kesehatan (Klinik AI / SagaHealth)
+*Terintegrasi penuh di bawah rute `/health` menggunakan Firebase Authentication Tersentralisasi.*
+
+### 📋 Skrining Kesehatan Mandiri (Rule-Based Expert System)
+Sistem Penilaian Cerdas (Client-Side) yang dapat mengevaluasi kondisi pasien secara instan berdasarkan parameter medis:
+- **Kalkulasi IMT (BMI)** untuk risiko berat badan berlebih & obesitas.
+- **Deteksi Pra-Hipertensi** melalui input tekanan Sistolik/Diastolik.
+- Analisis indikasi gangguan pernapasan, riwayat penyakit keluarga, dan tingkat stres mental.
+Sistem akan langsung memberikan **Kartu Hasil Skrining dengan saran medis deterministik**.
+
+### 📊 Catatan Jurnal & Mood Tracker 30 Hari
+Layanan log psikologis harian yang didukung dengan **Dashboard Analitik Personal**:
+- Menghitung rentetan **Hari Aktif Jurnal (Streaks)**.
+- Menentukan **Emosi/Mood Dominan** dalam sebulan terakhir.
+- Memberikan skor rata-rata tingkat kebahagiaan untuk memantau fluktuasi _mental health_.
+
+### 💬 Sagabot (Health AI Assistant)
+Chatbot interaktif khusus untuk layanan kesehatan. Pengguna dapat menanyakan gejala medis umum, rekomendasi gaya hidup, atau akses darurat RS dengan antarmuka chatting yang intuitif.
+
+---
 
 ## 🛠️ Tech Stack
-- **Frontend**: [React.js](https://reactjs.org/) + [Vite](https://vitejs.dev/)
+- **Frontend**: [React.js](https://reactjs.org/) + [Vite](https://vitejs.dev/) + [React Router](https://reactrouter.com/)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Database & Backend Services**: [Firebase Firestore](https://firebase.google.com/) & Firebase Cloud Functions
-- **AI Engine**: [Google Gemini AI API](https://ai.google.dev/)
+- **Database, Auth & Backend**: [Firebase Firestore](https://firebase.google.com/) & [Firebase Authentication](https://firebase.google.com/docs/auth)
+- **AI Engine Utama**: [Google Gemini AI API](https://ai.google.dev/) (Untuk Chatbot Evaluasi Bencana)
 - **Maps**: [Leaflet.js](https://leafletjs.com/) + React Leaflet
+
+---
 
 ## 🚀 Instalasi & Pengembangan
 
@@ -50,7 +71,7 @@ npm install
 
 3. **Konfigurasi Environment**
 Buat file `.env` di root folder dengan variabel berikut untuk mengakses Firebase & Gemini:
-```bash
+```env
 VITE_FIREBASE_API_KEY=your_firebase_api_key
 VITE_GEMINI_API_KEY=your_gemini_api_key
 VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
@@ -66,21 +87,20 @@ npm run dev
 ```
 
 ---
-## 📂 Struktur Proyek
-- `src/App.jsx` - Main Dashboard, sistem pelacakan lokasi (*Haversine*), dan pendeteksi status keamanan (*SOS/Safe*).
-- `src/AiChatbot.jsx` - Chatbot AI cerdas dengan kemampuan *Spatial Threat Matrix* (Gemini AI).
-- `src/CommandCenter.jsx` - Dashboard Admin untuk pelacakan warga dan pengiriman *broadcast* pelacakan spasial (Cloud Functions).
-- `src/MapComponent.jsx` - Komponen pemetaan spasial dan visualisasi koordinat *real-time*.
-- `src/EducationDashboard.jsx` & `src/NewsDashboard.jsx` - Portal edukasi mitigasi dan integrasi berita.
-- `src/ReportForm.jsx` - Pengumpulan laporan/informasi situasi dari pengguna.
-- `src/AdminLogin.jsx` - Portal masuk khusus otoritas komando.
+
+## 📂 Struktur Proyek Terkini
+- `src/App.jsx` - Main Routing, Navbar, Pelacakan Lokasi, dan Peta Pusat.
+- `src/components/health/*` - **[NEW]** Komponen SagaHealth: `HealthDashboard`, `HealthAuth`, `HealthScreening`, `MoodTracker`, dan `HealthChatbot`.
+- `src/AiChatbot.jsx` - Chatbot AI Bencana (Gemini AI).
+- `src/CommandCenter.jsx` & `src/AdminLogin.jsx` - Dashboard Otoritas.
+- `src/MapComponent.jsx` - Komponen pemetaan geospasial *real-time*.
+- `src/EducationDashboard.jsx` & `src/NewsDashboard.jsx` - Portal edukasi dan integrasi berita.
 
 ## 🤝 Kontribusi
-Kami sangat terbuka untuk kontribusi dalam meningkatkan algoritma deteksi dini, penambahan sumber data BMKG langsung, atau penyempurnaan alur evakuasi. Silakan lakukan *Pull Request* atau ajukan *Issue*.
+Kami menyambut baik inovasi maupun perbaikan _bug_ dari para kontributor. Silakan lakukan Fork pada proyek ini dan ajukan _Pull Request_.
 
-## 🔗 Live Demo
-Anda dapat mencoba langsung aplikasi SafeTana AI melalui tautan berikut:
+## 🔗 Live Deployments
+Anda dapat mecoba langsung aplikasi ini:
+**https://safetana.vercel.app/**
 
-**https://safetana-56tx4unuc-septiis-projects.vercel.app/**
-
-**SafeTana AI - Menjaga Keselamatan Melalui Kecerdasan Data.**
+*(Untuk mencoba fitur SagaHealth, silakan klik tombol `Klinik AI` di pojok kanan atas layar).*
