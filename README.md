@@ -102,11 +102,3 @@ Kami menyambut baik inovasi maupun perbaikan _bug_ dari para kontributor. Silaka
 ## 🔗 Live Deployments
 Anda dapat mecoba langsung aplikasi ini:
 **https://safetana.vercel.app/**
-
-<<<<<<< HEAD
-*(Untuk mencoba fitur SagaHealth, silakan klik tombol `Klinik AI` di pojok kanan atas layar).*
-=======
-**https://safetana.vercel.app/**
-
-**SafeTana AI - Menjaga Keselamatan Melalui Kecerdasan Data.**
->>>>>>> f1529c736a3fbb89bdec8be756c2ddd692cea90b
