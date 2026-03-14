@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Users, MapPin, Battery, AlertCircle, CheckCircle,
-  Clock, X, Search, ShieldAlert, Send, Radio, Smartphone, MessageSquare, AlertTriangle
+  Clock, X, Search, ShieldAlert, Send, Radio, Smartphone, MessageSquare, AlertTriangle, RefreshCw
 } from 'lucide-react';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { functions, db } from './firebase';
@@ -12,6 +12,8 @@ const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
   const [users, setUsers] = useState([]);
   const [activeTab, setActiveTab] = useState('users'); // 'users', 'safezones'
   const [searchTerm, setSearchTerm] = useState('');
+  const [is24HourFilter, setIs24HourFilter] = useState(false);
+  const [lastRefreshedTime, setLastRefreshedTime] = useState(null);
   const [broadcastMessage, setBroadcastMessage] = useState('');
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [broadcastSuccess, setBroadcastSuccess] = useState(false);
@@ -59,6 +61,26 @@ const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
     critical: users?.filter(u => u.status === 'Butuh Evakuasi').length || 0,
     safe: users?.filter(u => u.status === 'Aman').length || 0
   };
+
+  const toggle24HourFilter = () => {
+    const newState = !is24HourFilter;
+    setIs24HourFilter(newState);
+    if (newState) {
+      setLastRefreshedTime(new Date());
+    } else {
+      setLastRefreshedTime(null);
+    }
+  };
+
+  const filteredUsers = users.filter(user => {
+    if (!is24HourFilter) return true;
+    if (!user.lastActive) return false;
+    const twentyFourHoursAgo = Date.now() - 24 * 60 * 60 * 1000;
+    const userTime = user.lastActive.toMillis 
+      ? user.lastActive.toMillis() 
+      : (user.lastActive.seconds ? user.lastActive.seconds * 1000 : new Date(user.lastActive).getTime());
+    return userTime >= twentyFourHoursAgo;
+  });
 
   const handleBroadcast = async (disaster) => {
     setIsBroadcasting(true);
@@ -155,14 +177,28 @@ const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
 
             {activeTab === 'users' ? (
               <>
-                <div className="p-8 border-b border-slate-800 flex justify-between items-center">
-                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Live User Analytics</h3>
-                  <input type="text" placeholder="Cari User..." className="bg-slate-950 border border-slate-700 rounded-2xl py-2 px-4 text-xs text-white outline-none" onChange={(e) => setSearchTerm(e.target.value)} />
+                <div className="p-8 border-b border-slate-800 flex justify-between items-center gap-4">
+                  <div className="flex flex-col">
+                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Live User Analytics</h3>
+                    {lastRefreshedTime && is24HourFilter && (
+                      <span className="text-[9px] text-green-500 font-bold mt-1 tracking-widest uppercase">24 Jam Terakhir • {lastRefreshedTime.toLocaleTimeString('id-ID')}</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button 
+                      onClick={toggle24HourFilter}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${is24HourFilter ? 'bg-green-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'}`}
+                    >
+                      <RefreshCw size={14} className={is24HourFilter ? 'animate-[spin_0.5s_linear_1]' : ''} />
+                      {is24HourFilter ? 'Filter Aktif' : 'Refresh 24 Jam'}
+                    </button>
+                    <input type="text" placeholder="Cari User..." className="bg-slate-950 border border-slate-700 rounded-2xl py-2 px-4 text-xs text-white outline-none w-48" onChange={(e) => setSearchTerm(e.target.value)} />
+                  </div>
                 </div>
                 <div className="overflow-x-auto flex-1 h-[500px] overflow-y-auto custom-scrollbar">
                   <table className="w-full text-left">
                     <tbody className="divide-y divide-slate-800/50 text-xs">
-                      {users?.filter(u => u?.name?.toLowerCase().includes(searchTerm.toLowerCase())).map((user) => (
+                      {filteredUsers?.filter(u => u?.name?.toLowerCase().includes(searchTerm.toLowerCase())).map((user) => (
                         <tr key={user.id} className="hover:bg-white/[0.02] transition-all">
                           <td className="p-6 font-bold">{user.name}</td>
                           <td className="p-6"><span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase ${user.status === 'Butuh Evakuasi' ? 'bg-red-600 text-white' : 'bg-green-600/20 text-green-500 border border-green-500/30'}`}>{user.status}</span></td>
