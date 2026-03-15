@@ -18,6 +18,10 @@ import HealthAuth from './components/health/HealthAuth';
 import HealthScreening from './components/health/HealthScreening';
 import MoodTracker from './components/health/MoodTracker';
 import HealthChatbot from './components/health/HealthChatbot';
+import HealthDictionary from './components/health/HealthDictionary';
+import HealthPrivacy from './components/health/HealthPrivacy';
+import HealthTerms from './components/health/HealthTerms';
+import HealthAbout from './components/health/HealthAbout';
 import { maskName, maskPhone } from './securityUtils';
 import { db } from './firebase';
 import { doc, setDoc, serverTimestamp, collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
@@ -63,6 +67,7 @@ const App = () => {
   const [userLocation, setUserLocation] = useState(null);
   const [isSOSActive, setIsSOSActive] = useState(false);
   const [latestBroadcast, setLatestBroadcast] = useState(null);
+  const [mapScope, setMapScope] = useState('lokal'); // 'lokal' atau 'nasional'
 
 
 
@@ -374,6 +379,11 @@ const App = () => {
     }
   }, [latestBroadcast]);
 
+  // --- FILTER LAPORAN BERDASARKAN SCOPE ---
+  const displayReports = mapScope === 'lokal' 
+    ? reports.filter(r => r.loc.toLowerCase().includes('bandung') || r.source === 'Dummy System')
+    : reports;
+
   const MainContent = (
     <>
       {/* 1. LAYER ONBOARDING / EDUKASI */}
@@ -438,11 +448,12 @@ const App = () => {
             {/* PANEL PETA */}
             <div className="lg:col-span-8 h-[50vh] min-h-[400px] lg:h-[650px] rounded-[2.5rem] lg:rounded-[3.5rem] overflow-hidden border border-slate-800 relative shadow-2xl shrink-0 order-1 lg:order-none">
               <MapComponent
-                reports={reports}
+                reports={displayReports}
                 selectedReportPosition={selectedReportPosition}
                 showSafeZones={showSafeZones}
                 safeZones={safeZones}
                 userLocation={userLocation}
+                mapScope={mapScope}
               />
             </div>
 
@@ -468,10 +479,30 @@ const App = () => {
               </div>
 
               <div className="bg-slate-50 dark:bg-slate-900/40 rounded-[2.5rem] lg:rounded-[3rem] border border-slate-200 dark:border-slate-800 p-6 lg:p-8 flex-1 flex flex-col overflow-hidden shadow-inner relative min-h-[400px] lg:min-h-0 transition-colors duration-300">
-                <header className="flex justify-between items-center mb-5 lg:mb-6 border-b border-slate-200 dark:border-slate-800 pb-4 shrink-0 transition-colors duration-300">
-                  <h3 className="text-[10px] lg:text-[11px] font-black uppercase tracking-[0.2em] lg:tracking-[0.3em] text-slate-500 dark:text-slate-500">
-                    {showSafeZones ? "TITIK EVAKUASI BANDUNG" : "UPDATE BENCANA TERKINI"}
-                  </h3>
+                <header className="flex flex-col gap-3 mb-5 lg:mb-6 border-b border-slate-200 dark:border-slate-800 pb-4 shrink-0 transition-colors duration-300">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-[10px] lg:text-[11px] font-black uppercase tracking-[0.2em] lg:tracking-[0.3em] text-slate-500 dark:text-slate-500">
+                      {showSafeZones ? "TITIK EVAKUASI BANDUNG" : "UPDATE BENCANA TERKINI"}
+                    </h3>
+                  </div>
+                  
+                  {/* TOGGLE PETA LOKAL VS NASIONAL */}
+                  {!showSafeZones && (
+                    <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                      <button
+                        onClick={() => setMapScope('lokal')}
+                        className={`flex-1 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${mapScope === 'lokal' ? 'bg-white dark:bg-slate-600 shadow-sm text-blue-600 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                      >
+                        Lokal (Bandung)
+                      </button>
+                      <button
+                        onClick={() => setMapScope('nasional')}
+                        className={`flex-1 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${mapScope === 'nasional' ? 'bg-white dark:bg-slate-600 shadow-sm text-blue-600 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                      >
+                        Nasional
+                      </button>
+                    </div>
+                  )}
                 </header>
 
                 <div className="space-y-4 overflow-y-auto flex-1 pr-2 custom-scrollbar">
@@ -508,7 +539,7 @@ const App = () => {
                         ))
                       ) : (
                         /* DETAIL INFORMASI BENCANA */
-                        reports.map((r, i) => (
+                        displayReports.map((r, i) => (
                           <div
                             key={i}
                             onClick={() => setSelectedReportPosition(r.position)}
@@ -646,12 +677,16 @@ const App = () => {
         <Route path="/" element={MainContent} />
         <Route path="/news" element={<NewsDashboard />} />
         
-        {/* SAGAHEALTH ROUTES */}
+        {/* SAFETANA AI HEALTH ROUTES */}
         <Route path="/health" element={<HealthDashboard />} />
         <Route path="/health/auth" element={<HealthAuth />} />
         <Route path="/health/screening" element={<HealthScreening />} />
         <Route path="/health/mood" element={<MoodTracker />} />
         <Route path="/health/chat" element={<HealthChatbot />} />
+        <Route path="/health/dictionary" element={<HealthDictionary />} />
+        <Route path="/health/privacy" element={<HealthPrivacy />} />
+        <Route path="/health/terms" element={<HealthTerms />} />
+        <Route path="/health/about" element={<HealthAbout />} />
         
         <Route path="/safetana-admin" element={
           isAdminAuthenticated ? (

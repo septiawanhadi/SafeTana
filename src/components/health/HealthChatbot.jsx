@@ -8,7 +8,7 @@ const HealthChatbot = () => {
     {
       id: 1,
       sender: 'bot',
-      text: 'Halo! Aku Sagabot 🤖, asisten AI untuk layanan kesehatan Anda. Anda bisa menanyakan gejala, rekomendasi gaya hidup sehat, atau info layanan darurat. Ada yang bisa dibantu hari ini?'
+      text: 'Halo! Aku SafeTanaBot 🤖, asisten AI untuk layanan kesehatan Anda. Anda bisa menanyakan gejala, rekomendasi gaya hidup sehat, atau info layanan darurat. Ada yang bisa dibantu hari ini?'
     }
   ]);
   const [input, setInput] = useState('');
@@ -77,7 +77,7 @@ const HealthChatbot = () => {
                  <Bot size={18} />
                </div>
                <div>
-                  <h1 className="font-bold text-sm leading-tight">Sagabot</h1>
+                  <h1 className="font-bold text-sm leading-tight">SafeTanaBot</h1>
                   <p className="text-[10px] text-green-500 font-medium">Asisten Kesehatan Aktif</p>
                </div>
              </div>
@@ -166,7 +166,7 @@ const HealthChatbot = () => {
                <Send size={18} />
             </button>
          </div>
-         <p className="text-center text-[9px] text-slate-400 mt-3 font-medium">Sagabot dapat membuat kesalahan. Selalu periksa informasi medis dan konsultasikan gejala serius ke dokter RS.</p>
+         <p className="text-center text-[9px] text-slate-400 mt-3 font-medium">SafeTanaBot dapat membuat kesalahan. Selalu periksa informasi medis dan konsultasikan gejala serius ke dokter RS.</p>
       </footer>
     </div>
   );

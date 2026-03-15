@@ -39,7 +39,7 @@ const HealthAuth = () => {
         await updateProfile(user, { displayName: name });
 
         // Save user data to Firestore
-        await setDoc(doc(db, 'sagahealth_users', user.uid), {
+        await setDoc(doc(db, 'safetana_health_users', user.uid), {
           uid: user.uid,
           name: name,
           email: email,
@@ -85,7 +85,7 @@ const HealthAuth = () => {
             </div>
         </div>
         <h2 className="mt-6 text-center text-3xl font-black tracking-tight text-slate-900 dark:text-white">
-          SagaHealth
+          SafeTana AI Health
         </h2>
         <p className="mt-2 text-center text-sm text-slate-600 dark:text-slate-400">
           {isLogin ? 'Masuk ke akun kesehatan Anda.' : 'Pendaftaran Pasien & Pengguna Baru.'}

@@ -22,8 +22,19 @@ function MapController({ center }) {
   }, [center, map]);
   return null;
 }
+function MapScopeController({ mapScope }) {
+  const map = useMap();
+  useEffect(() => {
+    if (mapScope === 'lokal') {
+      map.flyTo([-6.9147, 107.6098], 12, { duration: 1.5 });
+    } else if (mapScope === 'nasional') {
+      map.flyTo([-2.5489, 118.0149], 5, { duration: 1.5 });
+    }
+  }, [mapScope, map]);
+  return null;
+}
 
-const MapComponent = ({ reports, selectedReportPosition, showSafeZones, safeZones, userLocation }) => {
+const MapComponent = ({ reports, selectedReportPosition, showSafeZones, safeZones, userLocation, mapScope }) => {
 
   // 2. Perbaikan Custom Icon: Menambahkan iconAnchor agar ujung lancip marker tepat di koordinat
   const createIcon = (iconComponent, color) => L.divIcon({
@@ -60,6 +71,20 @@ const MapComponent = ({ reports, selectedReportPosition, showSafeZones, safeZone
     <MapContainer center={[-6.9147, 107.6098]} zoom={12} className="h-full w-full">
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <MapController center={selectedReportPosition} />
+      <MapScopeController mapScope={mapScope} />
+
+      {/* Scope Indicator UI */}
+      {mapScope && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[400] pointer-events-none">
+          <div className={`px-4 py-2 rounded-full font-black text-[10px] md:text-xs tracking-widest uppercase shadow-lg border backdrop-blur-sm ${
+            mapScope === 'lokal' 
+              ? 'bg-blue-600/90 text-white border-blue-400' 
+              : 'bg-indigo-900/90 text-white border-indigo-500'
+          }`}>
+            {mapScope === 'lokal' ? '📍 PETA LOKAL WILAYAH BANDUNG' : '🌍 PETA NASIONAL INDONESIA'}
+          </div>
+        </div>
+      )}
 
       {/* Circle Radius Bencana */}
       {reports.filter(r => r.source === 'BMKG').map((r, i) => (

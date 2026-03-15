@@ -53,7 +53,7 @@ const HealthDashboard = () => {
                 <ChevronLeft size={24} className="text-slate-600 dark:text-slate-300" />
              </button>
              <div className="flex items-center gap-2">
-               <span className="text-xl font-black tracking-tight"><span className="text-blue-600 dark:text-blue-400">Saga</span>Health</span>
+               <span className="text-xl font-black tracking-tight"><span className="text-blue-600 dark:text-blue-400">SafeTana AI</span> Health</span>
              </div>
           </div>
           
@@ -127,7 +127,7 @@ const HealthDashboard = () => {
                <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <MessageSquare size={24} className="text-blue-600 dark:text-blue-400" />
                </div>
-               <h3 className="font-bold text-slate-900 dark:text-white mb-1">Tanya Sagabot</h3>
+               <h3 className="font-bold text-slate-900 dark:text-white mb-1">Tanya SafeTanaBot</h3>
                <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">
                  Konsultasi gejala ringan dengan asisten AI kesehatan mandiri 24 jam.
                </p>
@@ -173,30 +173,18 @@ const HealthDashboard = () => {
           </div>
         </section>
 
-        {/* PROMO SECTION */}
-        <section className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 overflow-hidden">
-            <h2 className="text-sm font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-4 text-center">Tersedia Juga</h2>
-            <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-1 bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 flex items-center gap-4">
-                    <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center shrink-0">
-                        <span className="text-2xl font-black text-blue-600 dark:text-blue-400">P</span>
-                    </div>
-                    <div>
-                        <h4 className="font-bold text-slate-900 dark:text-white text-sm">Paket Premium</h4>
-                        <p className="text-xs text-slate-500 line-clamp-2">Konsultasi dokter spesialis jarak jauh.</p>
-                    </div>
-                </div>
-                <div className="flex-1 bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 flex items-center gap-4">
-                    <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center shrink-0">
-                        <span className="text-2xl font-black text-orange-600 dark:text-orange-400">B</span>
-                    </div>
-                    <div>
-                        <h4 className="font-bold text-slate-900 dark:text-white text-sm">Paket Basic</h4>
-                        <p className="text-xs text-slate-500 line-clamp-2">Akses penuh chatbot & resep suplemen.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
+        {/* FOOTER SECTION */}
+        <footer className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center gap-4 text-center">
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-bold text-slate-500 dark:text-slate-400">
+            <button onClick={() => navigate('/health/dictionary')} className="hover:text-blue-600 transition-colors">Kamus Kesehatan</button>
+            <button onClick={() => navigate('/health/privacy')} className="hover:text-blue-600 transition-colors">Pemberitahuan Privasi</button>
+            <button onClick={() => navigate('/health/terms')} className="hover:text-blue-600 transition-colors">Syarat & Ketentuan</button>
+            <button onClick={() => navigate('/health/about')} className="hover:text-blue-600 transition-colors">Tentang Kami</button>
+          </div>
+          <p className="text-[10px] text-slate-400 font-medium">
+            &copy; {new Date().getFullYear()} SafeTana AI Health. Hak Cipta Dilindungi.
+          </p>
+        </footer>
 
       </main>
     </div>

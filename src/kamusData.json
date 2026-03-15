@@ -1,0 +1,2797 @@
+{
+  "penyakit": [
+    {
+      "nama": "Absans (Lena)"
+    },
+    {
+      "nama": "Abses Gigi"
+    },
+    {
+      "nama": "Abses Peritonsil"
+    },
+    {
+      "nama": "Abses Telinga (Abses Bezold)"
+    },
+    {
+      "nama": "Acne Vulgaris (Jerawat)"
+    },
+    {
+      "nama": "Acquired Imunodefciency Syndrome (AIDS/HIV)"
+    },
+    {
+      "nama": "Acute Coronary Syndrome (Sindrom Koroner Akut)"
+    },
+    {
+      "nama": "Adenoidits (Radang Kelenjar Adenoid)"
+    },
+    {
+      "nama": "Alergi"
+    },
+    {
+      "nama": "Alzheimer disease (Penyakit Alzheimer)"
+    },
+    {
+      "nama": "Amyloidosis (Amiloidosis)"
+    },
+    {
+      "nama": "Anal Abscess (Abses Anal)"
+    },
+    {
+      "nama": "Aneurisma Aorta (Pelebaran Abnormal Aorta)"
+    },
+    {
+      "nama": "Angina Pectoris (Serangan Jantung)"
+    },
+    {
+      "nama": "Angioedema (Bengkak Pembuluh Darah Bawah Kulit)"
+    },
+    {
+      "nama": "Anoreksia Nervosa"
+    },
+    {
+      "nama": "Aritmia (Gangguan Irama Jantung)"
+    },
+    {
+      "nama": "Arthris Rheumatoid"
+    },
+    {
+      "nama": "Asam Urat (Arthris Gout)"
+    },
+    {
+      "nama": "Asma Bronkhiale"
+    },
+    {
+      "nama": "Atresia Ani (Cacat Lubang Anus)"
+    },
+    {
+      "nama": "Ausme (Ausm)"
+    },
+    {
+      "nama": "Baby Blues (Postpartum Blues)"
+    },
+    {
+      "nama": "Batu Empedu (Gallstone)"
+    },
+    {
+      "nama": "Batu Ginjal (Kidney Stone)"
+    },
+    {
+      "nama": "Batu Kandung Kemih (Vesikoliasis)"
+    },
+    {
+      "nama": "Batu Saluran Kemih (Ureteroliasis)"
+    },
+    {
+      "nama": "Batuk Rejan (Pertusis)"
+    },
+    {
+      "nama": "Bayi kuning karena Menyusui (Breastmilk Jaundice)"
+    },
+    {
+      "nama": "Bell\\"
+    },
+    {
+      "nama": "Bengkak di lipat paha/Bubo Inguinalis (LGV)"
+    },
+    {
+      "nama": "Benjolan kelopak mata (Kalazion)"
+    },
+    {
+      "nama": "Breasfeed Jaundice"
+    },
+    {
+      "nama": "Bronkis"
+    },
+    {
+      "nama": "Bubo Ingunalis"
+    },
+    {
+      "nama": "Bulimia Nervosa"
+    },
+    {
+      "nama": "Cacar Air (Varicella / Chickenpox)"
+    },
+    {
+      "nama": "Cacar ular (Herpes zoster)"
+    },
+    {
+      "nama": "Cairan Terakumulasi di Rongga Pleura (Eusi Pleura)"
+    },
+    {
+      "nama": "Campak (morbili)"
+    },
+    {
+      "nama": "Carpal Tunnel Syndrome"
+    },
+    {
+      "nama": "Cedera Lutut"
+    },
+    {
+      "nama": "Crohn Disease"
+    },
+    {
+      "nama": "Cushing Syndrome"
+    },
+    {
+      "nama": "Cutaneous Larva Migrans"
+    },
+    {
+      "nama": "Dakrioadenis (Radang Kelenjar Air Mata)"
+    },
+    {
+      "nama": "Dakriosis s (Radang Saluran Air Mata)"
+    },
+    {
+      "nama": "Defsiensi Glukosa-6-Fosfat Dehidrogenase (G6PD Defciency)"
+    },
+    {
+      "nama": "Defsiensi Vitamin B1 (Beri-beri)"
+    },
+    {
+      "nama": "Dehidrasi/Kurang Cairan"
+    },
+    {
+      "nama": "Demam Berdarah Dengue (DBD / DHF)"
+    },
+    {
+      "nama": "Demam Kuning (Yellow Fever)"
+    },
+    {
+      "nama": "Demam Reumak"
+    },
+    {
+      "nama": "Demam Tioid (Typhoid Fever)"
+    },
+    {
+      "nama": "Depresi (Depression)"
+    },
+    {
+      "nama": "Dexamfetamine"
+    },
+    {
+      "nama": "Dexbrompheniramine"
+    },
+    {
+      "nama": "Dexefmide"
+    },
+    {
+      "nama": "Dexibuprofen"
+    },
+    {
+      "nama": "Dexlansoprazole"
+    },
+    {
+      "nama": "Dexmedetomidine"
+    },
+    {
+      "nama": "Dexpanthenol"
+    },
+    {
+      "nama": "Dextran"
+    },
+    {
+      "nama": "Dextropropoxyphene"
+    },
+    {
+      "nama": "Diabetes Gestasional"
+    },
+    {
+      "nama": "Diabetes Tipe I (DM pe 1)"
+    },
+    {
+      "nama": "Diabetes pe II (DM Tipe 2)"
+    },
+    {
+      "nama": "Diacerein"
+    },
+    {
+      "nama": "Diare (mencret-mencret)"
+    },
+    {
+      "nama": "Diaxozide"
+    },
+    {
+      "nama": "Dibekacin"
+    },
+    {
+      "nama": "Dibenzepin"
+    },
+    {
+      "nama": "Dicycloverine"
+    },
+    {
+      "nama": "Didanosine"
+    },
+    {
+      "nama": "Dienestrol"
+    },
+    {
+      "nama": "Dienogest"
+    },
+    {
+      "nama": "Diethylamine Salicylate"
+    },
+    {
+      "nama": "Diethylslbestrol"
+    },
+    {
+      "nama": "Difemerine"
+    },
+    {
+      "nama": "Diferi"
+    },
+    {
+      "nama": "Disentri amuba"
+    },
+    {
+      "nama": "Disfungsi Ereksi (Erecle Dysfuncon)"
+    },
+    {
+      "nama": "Eksem (Eczema)"
+    },
+    {
+      "nama": "Elephanasis (Penyakit Kaki Gajah)"
+    },
+    {
+      "nama": "Encok (Low Back Pain)"
+    },
+    {
+      "nama": "Entomophobia (Takut Serangga)"
+    },
+    {
+      "nama": "Epilepsy (Epilepsi)"
+    },
+    {
+      "nama": "Fibrilasi Ventrikel"
+    },
+    {
+      "nama": "Fibroadenoma Mammae (Tumor Jinak Payudara)"
+    },
+    {
+      "nama": "Filariasis (Kaki Gajah)"
+    },
+    {
+      "nama": "Fistula Ani"
+    },
+    {
+      "nama": "Fistula Pre-aurikular (Penyakit Bawaan pada Telinga)"
+    },
+    {
+      "nama": "Flu Burung (Avian In\ue004uenza / H5N1)"
+    },
+    {
+      "nama": "Flu singapura (Hand, Foot, and Mouth Disease)"
+    },
+    {
+      "nama": "Fraktur Basis Kranii (Patah tulang dasar tengkorak)"
+    },
+    {
+      "nama": "Fraktur Cervical (Patah tulang leher)"
+    },
+    {
+      "nama": "Fraktur Humerus (Patah tulang lengan atas)"
+    },
+    {
+      "nama": "Fraktur Penis"
+    },
+    {
+      "nama": "Gagal Ginjal Akut (Acute Renal Failure / GGA)"
+    },
+    {
+      "nama": "Gagal Ginjal Kronik (Chronic Renal Failure / CKD)"
+    },
+    {
+      "nama": "Gagal Jantung"
+    },
+    {
+      "nama": "Gangguan aliran darah Vena (Insufsiensi vena kronik)"
+    },
+    {
+      "nama": "Gangguan Dismorfk Tubuh"
+    },
+    {
+      "nama": "Gangguan Hormon Tiroid (Hipoiroid)"
+    },
+    {
+      "nama": "Gangguan Kecemasan (Anxietas)"
+    },
+    {
+      "nama": "Gangguan Menstruasi (Menorrhagia)"
+    },
+    {
+      "nama": "Gangguan pergerakan lambung (Gastroparesis)"
+    },
+    {
+      "nama": "Gangguan Saraf Peri\ue002er Kaki atau Tangan (Peripheral Neuropathy/Neuropa peri\ue002er)"
+    },
+    {
+      "nama": "Gangguan sirkulasi darah anggota gerak bawah (Crcal limb ischemia/CLI)"
+    },
+    {
+      "nama": "Gangguan usus besar kronis (Irritable Bowel Syndrome/IBS)"
+    },
+    {
+      "nama": "Gangren Pedis"
+    },
+    {
+      "nama": "Gizi Buruk Tipe Marasmus"
+    },
+    {
+      "nama": "Gondongan (MUMPS)"
+    },
+    {
+      "nama": "Hemangioma (Tumor pembuluh darah)"
+    },
+    {
+      "nama": "Hepa s A"
+    },
+    {
+      "nama": "Hernia"
+    },
+    {
+      "nama": "Hernia Lateralis"
+    },
+    {
+      "nama": "Hernia Skrotalis"
+    },
+    {
+      "nama": "Hernia Umbilikalis"
+    },
+    {
+      "nama": "Herpes kelamin / genital (Herpes Simpleks)"
+    },
+    {
+      "nama": "Herpes Mulut (Herpes Oral)"
+    },
+    {
+      "nama": "Herpes Zoster pada Telinga (Sindrom Ramsay Hunt)"
+    },
+    {
+      "nama": "Hidronefrosis atau Pembengkakan pada Ginjal"
+    },
+    {
+      "nama": "Hidrosefalus (Hydrocephalus)"
+    },
+    {
+      "nama": "Hipertensi (Darah Tinggi)"
+    },
+    {
+      "nama": "Hipertensi Urgensi"
+    },
+    {
+      "nama": "Hiperroid"
+    },
+    {
+      "nama": "Hipokondriasis (Merasa Memiliki Sakit Berat)"
+    },
+    {
+      "nama": "Hordeolum"
+    },
+    {
+      "nama": "Ileus"
+    },
+    {
+      "nama": "Imun Trombositopenia Purpura (ITP)"
+    },
+    {
+      "nama": "Infeksi Alat Kelamin (Chancroid atau Ulkus Mole)"
+    },
+    {
+      "nama": "Infeksi Cacing (Askariasis)"
+    },
+    {
+      "nama": "Infeksi Cacing Kremi (Enterobiasis)"
+    },
+    {
+      "nama": "Infeksi Cacing Tambang / Ancylostomiasis"
+    },
+    {
+      "nama": "Infeksi Cytomegalovirus"
+    },
+    {
+      "nama": "Infeksi Epstein-Barr virus (Mononukleosis / Kissing disease)"
+    },
+    {
+      "nama": "Infeksi karena kuman Leptospira / Leptospirosis"
+    },
+    {
+      "nama": "Infeksi Kulit (Impego)"
+    },
+    {
+      "nama": "Infeksi parasit Giardia di usus (Giardiasis)"
+    },
+    {
+      "nama": "Infeksi Saluran Kemih (Urinary Tract Infec on)"
+    },
+    {
+      "nama": "Infeksi saluran nafas atas bayi (Croup/Laringotrakeobronkis)"
+    },
+    {
+      "nama": "Infeksi Tali Pusat (Omfalis)"
+    },
+    {
+      "nama": "Infeksi telinga"
+    },
+    {
+      "nama": "Infeksi Telinga Bagian Tengah (Os Media Eusi)"
+    },
+    {
+      "nama": "Infeksi Uretra/saluran kencing (Uretris)"
+    },
+    {
+      "nama": "Infer litas"
+    },
+    {
+      "nama": "In\ue004amasi jaringan otak (Ensefalis)"
+    },
+    {
+      "nama": "Inkonnensia Usus (Bowel Inconnence)"
+    },
+    {
+      "nama": "Jamur kepala (Tinea kapis)"
+    },
+    {
+      "nama": "Jamur kuku ( Nail fungus)"
+    },
+    {
+      "nama": "Jamur lipat paha (Tinea Cruris)"
+    },
+    {
+      "nama": "Juvenile Arthris (Radang Sendi Usia Muda)"
+    },
+    {
+      "nama": "Kandidiasis Mulut (Oral Thrush)"
+    },
+    {
+      "nama": "Kanker Darah (Leukemia)"
+    },
+    {
+      "nama": "Kanker Ha (Carsinoma Hepar)"
+    },
+    {
+      "nama": "Kanker Nasofaring"
+    },
+    {
+      "nama": "Kanker Ovarium (Ovarian Cancer)"
+    },
+    {
+      "nama": "Kanker Paru"
+    },
+    {
+      "nama": "Kanker payudara (carsinoma mammae)"
+    },
+    {
+      "nama": "Kanker prostat (Prostat Cancer)"
+    },
+    {
+      "nama": "Kanker Serviks (Cervical Cancer)"
+    },
+    {
+      "nama": "Kanker usus besar dan rektum / Kolorektal"
+    },
+    {
+      "nama": "Karsinoma Tiroid (Kanker roid)"
+    },
+    {
+      "nama": "Katarak"
+    },
+    {
+      "nama": "Kegagalan Kontrol Buang Air Kecil / Inkonnensia Urine"
+    },
+    {
+      "nama": "Keguguran (Abortus)"
+    },
+    {
+      "nama": "Keguguran Berulang (Abortus Habitualis)"
+    },
+    {
+      "nama": "Kehamilan Ektopik (Hamil di Luar Rahim)"
+    },
+    {
+      "nama": "Kejang Demam"
+    },
+    {
+      "nama": "Kejang Demam Kompleks"
+    },
+    {
+      "nama": "Kejang Demam Sederhana"
+    },
+    {
+      "nama": "Kelainan anatomi usus (Invaginasi usus)"
+    },
+    {
+      "nama": "Kelainan Bawaan Lubang Uretra (Epispadia)"
+    },
+    {
+      "nama": "Kelainan bawaan pada otak anak (Cerebral Palsy atau CP)"
+    },
+    {
+      "nama": "Kelainan Bawaan pada Usus Besar (Hirschsprung Disease)"
+    },
+    {
+      "nama": "Kelainan Genek pada Darah (Hemoflia)"
+    },
+    {
+      "nama": "Kelainan Katup Jantung (Atresia Trikuspid)"
+    },
+    {
+      "nama": "Kelainan letak saluran kemih (Epispadia)"
+    },
+    {
+      "nama": "Kelainan letak saluran kemih (Hipospadia)"
+    },
+    {
+      "nama": "Kelainan lokasi tumbuh jaringan rahim (Endometriosis)"
+    },
+    {
+      "nama": "Kelopak mata terlipat ke dalam (Entropion)"
+    },
+    {
+      "nama": "Kelopak Mata Terlipat Keluar (Ektropion)"
+    },
+    {
+      "nama": "Kenali Gejala dan Pengobatan Radang Hidung Karena Obat (Rhins Medikamentosa)"
+    },
+    {
+      "nama": "Kencing Nanah / Gonorrhoea"
+    },
+    {
+      "nama": "Kepribadian Cemas Menghindar (Avoidant Personality Disorder)"
+    },
+    {
+      "nama": "Kepuhan / Kandidiasis Vagina"
+    },
+    {
+      "nama": "Keras"
+    },
+    {
+      "nama": "Kerion (Peradangan Kepala Berat)"
+    },
+    {
+      "nama": "Kerontokan abnormal rambut kepala (Alopecia Areata)"
+    },
+    {
+      "nama": "Kerusakan autoimun sel saraf (Guillain Barre Syndrome)"
+    },
+    {
+      "nama": "Kista Bartolini (Kista Dinding Vagina)"
+    },
+    {
+      "nama": "Klaustrophobia (Phobia Ruang Sempit)"
+    },
+    {
+      "nama": "Koledokoliasis (Batu Saluran Empedu)"
+    },
+    {
+      "nama": "Kolera (Cholera)"
+    },
+    {
+      "nama": "Kolesiss (Radang Saluran Empedu)"
+    },
+    {
+      "nama": "Konjungvis"
+    },
+    {
+      "nama": "Kudis (Scabies)"
+    },
+    {
+      "nama": "Kul kelamin (Genital Warts)"
+    },
+    {
+      "nama": "Kutu rambut / Pedikulosis kapis"
+    },
+    {
+      "nama": "Labirinis (Infeksi Telinga Dalam)"
+    },
+    {
+      "nama": "Lactose Intolerance (Intoleransi Laktosa)"
+    },
+    {
+      "nama": "Laringis"
+    },
+    {
+      "nama": "Lecet pada Pung Payudara (Cracked Nipple)"
+    },
+    {
+      "nama": "Lepas / Ablasio rena"
+    },
+    {
+      "nama": "Leprae (Morbus hansen)"
+    },
+    {
+      "nama": "Limfoma (Limfocarcinoma)"
+    },
+    {
+      "nama": "Lipoma (Tumor Kelenjar Lemak)"
+    },
+    {
+      "nama": "Luka / Ulkus kornea"
+    },
+    {
+      "nama": "Lupus Eritematosus Sistemik"
+    },
+    {
+      "nama": "Malaria"
+    },
+    {
+      "nama": "Mallory Weiss Syndrome (Perdarahan Saluran Cerna Atas)"
+    },
+    {
+      "nama": "Masokisme (Kesenangan Seksual dengan Rasa Sakit)"
+    },
+    {
+      "nama": "Mass (Radang jaringan payudara)"
+    },
+    {
+      "nama": "Metroragia"
+    },
+    {
+      "nama": "Miastenia Gravis"
+    },
+    {
+      "nama": "Migrain"
+    },
+    {
+      "nama": "Miringis Bulosa (Radang Gendang Telinga)"
+    },
+    {
+      "nama": "Mola Hidadosa (Hamil Anggur)"
+    },
+    {
+      "nama": "Morning Sickness"
+    },
+    {
+      "nama": "Muntah berlebihan pada kehamilan (Hiperemesis gravidarum)"
+    },
+    {
+      "nama": "Neuralgia post herpek"
+    },
+    {
+      "nama": "Neuralgia Trigeminalis"
+    },
+    {
+      "nama": "Neuroma Akusk / Acousc Neuroma (Vesbular Schwannoma)"
+    },
+    {
+      "nama": "Nodul Tiroid"
+    },
+    {
+      "nama": "Nyeri Kepala Kluster"
+    },
+    {
+      "nama": "Nyeri Kepala Tipe Cluster (Cluster Headache)"
+    },
+    {
+      "nama": "Nyeri Panggul Kronis (Chronic Pelvic Pain)"
+    },
+    {
+      "nama": "Nyeri tulang dan otot (Fibromyalgia)"
+    },
+    {
+      "nama": "Obstrucve Sleep Apnea"
+    },
+    {
+      "nama": "Oklusi arteri peri\ue002er extremitas in\ue002erior"
+    },
+    {
+      "nama": "Oligomenorrhea (Gangguan Siklus Haid)"
+    },
+    {
+      "nama": "Osteoarthris"
+    },
+    {
+      "nama": "Os Externa (Radang Telinga)"
+    },
+    {
+      "nama": "Os Externa Sirkumskripta"
+    },
+    {
+      "nama": "Otosklerosis (Pertumbuhan Tulang Telinga Tengah Abnormal)"
+    },
+    {
+      "nama": "Pankreas"
+    },
+    {
+      "nama": "Panu (Tinea vesikolor)"
+    },
+    {
+      "nama": "Patah lengan bawah / Fraktur Antebrachii"
+    },
+    {
+      "nama": "Patah Tulang Paha / Fraktur Femur"
+    },
+    {
+      "nama": "Patah Tungkai Bawah / Fraktur Kruris"
+    },
+    {
+      "nama": "Pelebaran pembuluh darah vena (Varises)"
+    },
+    {
+      "nama": "Pembengkakan skrotum (Hidrokel Tess)"
+    },
+    {
+      "nama": "Pembesaran prostat / Benign Prosta c Hyperplasia (BPH)"
+    },
+    {
+      "nama": "Penyakit asam lambung naik / re\ue004uks (GERD)"
+    },
+    {
+      "nama": "Penyakit Autoimun pada Selubung Saraf (Mulple Sclerosis)"
+    },
+    {
+      "nama": "Penyakit Gangguan Metabolik"
+    },
+    {
+      "nama": "Penyakit Jantung Bawaan (Tetralogy O\ue002 Fallot)"
+    },
+    {
+      "nama": "Penyakit kelenjar roid (Graves Disease)"
+    },
+    {
+      "nama": "Penyakit kulit kronis (Neurodermas)"
+    },
+    {
+      "nama": "Penyakit Membran Hialin"
+    },
+    {
+      "nama": "Penyakit Parkinson (Parkinson\\"
+    },
+    {
+      "nama": "Penyakit Paru Obstruk f Kronis (PPOK / COPD)"
+    },
+    {
+      "nama": "Penyakit pembuluh arteri dan vena (Buerger disease)"
+    },
+    {
+      "nama": "Penyakit pembuluh darah kecil (Raynaud\\"
+    },
+    {
+      "nama": "Penyakit tabung saraf / Tarsal Tunnel Syndrome"
+    },
+    {
+      "nama": "Penyakit tekanan pada bola mata (Glaukoma) Akut"
+    },
+    {
+      "nama": "Penyempitan Uretra (Striktur Uretra)"
+    },
+    {
+      "nama": "Peradangan pada Ginjal (Pielonefris)"
+    },
+    {
+      "nama": "Peradangan pada Tendon Achilles (Achilles Tendinis)"
+    },
+    {
+      "nama": "Peradangan Pembuluh Darah Kecil (Henoch Schonlein Purpura)"
+    },
+    {
+      "nama": "Perdarahan mata (Hifema)"
+    },
+    {
+      "nama": "Perdarahan Subkonjungva"
+    },
+    {
+      "nama": "Perimenopause"
+    },
+    {
+      "nama": "Periperal Neuropathy (Penyakit Saraf Tepi)"
+    },
+    {
+      "nama": "Phlebis (Peradangan Pembuluh Darah Vena)"
+    },
+    {
+      "nama": "Pica"
+    },
+    {
+      "nama": "Pikun (Demensia)"
+    },
+    {
+      "nama": "Pilek (Common Cold)"
+    },
+    {
+      "nama": "Pinguekula (Penyakit Selaput Mata)"
+    },
+    {
+      "nama": "Plasenta Previa (Perdarahan pada Kehamilan Tua)"
+    },
+    {
+      "nama": "Pleuris (Radang Selaput Paru)"
+    },
+    {
+      "nama": "Pneumokoniosis (Penyakit Paru Akibat Debu Kerja)"
+    },
+    {
+      "nama": "Pneumonia (Radang paru)"
+    },
+    {
+      "nama": "Polimenorea (Gangguan Siklus Haid)"
+    },
+    {
+      "nama": "Poliomielis (Penyakit Infeksi Sumsum Tulang)"
+    },
+    {
+      "nama": "Polip Hidung"
+    },
+    {
+      "nama": "Polycysc Ovary Syndrome (PCOS)"
+    },
+    {
+      "nama": "Pre-Menstrual Syndrome (PMS)"
+    },
+    {
+      "nama": "Presbiakusis (Gangguan Pendengaran Usia Lanjut)"
+    },
+    {
+      "nama": "Presbiopia (Mata Tua)"
+    },
+    {
+      "nama": "Proks (Radang pada Anus)"
+    },
+    {
+      "nama": "Pterigium"
+    },
+    {
+      "nama": "Pusing Tujuh Keliling (Vergo)"
+    },
+    {
+      "nama": "Pung Terbenam (Inverted Nipple)"
+    },
+    {
+      "nama": "Rabun Dekat (Hipermetropia)"
+    },
+    {
+      "nama": "Rabun Jauh (Miopia)"
+    },
+    {
+      "nama": "Radang folikel rambut (Folikulis)"
+    },
+    {
+      "nama": "Radang gusi (Gingivis)"
+    },
+    {
+      "nama": "Radang kantung sendi (Bursis)"
+    },
+    {
+      "nama": "Radang kelenjar limfe / Limfadenis"
+    },
+    {
+      "nama": "Radang lambung (Gastris)"
+    },
+    {
+      "nama": "Radang prostat (Prostas)"
+    },
+    {
+      "nama": "Radang saluran kelamin (Epididimis)"
+    },
+    {
+      "nama": "Radang Saluran Paru Bronkiolus (Bronkiolis)"
+    },
+    {
+      "nama": "Radang selaput otak (Viral Meningis)"
+    },
+    {
+      "nama": "Radang tenggorokan (Faringis)"
+    },
+    {
+      "nama": "Radang usus (Ulcera ve Colis)"
+    },
+    {
+      "nama": "Reumatoid Artrs"
+    },
+    {
+      "nama": "Rhins Non-Alergi (Non-Allergic Rhins)"
+    },
+    {
+      "nama": "Robek jaringan ginjal (Ruptur ginjal)"
+    },
+    {
+      "nama": "Ruam Popok ( Diaper Rash)"
+    },
+    {
+      "nama": "Sadisme"
+    },
+    {
+      "nama": "Sakit Kepala (Headache)"
+    },
+    {
+      "nama": "Sakit Lambung (Dispepsia atau Maag)"
+    },
+    {
+      "nama": "Saraf Terjepit / Herniasi Nukleus Pulposus (HNP)"
+    },
+    {
+      "nama": "Sariawan (Stomas)"
+    },
+    {
+      "nama": "Scalp Psoriasis"
+    },
+    {
+      "nama": "Sembelit (Kons pasi)"
+    },
+    {
+      "nama": "Sengatan panas (Heat Stroke)"
+    },
+    {
+      "nama": "Serangan panik (Panick A\ue004ack)"
+    },
+    {
+      "nama": "Siflis (Raja Singa)"
+    },
+    {
+      "nama": "Siflis Sekunder"
+    },
+    {
+      "nama": "Silindris (Asgmasme)"
+    },
+    {
+      "nama": "Sindrom tulang servikal (Cervical syndrome)"
+    },
+    {
+      "nama": "Sinusis wajah"
+    },
+    {
+      "nama": "Sirosis Hepas"
+    },
+    {
+      "nama": "Solusio Plasenta (Perdarahan pada Kehamilan)"
+    },
+    {
+      "nama": "Somasasi"
+    },
+    {
+      "nama": "Somnambulisme"
+    },
+    {
+      "nama": "Spondilis TB (Infeksi Tulang Belakang)"
+    },
+    {
+      "nama": "Status Epilepkus"
+    },
+    {
+      "nama": "Stenosis Pylorus"
+    },
+    {
+      "nama": "Stroke (Kelumpuhan pada tubuh)"
+    },
+    {
+      "nama": "Subdural Hematom"
+    },
+    {
+      "nama": "Tension Type Headache (Nyeri Kepala Tipe Tegang)"
+    },
+    {
+      "nama": "Tess Terpunr atau Torsio Tess"
+    },
+    {
+      "nama": "Tess Tidak Turun (Kriptorkidismus)"
+    },
+    {
+      "nama": "Tidur berlebihan (Hipersomnia)"
+    },
+    {
+      "nama": "Tonsilis Diferi (Radang Tonsil)"
+    },
+    {
+      "nama": "Torsio Tess (Tess Terpunr)"
+    },
+    {
+      "nama": "Torkolis (Kaku Otot Leher)"
+    },
+    {
+      "nama": "Transient Ischemic A\ue004ack (TIA)"
+    },
+    {
+      "nama": "Transient Takipneu o\ue002 Newborn (TTN)"
+    },
+    {
+      "nama": "Trikiasis (Bulu Mata Tumbuh ke Dalam)"
+    },
+    {
+      "nama": "Trikolomania (Perilaku Mencabut Rambut Berlebihan)"
+    },
+    {
+      "nama": "Tuberkulosis Paru (TBC)"
+    },
+    {
+      "nama": "Tuli Konduk f "
+    },
+    {
+      "nama": "Tuli Sensorineural"
+    },
+    {
+      "nama": "Tumor (Benjolan)"
+    },
+    {
+      "nama": "Tumor ginjal (Tumor Wilms)"
+    },
+    {
+      "nama": "Tumor jinak pembuluh darah (Angiofbroma)"
+    },
+    {
+      "nama": "Tumor Paros (Kelenjar Ludah Besar)"
+    },
+    {
+      "nama": "Ulkus Duodenum"
+    },
+    {
+      "nama": "Ulkus Pepkum"
+    },
+    {
+      "nama": "Urin kemerahan (Hematuria)"
+    },
+    {
+      "nama": "Urkaria (Biduran)"
+    },
+    {
+      "nama": "Usus Buntu (Apendisis)"
+    },
+    {
+      "nama": "Usus Terpunr (Volvulus)"
+    },
+    {
+      "nama": "Vaginal discharge"
+    },
+    {
+      "nama": "Vaginismus (Problem Seksual Wanita)"
+    },
+    {
+      "nama": "Vaginis"
+    },
+    {
+      "nama": "Vaginosis Bakteri (Infeksi Bakteri pada Vagina)"
+    },
+    {
+      "nama": "Varikokel (Pelebaran Pembuluh Vena Tess)"
+    },
+    {
+      "nama": "Voyeurisme (Problem Psikiatri)"
+    },
+    {
+      "nama": "Wasir / ambeien (Haemorrhoid)"
+    },
+    {
+      "nama": "Xanthelasma (Gumpalan Lemak Kelopak Mata)"
+    }
+  ],
+  "obat": [
+    {
+      "nama": "Acarbose",
+      "abjad": "A"
+    },
+    {
+      "nama": "Acetazolamide",
+      "abjad": "A"
+    },
+    {
+      "nama": "Acetylcysteine",
+      "abjad": "A"
+    },
+    {
+      "nama": "Acrivasne",
+      "abjad": "A"
+    },
+    {
+      "nama": "Acyclover Topical",
+      "abjad": "A"
+    },
+    {
+      "nama": "Acyclovir",
+      "abjad": "A"
+    },
+    {
+      "nama": "Albendazole",
+      "abjad": "A"
+    },
+    {
+      "nama": "Albumin",
+      "abjad": "A"
+    },
+    {
+      "nama": "Alginic Acid",
+      "abjad": "A"
+    },
+    {
+      "nama": "Allopurinol",
+      "abjad": "A"
+    },
+    {
+      "nama": "Allylestrenol",
+      "abjad": "A"
+    },
+    {
+      "nama": "Alpha-Lipoic Acid",
+      "abjad": "A"
+    },
+    {
+      "nama": "Alprazolam",
+      "abjad": "A"
+    },
+    {
+      "nama": "Aluminium Hidroksida",
+      "abjad": "A"
+    },
+    {
+      "nama": "Ambroxol",
+      "abjad": "A"
+    },
+    {
+      "nama": "Amikacin",
+      "abjad": "A"
+    },
+    {
+      "nama": "Aminepne",
+      "abjad": "A"
+    },
+    {
+      "nama": "Aminoflin",
+      "abjad": "A"
+    },
+    {
+      "nama": "Amiodarone",
+      "abjad": "A"
+    },
+    {
+      "nama": "Amitriptyline",
+      "abjad": "A"
+    },
+    {
+      "nama": "Amlodipine",
+      "abjad": "A"
+    },
+    {
+      "nama": "Amonium Klorida",
+      "abjad": "A"
+    },
+    {
+      "nama": "Amoxapine",
+      "abjad": "A"
+    },
+    {
+      "nama": "Amoxicillin",
+      "abjad": "A"
+    },
+    {
+      "nama": "Amphotericin B",
+      "abjad": "A"
+    },
+    {
+      "nama": "Ampicillin",
+      "abjad": "A"
+    },
+    {
+      "nama": "Anidulafungin",
+      "abjad": "A"
+    },
+    {
+      "nama": "Apixaban",
+      "abjad": "A"
+    },
+    {
+      "nama": "Arginine",
+      "abjad": "A"
+    },
+    {
+      "nama": "Aripiprazole",
+      "abjad": "A"
+    },
+    {
+      "nama": "Asam Alginat",
+      "abjad": "A"
+    },
+    {
+      "nama": "Asam Amino",
+      "abjad": "A"
+    },
+    {
+      "nama": "Asam Borat",
+      "abjad": "A"
+    },
+    {
+      "nama": "Asam Glikolat",
+      "abjad": "A"
+    },
+    {
+      "nama": "Asam Mefenamat",
+      "abjad": "A"
+    },
+    {
+      "nama": "Asam Salisilat",
+      "abjad": "A"
+    },
+    {
+      "nama": "Asam Traneksamat",
+      "abjad": "A"
+    },
+    {
+      "nama": "Asam Ursodeoksikolat",
+      "abjad": "A"
+    },
+    {
+      "nama": "Asam Valproat",
+      "abjad": "A"
+    },
+    {
+      "nama": "Asenapine",
+      "abjad": "A"
+    },
+    {
+      "nama": "Aselkolin",
+      "abjad": "A"
+    },
+    {
+      "nama": "Aspirin",
+      "abjad": "A"
+    },
+    {
+      "nama": "Astaxanthin",
+      "abjad": "A"
+    },
+    {
+      "nama": "Astemizole",
+      "abjad": "A"
+    },
+    {
+      "nama": "Atenolol",
+      "abjad": "A"
+    },
+    {
+      "nama": "Atorvasn",
+      "abjad": "A"
+    },
+    {
+      "nama": "Atropin",
+      "abjad": "A"
+    },
+    {
+      "nama": "Aapulgite",
+      "abjad": "A"
+    },
+    {
+      "nama": "Azatadine",
+      "abjad": "A"
+    },
+    {
+      "nama": "Azathioprine",
+      "abjad": "A"
+    },
+    {
+      "nama": "Azithromycin",
+      "abjad": "A"
+    },
+    {
+      "nama": "Bacitracin",
+      "abjad": "B"
+    },
+    {
+      "nama": "Baclofen",
+      "abjad": "B"
+    },
+    {
+      "nama": "Bambuterol",
+      "abjad": "B"
+    },
+    {
+      "nama": "Benazepril",
+      "abjad": "B"
+    },
+    {
+      "nama": "Benzoyl Peroxide",
+      "abjad": "B"
+    },
+    {
+      "nama": "Betametason",
+      "abjad": "B"
+    },
+    {
+      "nama": "Bio n",
+      "abjad": "B"
+    },
+    {
+      "nama": "Bisacodyl",
+      "abjad": "B"
+    },
+    {
+      "nama": "Boron",
+      "abjad": "B"
+    },
+    {
+      "nama": "Botulinum Toxin",
+      "abjad": "B"
+    },
+    {
+      "nama": "Bromelain",
+      "abjad": "B"
+    },
+    {
+      "nama": "Bromhexine",
+      "abjad": "B"
+    },
+    {
+      "nama": "Bromocrip ne",
+      "abjad": "B"
+    },
+    {
+      "nama": "Brompheniramine",
+      "abjad": "B"
+    },
+    {
+      "nama": "Budesonide",
+      "abjad": "B"
+    },
+    {
+      "nama": "Bupivacaine",
+      "abjad": "B"
+    },
+    {
+      "nama": "Bupropion",
+      "abjad": "B"
+    },
+    {
+      "nama": "Busulfan",
+      "abjad": "B"
+    },
+    {
+      "nama": "Calcitriol",
+      "abjad": "C"
+    },
+    {
+      "nama": "Calcium Acetate",
+      "abjad": "C"
+    },
+    {
+      "nama": "Calcium Carbonate",
+      "abjad": "C"
+    },
+    {
+      "nama": "Candesartan",
+      "abjad": "C"
+    },
+    {
+      "nama": "Captopril",
+      "abjad": "C"
+    },
+    {
+      "nama": "Carbamazepine",
+      "abjad": "C"
+    },
+    {
+      "nama": "Carbimazole",
+      "abjad": "C"
+    },
+    {
+      "nama": "Carvedilol",
+      "abjad": "C"
+    },
+    {
+      "nama": "Caspo ungin",
+      "abjad": "C"
+    },
+    {
+      "nama": "Ce adroxil",
+      "abjad": "C"
+    },
+    {
+      "nama": "Ce azolin",
+      "abjad": "C"
+    },
+    {
+      "nama": "Ce epime",
+      "abjad": "C"
+    },
+    {
+      "nama": "Cefdinir",
+      "abjad": "C"
+    },
+    {
+      "nama": "Cefxime",
+      "abjad": "C"
+    },
+    {
+      "nama": "Ce operazone",
+      "abjad": "C"
+    },
+    {
+      "nama": "Ce otaxim",
+      "abjad": "C"
+    },
+    {
+      "nama": "Ce azidime",
+      "abjad": "C"
+    },
+    {
+      "nama": "Ce riaxone",
+      "abjad": "C"
+    },
+    {
+      "nama": "Ce uroxime",
+      "abjad": "C"
+    },
+    {
+      "nama": "Celecoxib",
+      "abjad": "C"
+    },
+    {
+      "nama": "Cephalexin",
+      "abjad": "C"
+    },
+    {
+      "nama": "Ce rizine",
+      "abjad": "C"
+    },
+    {
+      "nama": "Chlordiazepoxide",
+      "abjad": "C"
+    },
+    {
+      "nama": "Chlorpheniramine",
+      "abjad": "C"
+    },
+    {
+      "nama": "Chlorpromazine",
+      "abjad": "C"
+    },
+    {
+      "nama": "Cholestyramine",
+      "abjad": "C"
+    },
+    {
+      "nama": "Ciclosporin",
+      "abjad": "C"
+    },
+    {
+      "nama": "Cilostazol",
+      "abjad": "C"
+    },
+    {
+      "nama": "Cime dine",
+      "abjad": "C"
+    },
+    {
+      "nama": "Cinnarizine",
+      "abjad": "C"
+    },
+    {
+      "nama": "Cipro oxacin",
+      "abjad": "C"
+    },
+    {
+      "nama": "Cispla n",
+      "abjad": "C"
+    },
+    {
+      "nama": "Citalopram",
+      "abjad": "C"
+    },
+    {
+      "nama": "Ci colin",
+      "abjad": "C"
+    },
+    {
+      "nama": "Claritrhomycin",
+      "abjad": "C"
+    },
+    {
+      "nama": "Clindamycin",
+      "abjad": "C"
+    },
+    {
+      "nama": "Clobazam",
+      "abjad": "C"
+    },
+    {
+      "nama": "Clonazepam",
+      "abjad": "C"
+    },
+    {
+      "nama": "Clonidine",
+      "abjad": "C"
+    },
+    {
+      "nama": "Clopidogrel",
+      "abjad": "C"
+    },
+    {
+      "nama": "Clotrimazole",
+      "abjad": "C"
+    },
+    {
+      "nama": "Clozapine",
+      "abjad": "C"
+    },
+    {
+      "nama": "Co-trimoxazole (sul famethoxazole + trimethoprim)",
+      "abjad": "C"
+    },
+    {
+      "nama": "Codeine",
+      "abjad": "C"
+    },
+    {
+      "nama": "Coenzyme Q10",
+      "abjad": "C"
+    },
+    {
+      "nama": "Colchicine",
+      "abjad": "C"
+    },
+    {
+      "nama": "Colis n",
+      "abjad": "C"
+    },
+    {
+      "nama": "Cor sone",
+      "abjad": "C"
+    },
+    {
+      "nama": "Cyclophosphamide",
+      "abjad": "C"
+    },
+    {
+      "nama": "Cyproheptadine",
+      "abjad": "C"
+    },
+    {
+      "nama": "Dabigatran",
+      "abjad": "D"
+    },
+    {
+      "nama": "Desloratadine",
+      "abjad": "D"
+    },
+    {
+      "nama": "Desoximetasone",
+      "abjad": "D"
+    },
+    {
+      "nama": "Dexamethasone",
+      "abjad": "D"
+    },
+    {
+      "nama": "Dexchlorpheniramine",
+      "abjad": "D"
+    },
+    {
+      "nama": "Dexketoprofen",
+      "abjad": "D"
+    },
+    {
+      "nama": "Dextromethorphan",
+      "abjad": "D"
+    },
+    {
+      "nama": "Dextrose",
+      "abjad": "D"
+    },
+    {
+      "nama": "Diazepam",
+      "abjad": "D"
+    },
+    {
+      "nama": "Diclofenac",
+      "abjad": "D"
+    },
+    {
+      "nama": "Diethylcarbamazine",
+      "abjad": "D"
+    },
+    {
+      "nama": "Digoxin",
+      "abjad": "D"
+    },
+    {
+      "nama": "Dil azem",
+      "abjad": "D"
+    },
+    {
+      "nama": "Dimenhydrinate",
+      "abjad": "D"
+    },
+    {
+      "nama": "Dimethicone",
+      "abjad": "D"
+    },
+    {
+      "nama": "Diphenhydramine",
+      "abjad": "D"
+    },
+    {
+      "nama": "Disulfram",
+      "abjad": "D"
+    },
+    {
+      "nama": "Dobutamine",
+      "abjad": "D"
+    },
+    {
+      "nama": "Docosahexaenoic Acid (DHA)",
+      "abjad": "D"
+    },
+    {
+      "nama": "Domperidone",
+      "abjad": "D"
+    },
+    {
+      "nama": "Donepezil",
+      "abjad": "D"
+    },
+    {
+      "nama": "Dopamine",
+      "abjad": "D"
+    },
+    {
+      "nama": "Doripenem",
+      "abjad": "D"
+    },
+    {
+      "nama": "Doxycycline",
+      "abjad": "D"
+    },
+    {
+      "nama": "Duloxe ne",
+      "abjad": "D"
+    },
+    {
+      "nama": "Enalapril",
+      "abjad": "E"
+    },
+    {
+      "nama": "Eperisone",
+      "abjad": "E"
+    },
+    {
+      "nama": "Ephedrine",
+      "abjad": "E"
+    },
+    {
+      "nama": "Epinephrine",
+      "abjad": "E"
+    },
+    {
+      "nama": "Erdosteine",
+      "abjad": "E"
+    },
+    {
+      "nama": "Ergotamine",
+      "abjad": "E"
+    },
+    {
+      "nama": "Erythromycin",
+      "abjad": "E"
+    },
+    {
+      "nama": "Escitalopram",
+      "abjad": "E"
+    },
+    {
+      "nama": "Esomeprazole",
+      "abjad": "E"
+    },
+    {
+      "nama": "Estazolam",
+      "abjad": "E"
+    },
+    {
+      "nama": "Estradiol",
+      "abjad": "E"
+    },
+    {
+      "nama": "Estrogen",
+      "abjad": "E"
+    },
+    {
+      "nama": "Ethambutol",
+      "abjad": "E"
+    },
+    {
+      "nama": "Etodolac",
+      "abjad": "E"
+    },
+    {
+      "nama": "Etoricoxib",
+      "abjad": "E"
+    },
+    {
+      "nama": "Famo dine",
+      "abjad": "F"
+    },
+    {
+      "nama": "Felodipine",
+      "abjad": "F"
+    },
+    {
+      "nama": "Fenofbrate",
+      "abjad": "F"
+    },
+    {
+      "nama": "Fentanyl",
+      "abjad": "F"
+    },
+    {
+      "nama": "Ferrous Fumarate",
+      "abjad": "F"
+    },
+    {
+      "nama": "Fexofenadine",
+      "abjad": "F"
+    },
+    {
+      "nama": "Fibrinogen",
+      "abjad": "F"
+    },
+    {
+      "nama": "Finasteride",
+      "abjad": "F"
+    },
+    {
+      "nama": "Fluconazole",
+      "abjad": "F"
+    },
+    {
+      "nama": "Flunarizin",
+      "abjad": "F"
+    },
+    {
+      "nama": "Fluoxe ne",
+      "abjad": "F"
+    },
+    {
+      "nama": "Fluphenazine",
+      "abjad": "F"
+    },
+    {
+      "nama": "Fluvoxamine",
+      "abjad": "F"
+    },
+    {
+      "nama": "Fondaparinux",
+      "abjad": "F"
+    },
+    {
+      "nama": "Formaldehyde",
+      "abjad": "F"
+    },
+    {
+      "nama": "Fosinopril",
+      "abjad": "F"
+    },
+    {
+      "nama": "Furosemide",
+      "abjad": "F"
+    },
+    {
+      "nama": "Gabapen n",
+      "abjad": "G"
+    },
+    {
+      "nama": "Galantamine",
+      "abjad": "G"
+    },
+    {
+      "nama": "Gemfbrozil",
+      "abjad": "G"
+    },
+    {
+      "nama": "Gentamicin",
+      "abjad": "G"
+    },
+    {
+      "nama": "Glibenclamide",
+      "abjad": "G"
+    },
+    {
+      "nama": "Glimepiride",
+      "abjad": "G"
+    },
+    {
+      "nama": "Gliquidone",
+      "abjad": "G"
+    },
+    {
+      "nama": "Glucagon",
+      "abjad": "G"
+    },
+    {
+      "nama": "Glucosamine",
+      "abjad": "G"
+    },
+    {
+      "nama": "Glycerol",
+      "abjad": "G"
+    },
+    {
+      "nama": "Glycopyrronium bromide",
+      "abjad": "G"
+    },
+    {
+      "nama": "Granisetron",
+      "abjad": "G"
+    },
+    {
+      "nama": "Griseofulvin",
+      "abjad": "G"
+    },
+    {
+      "nama": "Guai enesin",
+      "abjad": "G"
+    },
+    {
+      "nama": "Haloperidol",
+      "abjad": "H"
+    },
+    {
+      "nama": "Heparin",
+      "abjad": "H"
+    },
+    {
+      "nama": "Homochlorcyclizine dihydrochloride",
+      "abjad": "H"
+    },
+    {
+      "nama": "Human Chorionic Gonadotropin (HCG)",
+      "abjad": "H"
+    },
+    {
+      "nama": "Hydrochlorothiazide (HCTZ)",
+      "abjad": "H"
+    },
+    {
+      "nama": "Hydrocor sone",
+      "abjad": "H"
+    },
+    {
+      "nama": "Hydroquinone",
+      "abjad": "H"
+    },
+    {
+      "nama": "Hyoscine",
+      "abjad": "H"
+    },
+    {
+      "nama": "Hyoscyamine",
+      "abjad": "H"
+    },
+    {
+      "nama": "Ibuprofen",
+      "abjad": "I"
+    },
+    {
+      "nama": "Iloprost",
+      "abjad": "I"
+    },
+    {
+      "nama": "Imipramine",
+      "abjad": "I"
+    },
+    {
+      "nama": "Indinavir",
+      "abjad": "I"
+    },
+    {
+      "nama": "Indomethacin",
+      "abjad": "I"
+    },
+    {
+      "nama": "Insulin",
+      "abjad": "I"
+    },
+    {
+      "nama": "Ipratropium bromide",
+      "abjad": "I"
+    },
+    {
+      "nama": "Irbesartan",
+      "abjad": "I"
+    },
+    {
+      "nama": "Isoniazid",
+      "abjad": "I"
+    },
+    {
+      "nama": "Isosorbide Dinitrate",
+      "abjad": "I"
+    },
+    {
+      "nama": "Isotreno in",
+      "abjad": "I"
+    },
+    {
+      "nama": "Isoxsuorine HCII",
+      "abjad": "I"
+    },
+    {
+      "nama": "Isradipine",
+      "abjad": "I"
+    },
+    {
+      "nama": "Itraconazole",
+      "abjad": "I"
+    },
+    {
+      "nama": "Ivermec n",
+      "abjad": "I"
+    },
+    {
+      "nama": "Kanamycin",
+      "abjad": "K"
+    },
+    {
+      "nama": "Kaolin",
+      "abjad": "K"
+    },
+    {
+      "nama": "Ketamine",
+      "abjad": "K"
+    },
+    {
+      "nama": "Ketoconazole",
+      "abjad": "K"
+    },
+    {
+      "nama": "Ketoprofen",
+      "abjad": "K"
+    },
+    {
+      "nama": "Ketorolac",
+      "abjad": "K"
+    },
+    {
+      "nama": "Keto fen",
+      "abjad": "K"
+    },
+    {
+      "nama": "Kloramfenikol",
+      "abjad": "K"
+    },
+    {
+      "nama": "L-Glutamine (Glutamine)",
+      "abjad": "L"
+    },
+    {
+      "nama": "Lac c Acid",
+      "abjad": "L"
+    },
+    {
+      "nama": "Lactobacillus Acidophilus",
+      "abjad": "L"
+    },
+    {
+      "nama": "Lactobacillus acidophilus",
+      "abjad": "L"
+    },
+    {
+      "nama": "Lactulose",
+      "abjad": "L"
+    },
+    {
+      "nama": "Lanolin",
+      "abjad": "L"
+    },
+    {
+      "nama": "Lansoprazole",
+      "abjad": "L"
+    },
+    {
+      "nama": "Levodopa",
+      "abjad": "L"
+    },
+    {
+      "nama": "Levo oxacin",
+      "abjad": "L"
+    },
+    {
+      "nama": "Levonorgestrel",
+      "abjad": "L"
+    },
+    {
+      "nama": "Lidocaine",
+      "abjad": "L"
+    },
+    {
+      "nama": "Lincomycin",
+      "abjad": "L"
+    },
+    {
+      "nama": "Lisinopril",
+      "abjad": "L"
+    },
+    {
+      "nama": "Lithium",
+      "abjad": "L"
+    },
+    {
+      "nama": "Loperamide",
+      "abjad": "L"
+    },
+    {
+      "nama": "Loratadine",
+      "abjad": "L"
+    },
+    {
+      "nama": "Lorazepam",
+      "abjad": "L"
+    },
+    {
+      "nama": "Losartan",
+      "abjad": "L"
+    },
+    {
+      "nama": "Lovas n",
+      "abjad": "L"
+    },
+    {
+      "nama": "Lutein",
+      "abjad": "L"
+    },
+    {
+      "nama": "Lysine",
+      "abjad": "L"
+    },
+    {
+      "nama": "Magnesium Hidroksida",
+      "abjad": "M"
+    },
+    {
+      "nama": "Manitol",
+      "abjad": "M"
+    },
+    {
+      "nama": "Mebhydrolin",
+      "abjad": "M"
+    },
+    {
+      "nama": "Meloxicam",
+      "abjad": "M"
+    },
+    {
+      "nama": "Meman ne",
+      "abjad": "M"
+    },
+    {
+      "nama": "Meropenem",
+      "abjad": "M"
+    },
+    {
+      "nama": "Metamfetamin",
+      "abjad": "M"
+    },
+    {
+      "nama": "Metampicillin",
+      "abjad": "M"
+    },
+    {
+      "nama": "Me formin",
+      "abjad": "M"
+    },
+    {
+      "nama": "Methadone",
+      "abjad": "M"
+    },
+    {
+      "nama": "Methisoprinol",
+      "abjad": "M"
+    },
+    {
+      "nama": "Methotrexate",
+      "abjad": "M"
+    },
+    {
+      "nama": "Methylcobalamin",
+      "abjad": "M"
+    },
+    {
+      "nama": "Methylprednisolone",
+      "abjad": "M"
+    },
+    {
+      "nama": "Me l Salisilat",
+      "abjad": "M"
+    },
+    {
+      "nama": "Me ldopa",
+      "abjad": "M"
+    },
+    {
+      "nama": "Metoclopramide",
+      "abjad": "M"
+    },
+    {
+      "nama": "Metoprolol",
+      "abjad": "M"
+    },
+    {
+      "nama": "Metronidazole",
+      "abjad": "M"
+    },
+    {
+      "nama": "Miconazole",
+      "abjad": "M"
+    },
+    {
+      "nama": "Midazolam",
+      "abjad": "M"
+    },
+    {
+      "nama": "Minoxidil",
+      "abjad": "M"
+    },
+    {
+      "nama": "Misoprostol",
+      "abjad": "M"
+    },
+    {
+      "nama": "Modafnil",
+      "abjad": "M"
+    },
+    {
+      "nama": "Montelukast",
+      "abjad": "M"
+    },
+    {
+      "nama": "Morfn",
+      "abjad": "M"
+    },
+    {
+      "nama": "Moxi oxacin",
+      "abjad": "M"
+    },
+    {
+      "nama": "Mupirocin",
+      "abjad": "M"
+    },
+    {
+      "nama": "Naltrexone",
+      "abjad": "N"
+    },
+    {
+      "nama": "Naproxen",
+      "abjad": "N"
+    },
+    {
+      "nama": "Nateglinide",
+      "abjad": "N"
+    },
+    {
+      "nama": "Natrium Bikarbonat",
+      "abjad": "N"
+    },
+    {
+      "nama": "Nebivolol",
+      "abjad": "N"
+    },
+    {
+      "nama": "Nedocromil",
+      "abjad": "N"
+    },
+    {
+      "nama": "Nefazodone",
+      "abjad": "N"
+    },
+    {
+      "nama": "Neomycin",
+      "abjad": "N"
+    },
+    {
+      "nama": "Neos gmine",
+      "abjad": "N"
+    },
+    {
+      "nama": "Nepafenac",
+      "abjad": "N"
+    },
+    {
+      "nama": "Nesiri de",
+      "abjad": "N"
+    },
+    {
+      "nama": "Nicardipine",
+      "abjad": "N"
+    },
+    {
+      "nama": "Nicorandil",
+      "abjad": "N"
+    },
+    {
+      "nama": "Nico namide",
+      "abjad": "N"
+    },
+    {
+      "nama": "Ni fedipine",
+      "abjad": "N"
+    },
+    {
+      "nama": "Ni furoxazide",
+      "abjad": "N"
+    },
+    {
+      "nama": "Nilo nib",
+      "abjad": "N"
+    },
+    {
+      "nama": "Nimorazole",
+      "abjad": "N"
+    },
+    {
+      "nama": "Nimus ne",
+      "abjad": "N"
+    },
+    {
+      "nama": "Nisoldipine",
+      "abjad": "N"
+    },
+    {
+      "nama": "Nitrazepam",
+      "abjad": "N"
+    },
+    {
+      "nama": "Nitro furantoin",
+      "abjad": "N"
+    },
+    {
+      "nama": "Nitrogliserin",
+      "abjad": "N"
+    },
+    {
+      "nama": "Niza dine",
+      "abjad": "N"
+    },
+    {
+      "nama": "Nordazepam",
+      "abjad": "N"
+    },
+    {
+      "nama": "Norepinephrine",
+      "abjad": "N"
+    },
+    {
+      "nama": "Norethisterone",
+      "abjad": "N"
+    },
+    {
+      "nama": "Noscapine",
+      "abjad": "N"
+    },
+    {
+      "nama": "Nys n",
+      "abjad": "N"
+    },
+    {
+      "nama": "Pantoprazole",
+      "abjad": "P"
+    },
+    {
+      "nama": "Papaverine",
+      "abjad": "P"
+    },
+    {
+      "nama": "Paracetamol",
+      "abjad": "P"
+    },
+    {
+      "nama": "Parecoxib",
+      "abjad": "P"
+    },
+    {
+      "nama": "Paromomycin",
+      "abjad": "P"
+    },
+    {
+      "nama": "Pe oxacin",
+      "abjad": "P"
+    },
+    {
+      "nama": "Penbutolol",
+      "abjad": "P"
+    },
+    {
+      "nama": "Penciclovir",
+      "abjad": "P"
+    },
+    {
+      "nama": "Perindopril",
+      "abjad": "P"
+    },
+    {
+      "nama": "Permethrin",
+      "abjad": "P"
+    },
+    {
+      "nama": "Phenobarbital",
+      "abjad": "P"
+    },
+    {
+      "nama": "Phenylbutazone",
+      "abjad": "P"
+    },
+    {
+      "nama": "Phenylephrine",
+      "abjad": "P"
+    },
+    {
+      "nama": "Phenylpropanolamine",
+      "abjad": "P"
+    },
+    {
+      "nama": "Phenytoin",
+      "abjad": "P"
+    },
+    {
+      "nama": "Pilocarpine",
+      "abjad": "P"
+    },
+    {
+      "nama": "Pioglitazone",
+      "abjad": "P"
+    },
+    {
+      "nama": "Piracetam",
+      "abjad": "P"
+    },
+    {
+      "nama": "Piroxicam",
+      "abjad": "P"
+    },
+    {
+      "nama": "Policresulen",
+      "abjad": "P"
+    },
+    {
+      "nama": "Potassium Acetate",
+      "abjad": "P"
+    },
+    {
+      "nama": "Povidone Iodine",
+      "abjad": "P"
+    },
+    {
+      "nama": "Pramipexole",
+      "abjad": "P"
+    },
+    {
+      "nama": "Praziquantel",
+      "abjad": "P"
+    },
+    {
+      "nama": "Prednisolone",
+      "abjad": "P"
+    },
+    {
+      "nama": "Prednisone",
+      "abjad": "P"
+    },
+    {
+      "nama": "Pregabalin",
+      "abjad": "P"
+    },
+    {
+      "nama": "Probenecid",
+      "abjad": "P"
+    },
+    {
+      "nama": "Procainamide",
+      "abjad": "P"
+    },
+    {
+      "nama": "Prochlorperazine",
+      "abjad": "P"
+    },
+    {
+      "nama": "Progesteron",
+      "abjad": "P"
+    },
+    {
+      "nama": "Promethazine",
+      "abjad": "P"
+    },
+    {
+      "nama": "Propo ol",
+      "abjad": "P"
+    },
+    {
+      "nama": "Propranolol",
+      "abjad": "P"
+    },
+    {
+      "nama": "Propylthiouracil",
+      "abjad": "P"
+    },
+    {
+      "nama": "Pseudoephedrine",
+      "abjad": "P"
+    },
+    {
+      "nama": "Pyrazinamide",
+      "abjad": "P"
+    },
+    {
+      "nama": "Pyridoxine",
+      "abjad": "P"
+    },
+    {
+      "nama": "Quinidine",
+      "abjad": "Q"
+    },
+    {
+      "nama": "Quinine",
+      "abjad": "Q"
+    },
+    {
+      "nama": "Radium",
+      "abjad": "R"
+    },
+    {
+      "nama": "Ramipril",
+      "abjad": "R"
+    },
+    {
+      "nama": "Rani din",
+      "abjad": "R"
+    },
+    {
+      "nama": "Ranolazine",
+      "abjad": "R"
+    },
+    {
+      "nama": "Regdanvimab",
+      "abjad": "R"
+    },
+    {
+      "nama": "Resorcinol",
+      "abjad": "R"
+    },
+    {
+      "nama": "Ribo\ue004avin",
+      "abjad": "R"
+    },
+    {
+      "nama": "Rifabu n",
+      "abjad": "R"
+    },
+    {
+      "nama": "Rifampicin",
+      "abjad": "R"
+    },
+    {
+      "nama": "Risperidone",
+      "abjad": "R"
+    },
+    {
+      "nama": "Rivas gmine",
+      "abjad": "R"
+    },
+    {
+      "nama": "Ropinirole",
+      "abjad": "R"
+    },
+    {
+      "nama": "Rosuvas n",
+      "abjad": "R"
+    },
+    {
+      "nama": "Saccharomyces boulardii Iyo",
+      "abjad": "S"
+    },
+    {
+      "nama": "Salbutamol",
+      "abjad": "S"
+    },
+    {
+      "nama": "Salmeterol",
+      "abjad": "S"
+    },
+    {
+      "nama": "Satranidazole",
+      "abjad": "S"
+    },
+    {
+      "nama": "Scopolamine",
+      "abjad": "S"
+    },
+    {
+      "nama": "Sea Water",
+      "abjad": "S"
+    },
+    {
+      "nama": "Secukinumab",
+      "abjad": "S"
+    },
+    {
+      "nama": "Selegenile",
+      "abjad": "S"
+    },
+    {
+      "nama": "Sertraline",
+      "abjad": "S"
+    },
+    {
+      "nama": "Sildenafl",
+      "abjad": "S"
+    },
+    {
+      "nama": "Simethicone",
+      "abjad": "S"
+    },
+    {
+      "nama": "Simvas n",
+      "abjad": "S"
+    },
+    {
+      "nama": "Spiramycin",
+      "abjad": "S"
+    },
+    {
+      "nama": "Spironolactone",
+      "abjad": "S"
+    },
+    {
+      "nama": "Squalene",
+      "abjad": "S"
+    },
+    {
+      "nama": "Streptokinase",
+      "abjad": "S"
+    },
+    {
+      "nama": "Streptomycin",
+      "abjad": "S"
+    },
+    {
+      "nama": "Stron um",
+      "abjad": "S"
+    },
+    {
+      "nama": "Sukralfat",
+      "abjad": "S"
+    },
+    {
+      "nama": "Sulfadizine",
+      "abjad": "S"
+    },
+    {
+      "nama": "Sul famethoxazole",
+      "abjad": "S"
+    },
+    {
+      "nama": "Sulfanilamide",
+      "abjad": "S"
+    },
+    {
+      "nama": "Sul fasalazine",
+      "abjad": "S"
+    },
+    {
+      "nama": "Sumatripan",
+      "abjad": "S"
+    },
+    {
+      "nama": "Tadalafl",
+      "abjad": "T"
+    },
+    {
+      "nama": "Ta u prost",
+      "abjad": "T"
+    },
+    {
+      "nama": "Tamoxi en",
+      "abjad": "T"
+    },
+    {
+      "nama": "Tamsulosin",
+      "abjad": "T"
+    },
+    {
+      "nama": "Telmisartan",
+      "abjad": "T"
+    },
+    {
+      "nama": "Temazepan",
+      "abjad": "T"
+    },
+    {
+      "nama": "Tembaga",
+      "abjad": "T"
+    },
+    {
+      "nama": "Teno ovir",
+      "abjad": "T"
+    },
+    {
+      "nama": "Teoflin",
+      "abjad": "T"
+    },
+    {
+      "nama": "Terazosin",
+      "abjad": "T"
+    },
+    {
+      "nama": "Terbinafne",
+      "abjad": "T"
+    },
+    {
+      "nama": "Terbutaline",
+      "abjad": "T"
+    },
+    {
+      "nama": "Testosterone",
+      "abjad": "T"
+    },
+    {
+      "nama": "Tetracycline",
+      "abjad": "T"
+    },
+    {
+      "nama": "Thalimode",
+      "abjad": "T"
+    },
+    {
+      "nama": "Thiamphenicole",
+      "abjad": "T"
+    },
+    {
+      "nama": "Tiabendazole",
+      "abjad": "T"
+    },
+    {
+      "nama": "Ticlopidine",
+      "abjad": "T"
+    },
+    {
+      "nama": "Timolon",
+      "abjad": "T"
+    },
+    {
+      "nama": "Tizanidine",
+      "abjad": "T"
+    },
+    {
+      "nama": "Tobramycin",
+      "abjad": "T"
+    },
+    {
+      "nama": "Tramadol",
+      "abjad": "T"
+    },
+    {
+      "nama": "Treno in",
+      "abjad": "T"
+    },
+    {
+      "nama": "Triamcinolone",
+      "abjad": "T"
+    },
+    {
+      "nama": "Triclosan",
+      "abjad": "T"
+    },
+    {
+      "nama": "Trihexyphenidyl",
+      "abjad": "T"
+    },
+    {
+      "nama": "Trimethoprin",
+      "abjad": "T"
+    },
+    {
+      "nama": "Triprolidine",
+      "abjad": "T"
+    },
+    {
+      "nama": "Tripsin",
+      "abjad": "T"
+    },
+    {
+      "nama": "Vaksin BCG",
+      "abjad": "V"
+    },
+    {
+      "nama": "Valacyclovir",
+      "abjad": "V"
+    },
+    {
+      "nama": "Valsartan",
+      "abjad": "V"
+    },
+    {
+      "nama": "Vancomycin",
+      "abjad": "V"
+    },
+    {
+      "nama": "Vasopressin",
+      "abjad": "V"
+    },
+    {
+      "nama": "Verapamil",
+      "abjad": "V"
+    },
+    {
+      "nama": "Vildaglip n",
+      "abjad": "V"
+    },
+    {
+      "nama": "Vincris ne",
+      "abjad": "V"
+    },
+    {
+      "nama": "Vitamin A",
+      "abjad": "V"
+    },
+    {
+      "nama": "Vitamin B1",
+      "abjad": "V"
+    },
+    {
+      "nama": "Vitamin B12",
+      "abjad": "V"
+    },
+    {
+      "nama": "Vitamin B2",
+      "abjad": "V"
+    },
+    {
+      "nama": "Vitamin B3 (Niacin)",
+      "abjad": "V"
+    },
+    {
+      "nama": "Vitamin B5",
+      "abjad": "V"
+    },
+    {
+      "nama": "Vitamin B6",
+      "abjad": "V"
+    },
+    {
+      "nama": "Vitamin B9 (Asam Volat)",
+      "abjad": "V"
+    },
+    {
+      "nama": "Vitamin C",
+      "abjad": "V"
+    },
+    {
+      "nama": "Vitamin D",
+      "abjad": "V"
+    },
+    {
+      "nama": "Vitamin E",
+      "abjad": "V"
+    },
+    {
+      "nama": "Vitamin K",
+      "abjad": "V"
+    },
+    {
+      "nama": "Warfarin",
+      "abjad": "W"
+    },
+    {
+      "nama": "White petrolatum",
+      "abjad": "W"
+    },
+    {
+      "nama": "Zinc Sulfat",
+      "abjad": "Z"
+    },
+    {
+      "nama": "Zolpidem",
+      "abjad": "Z"
+    }
+  ]
+}

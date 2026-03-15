@@ -1,11 +1,11 @@
-# 🛡️ SafeTana AI & Klinik AI (SagaHealth)
+# 🛡️ SafeTana AI & Klinik AI (SafeTana AI Health)
 > **"Cerdas Berbagi, Sigap Mitigasi, & Peduli Kesehatan"**
 > *Sistem Mitigasi Bencana Terintegrasi Berbasis AI & Platform Layanan Kesehatan Mandiri.*
 
 ---
 
 ## 📌 Tentang SafeTana AI
-SafeTana AI adalah platform progresif yang dirancang untuk memperkuat resiliensi masyarakat terhadap bencana alam dan krisis kesehatan. Dengan menggabungkan pemetaan data geospasial real-time, kecerdasan buatan (**Gemini AI**), dan modul layanan medis prediktif (**Klinik AI/SagaHealth**), platform ini memberikan perlindungan menyeluruh—baik dari ancaman alam maupun risiko kesehatan personal.
+SafeTana AI adalah platform progresif yang dirancang untuk memperkuat resiliensi masyarakat terhadap bencana alam dan krisis kesehatan. Dengan menggabungkan pemetaan data geospasial real-time, kecerdasan buatan (**Gemini AI**), dan modul layanan medis prediktif (**Klinik AI/SafeTana AI Health**), platform ini memberikan perlindungan menyeluruh—baik dari ancaman alam maupun risiko kesehatan personal.
 
 ---
 
@@ -26,7 +26,7 @@ Dashboard komando bagi pihak berwenang untuk melacak dan mengirimkan notifikasi 
 
 ---
 
-## ⚕️ Fitur Utama Kesehatan (Klinik AI / SagaHealth)
+## ⚕️ Fitur Utama Kesehatan (Klinik AI / SafeTana AI Health)
 *Terintegrasi penuh di bawah rute `/health` menggunakan Firebase Authentication Tersentralisasi.*
 
 ### 📋 Skrining Kesehatan Mandiri (Rule-Based Expert System)
@@ -42,7 +42,7 @@ Layanan log psikologis harian yang didukung dengan **Dashboard Analitik Personal
 - Menentukan **Emosi/Mood Dominan** dalam sebulan terakhir.
 - Memberikan skor rata-rata tingkat kebahagiaan untuk memantau fluktuasi _mental health_.
 
-### 💬 Sagabot (Health AI Assistant)
+### 💬 SafeTanaBot (Health AI Assistant)
 Chatbot interaktif khusus untuk layanan kesehatan. Pengguna dapat menanyakan gejala medis umum, rekomendasi gaya hidup, atau akses darurat RS dengan antarmuka chatting yang intuitif.
 
 ---
@@ -90,7 +90,7 @@ npm run dev
 
 ## 📂 Struktur Proyek Terkini
 - `src/App.jsx` - Main Routing, Navbar, Pelacakan Lokasi, dan Peta Pusat.
-- `src/components/health/*` - **[NEW]** Komponen SagaHealth: `HealthDashboard`, `HealthAuth`, `HealthScreening`, `MoodTracker`, dan `HealthChatbot`.
+- `src/components/health/*` - **[NEW]** Komponen SafeTana AI Health: `HealthDashboard`, `HealthAuth`, `HealthScreening`, `MoodTracker`, dan `HealthChatbot`.
 - `src/AiChatbot.jsx` - Chatbot AI Bencana (Gemini AI).
 - `src/CommandCenter.jsx` & `src/AdminLogin.jsx` - Dashboard Otoritas.
 - `src/MapComponent.jsx` - Komponen pemetaan geospasial *real-time*.
