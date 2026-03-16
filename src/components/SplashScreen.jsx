@@ -1,5 +1,3 @@
-<meta name="google-site-verification" content="-ouir9lf9L_6PMZuva6TqRGwfjOteqkXr3qUfkWU2Kw" />
-
 import React, { useEffect, useState } from 'react';
 
 /**
