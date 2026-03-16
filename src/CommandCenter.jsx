@@ -19,29 +19,6 @@ const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
   const [broadcastSuccess, setBroadcastSuccess] = useState(false);
   const [broadcastError, setBroadcastError] = useState('');
 
-  // Custom states array to hold modified reports so we can cleanly inject dummy ones locally if missing
-  const [localReports, setLocalReports] = useState(reports);
-
-  useEffect(() => {
-    // If we're an admin, automatically inject a localized dummy if one isn't in reports yet.
-    // We grab the last known user pos from active users or default if empty for demo purposes
-    let demoPos = [-6.200000, 106.816666]; // Jakarta Default
-
-    // Attempt to parse out user pos from localstorage if possible, or wait for users array
-
-    setLocalReports(prev => {
-      if (reports.some(r => r.source === 'Dummy System')) return reports;
-
-      return [{
-        source: 'Dummy System',
-        type: 'BENCANA SIMULASI (TESTING PITCH)',
-        loc: 'Simulasi Radar Bahaya Terdiameter',
-        position: users.length > 0 && users[0].pos ? [users[0].pos[0] + 0.05, users[0].pos[1] + 0.05] : demoPos,
-        desc: 'Ini adalah data simulasi khusus demo. Bencana dummy ini berada di dalam radius bahaya dari posisi spesifik pengguna saat ini untuk dapat memicu munculnya Warning Layar Kuning ketika diklik Eksekusi Broadcast oleh pihak Otoritas/Admin.',
-        statusColor: 'bg-yellow-500'
-      }, ...reports];
-    });
-  }, [reports, users]);
 
   useEffect(() => {
     const q = query(collection(db, 'active_users'), orderBy('lastActive', 'desc'));
@@ -135,10 +112,10 @@ const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
               {broadcastSuccess && <p className="text-green-500 text-[10px] uppercase font-bold text-center mb-4 bg-green-500/20 p-2 rounded-xl">Berhasil Terkirim ke Firestore</p>}
 
               <div className="space-y-4 overflow-y-auto flex-1 custom-scrollbar pr-2">
-                {localReports.length === 0 ? (
+                {(reports.filter(r => r.source !== 'Dummy System')).length === 0 ? (
                   <p className="text-xs text-slate-500 italic text-center py-10">Tidak ada data bencana aktif saat ini.</p>
                 ) : (
-                  localReports.map((r, i) => (
+                  (reports.filter(r => r.source !== 'Dummy System')).map((r, i) => (
                     <div key={i} className="bg-slate-950/50 p-4 rounded-3xl border border-slate-800 hover:border-blue-500/50 transition-all group">
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex items-center gap-2">

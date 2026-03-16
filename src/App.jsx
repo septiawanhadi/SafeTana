@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import {
   AlertTriangle, Activity, ShieldCheck, Navigation,
   MessageSquare, Globe, Waves, MapPin, LayoutDashboard,
   Info, Radio, BookOpen, ChevronRight, Newspaper, Sun, Moon, Heart
 } from 'lucide-react';
+import SplashScreen from './components/SplashScreen';
+import OnboardingScreen from './components/OnboardingScreen';
 
 // Integrasi Komponen
 import MapComponent from './MapComponent';
@@ -32,6 +34,25 @@ import { kabBandungSafeZones } from './data/kabBandungSafeZones';
 const App = () => {
   const navigate = useNavigate();
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+
+  // --- SPLASH SCREEN (tampil sekali per sesi browser) ---
+  const [showSplash, setShowSplash] = useState(() => {
+    return !sessionStorage.getItem('safetana_splash_shown');
+  });
+  const handleSplashDone = useCallback(() => {
+    sessionStorage.setItem('safetana_splash_shown', '1');
+    setShowSplash(false);
+  }, []);
+
+  // --- ONBOARDING (tampil sekali per install / sessionStorage) ---
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    // Tampil jika splash belum pernah ditampilkan ATAU onboarding belum di-agree
+    return !sessionStorage.getItem('safetana_onboarding_done');
+  });
+  const handleOnboardingDone = useCallback(() => {
+    sessionStorage.setItem('safetana_onboarding_done', '1');
+    setShowOnboarding(false);
+  }, []);
 
   // --- THEME STATE ---
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -81,7 +102,8 @@ const App = () => {
     // Jika waktu fetch terakhir kurang dari 5 menit (300000 ms), gunakan cache saja agar hemat kuota API
     if (cachedReports && lastFetchTime && (now - parseInt(lastFetchTime, 10)) < 300000) {
       try {
-        setReports(JSON.parse(cachedReports));
+        const parsed = JSON.parse(cachedReports).filter(r => r.source !== 'Dummy System');
+        setReports(parsed);
         setLoading(false);
         return; // Hentikan eksekusi, mencegah fetch API sama sekali
       } catch (e) {
@@ -90,7 +112,8 @@ const App = () => {
     } else if (cachedReports) {
       // Jika sudah lebih dari 5 menit, tampilkan cache sementara menunggu fetch selesai
       try {
-        setReports(JSON.parse(cachedReports));
+        const parsed = JSON.parse(cachedReports).filter(r => r.source !== 'Dummy System');
+        setReports(parsed);
       } catch (e) {
         console.error("Gagal membaca cache lama:", e);
       }
@@ -209,7 +232,7 @@ const App = () => {
         console.warn("Gagal mengambil data GDACS:", gdacsError);
       }
 
-      const combinedReports = [...bmkg, ...petabencana, ...gdacsData];
+      const combinedReports = [...bmkg, ...petabencana, ...gdacsData].filter(r => r.source !== 'Dummy System');
       setReports(combinedReports);
 
       // Simpan ke LocalStorage agar saat offline/reload cepat, data tetap ada
@@ -290,24 +313,7 @@ const App = () => {
         console.error("Gagal update status SOS:", e);
       }
 
-      // --- TAMBAHAN DUMMY TEST UNTUK BROADCASTING ---
-      setReports((prevReports) => {
-        // Cek agar tidak terjadi duplikasi dummy data
-        if (prevReports.some(r => r.source === 'Dummy System')) return prevReports;
 
-        const dummyDisaster = {
-          source: 'Dummy System',
-          type: 'BENCANA SIMULASI (TESTING PITCH)',
-          loc: 'Koordinat Mendekati Posisi Anda',
-          // Geser koordinat sedikit (sekitar 1-2km)
-          position: [userLocation[0] + 0.01, userLocation[1] + 0.01],
-          desc: 'Ini adalah data simulasi khusus demo. Bencana dummy ini berada di dalam radius bahaya dari posisi spesifik pengguna saat ini untuk dapat memicu munculnya Warning Layar Kuning ketika diklik Eksekusi Broadcast oleh pihak Otoritas/Admin.',
-          statusColor: 'bg-yellow-500'
-        };
-
-        return [dummyDisaster, ...prevReports];
-      });
-      // ----------------------------------------------
     }
   }, [isSOSActive, userLocation]);
 
@@ -323,19 +329,7 @@ const App = () => {
           if (change.type === "added") {
             const broadcast = change.doc.data();
 
-            // Pengecualian khusus simulasi demo untuk presentasi
-            // Agar selalu tampil berapapun delay server / jarak palsu
-            if (broadcast.source === 'Dummy System') {
-              const distanceXY = broadcast.position && userLocation ? calculateDistance(
-                userLocation[0], userLocation[1],
-                broadcast.position[0], broadcast.position[1]
-              ) : 5.0; // dummy distance
 
-              setLatestBroadcast({ ...broadcast, distance: distanceXY });
-              return;
-            }
-
-            // Normal Flow
             const isRecent = broadcast.timestamp
               ? (Date.now() - broadcast.timestamp.toMillis() < 60000)
               : true;
@@ -381,7 +375,7 @@ const App = () => {
 
   // --- FILTER LAPORAN BERDASARKAN SCOPE ---
   const displayReports = mapScope === 'lokal' 
-    ? reports.filter(r => r.loc.toLowerCase().includes('bandung') || r.source === 'Dummy System')
+    ? reports.filter(r => r.loc.toLowerCase().includes('bandung'))
     : reports;
 
   const MainContent = (
@@ -599,6 +593,10 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-[#020617] text-slate-900 dark:text-slate-200 font-sans transition-colors duration-300">
+      {/* SPLASH SCREEN – muncul sekali saat pertama kali buka aplikasi */}
+      {showSplash && <SplashScreen onDone={handleSplashDone} />}
+      {/* ONBOARDING – render sejak awal (di bawah splash z-99999), agar saat splash fade-out tidak ada gap */}
+      {showOnboarding && <OnboardingScreen onDone={handleOnboardingDone} />}
       {/* TAMPILAN BROADCAST DINAMIS (OVERLAY) */}
       {latestBroadcast && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
