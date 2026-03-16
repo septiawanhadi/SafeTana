@@ -12,6 +12,34 @@ import React, { useEffect, useState } from 'react';
 const SplashScreen = ({ onDone }) => {
   const [phase, setPhase] = useState('enter'); // 'enter' | 'tagline' | 'exit'
 
+  // --- Sound Effect: startup chime via Web Audio API ---
+  useEffect(() => {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+      const playTone = (freq, startTime, duration, gainPeak = 0.18) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + startTime);
+        gain.gain.setValueAtTime(0, ctx.currentTime + startTime);
+        gain.gain.linearRampToValueAtTime(gainPeak, ctx.currentTime + startTime + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startTime + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + startTime);
+        osc.stop(ctx.currentTime + startTime + duration);
+      };
+
+      // Ascending startup chime: tiga nada naik yang lembut
+      playTone(440, 0.1, 0.6);   // A4
+      playTone(554, 0.35, 0.7);  // C#5
+      playTone(659, 0.6, 1.1);   // E5 – nada terakhir paling panjang & lembut
+    } catch (e) {
+      // Browser tidak mendukung atau autoplay diblokir — silent fallback
+    }
+  }, []);
+
   useEffect(() => {
     // Fase 1 — logo muncul, setelah 1.8 s tampilkan tagline
     const t1 = setTimeout(() => setPhase('tagline'), 1800);
