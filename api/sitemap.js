@@ -71,6 +71,5 @@ export default function handler(req, res) {
 
   res.setHeader('Content-Type', 'application/xml; charset=utf-8');
   res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400');
-  res.setHeader('X-Robots-Tag', 'noindex');
   res.status(200).send(sitemap);
 }
