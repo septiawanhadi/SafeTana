@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /safetana-admin
+
+Sitemap: https://safetana.vercel.app/sitemap.xml
