@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, Save, Trash2, TrendingUp, Flame, Activity } from 'lucide-react';
-import { auth, db } from '../../firebase';
+import { ArrowLeft, Calendar, Save, Trash2, TrendingUp, Flame, Activity, BrainCircuit, Sparkles, RefreshCw } from 'lucide-react';
+import { auth } from '../../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { collection, addDoc, query, where, orderBy, getDocs, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+
+// Integration: Service Pattern
+import { aiService } from '../../services/health/aiService';
+import { dataService } from '../../services/health/dataService';
 
 const MOOD_EMOJIS = [
-  { id: 'happy', emoji: '😄', label: 'Senang', color: 'bg-green-100 text-green-600 border-green-300', score: 5 },
-  { id: 'calm', emoji: '😌', label: 'Tenang', color: 'bg-blue-100 text-blue-600 border-blue-300', score: 4 },
-  { id: 'neutral', emoji: '😐', label: 'Netral', color: 'bg-slate-100 text-slate-600 border-slate-300', score: 3 },
-  { id: 'sad', emoji: '😢', label: 'Sedih', color: 'bg-indigo-100 text-indigo-600 border-indigo-300', score: 2 },
-  { id: 'angry', emoji: '😠', label: 'Marah', color: 'bg-red-100 text-red-600 border-red-300', score: 1 },
-  { id: 'anxious', emoji: '😰', label: 'Cemas', color: 'bg-purple-100 text-purple-600 border-purple-300', score: 1 }
+  { id: 'bersyukur', emoji: '🙏', label: 'Bersyukur', color: 'bg-emerald-100 text-emerald-600 border-emerald-300', score: 5 },
+  { id: 'tenang', emoji: '😌', label: 'Tenang', color: 'bg-blue-100 text-blue-600 border-blue-300', score: 5 },
+  { id: 'berusaha', emoji: '💪', label: 'Berjuang', color: 'bg-amber-100 text-amber-600 border-amber-300', score: 4 },
+  { id: 'lelah', emoji: '😫', label: 'Lelah', color: 'bg-slate-100 text-slate-600 border-slate-300', score: 3 },
+  { id: 'sedih', emoji: '😢', label: 'Sedih / Duka', color: 'bg-indigo-100 text-indigo-600 border-indigo-300', score: 2 },
+  { id: 'trauma', emoji: '😰', label: 'Trauma / Takut', color: 'bg-purple-100 text-purple-600 border-purple-300', score: 1 }
 ];
 
 const MoodTracker = () => {
@@ -24,6 +27,8 @@ const MoodTracker = () => {
   const [moodLogs, setMoodLogs] = useState([]);
   const [stats, setStats] = useState({ totalLogs: 0, streak: 0, mostFrequent: null, averageScore: 0 });
   const [saving, setSaving] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -43,13 +48,11 @@ const MoodTracker = () => {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     
-    // Filter out logs older than 30 days and valid dates
     const recentLogs = logs.filter(log => {
       const logDate = log.timestamp ? log.timestamp.toDate() : new Date();
       return logDate >= thirtyDaysAgo;
     });
 
-    // Most Frequent
     const frequency = {};
     let totalScore = 0;
     
@@ -66,8 +69,6 @@ const MoodTracker = () => {
     }
     const topMoodDef = MOOD_EMOJIS.find(m => m.id === topMoodId);
 
-    // Current Streak (Consecutive days ignoring missing days, or simple count of unique days)
-    // Here we do a simple unique active days in the last 30 days
     const uniqueDays = new Set(recentLogs.map(log => {
       const d = log.timestamp ? log.timestamp.toDate() : new Date();
       return d.toDateString();
@@ -77,7 +78,7 @@ const MoodTracker = () => {
 
     return {
       totalLogs: recentLogs.length,
-      streak: uniqueDays, // Menggunakan active days sbg proxy streak sederhana
+      streak: uniqueDays,
       mostFrequent: topMoodDef,
       averageScore: avgScore
     };
@@ -85,23 +86,7 @@ const MoodTracker = () => {
 
   const fetchMoodLogs = async (userId) => {
     try {
-      const q = query(
-        collection(db, 'mood_logs'),
-        where('userId', '==', userId)
-      );
-      const querySnapshot = await getDocs(q);
-      const logs = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-
-      // Sort logs by timestamp descending in JS to prevent Firebase composite index requirements
-      logs.sort((a, b) => {
-        const timeA = a.timestamp ? a.timestamp.toMillis() : 0;
-        const timeB = b.timestamp ? b.timestamp.toMillis() : 0;
-        return timeB - timeA;
-      });
-
+      const logs = await dataService.moodLogs.fetchAll(userId);
       setMoodLogs(logs);
       setStats(calculateStats(logs));
     } catch (err) {
@@ -115,14 +100,14 @@ const MoodTracker = () => {
     if (!selectedMood || !user) return;
     setSaving(true);
     try {
-      await addDoc(collection(db, 'mood_logs'), {
-        userId: user.uid,
+      const moodData = {
         moodId: selectedMood.id,
         moodLabel: selectedMood.label,
         emoji: selectedMood.emoji,
-        note: note.trim(),
-        timestamp: serverTimestamp()
-      });
+        note: note.trim()
+      };
+      await dataService.moodLogs.add(user.uid, moodData);
+      
       setSelectedMood(null);
       setNote('');
       fetchMoodLogs(user.uid);
@@ -137,13 +122,31 @@ const MoodTracker = () => {
   const handleDelete = async (logId) => {
     if (window.confirm("Hapus catatan mood ini?")) {
       try {
-        await deleteDoc(doc(db, 'mood_logs', logId));
+        await dataService.moodLogs.delete(logId);
         const updatedLogs = moodLogs.filter(log => log.id !== logId);
         setMoodLogs(updatedLogs);
         setStats(calculateStats(updatedLogs));
       } catch (err) {
         console.error("Gagal menghapus mood:", err);
       }
+    }
+  };
+
+  const getAIAnalysis = async () => {
+    if (moodLogs.length < 1) {
+      alert("Butuh setidaknya satu entri jurnal untuk dianalisis.");
+      return;
+    }
+    
+    setIsAnalyzing(true);
+    try {
+      const analysisText = await aiService.analyzeMoodLogs(moodLogs);
+      setAiAnalysis(analysisText);
+    } catch (error) {
+      console.error("SafeTana AI Analysis Error:", error);
+      alert("Gagal terhubung dengan SafeTana AI. Periksa koneksi internet Anda atau coba lagi nanti.");
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
@@ -159,11 +162,11 @@ const MoodTracker = () => {
           </button>
           <div className="flex flex-col items-center">
              <div className="flex items-center gap-2">
-               <Calendar className="text-purple-500" size={18} />
-               <h1 className="font-bold text-lg">Catatan Mood 30 Hari</h1>
+               <TrendingUp className="text-purple-500" size={18} />
+               <h1 className="font-bold text-lg">Konseling & Jurnal Mental</h1>
              </div>
           </div>
-          <div className="w-9"></div> {/* Spacer */}
+          <div className="w-9"></div>
         </div>
       </header>
 
@@ -188,10 +191,50 @@ const MoodTracker = () => {
            </div>
         </section>
 
+        {/* AI ANALYSIS BUTTON */}
+        <section className="bg-white dark:bg-slate-800 p-1 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm">
+           <button 
+             onClick={getAIAnalysis}
+             disabled={isAnalyzing || moodLogs.length === 0}
+             className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-[22px] group transition-all"
+           >
+              <div className="flex items-center gap-4 text-left">
+                 <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-md shadow-blue-200 dark:shadow-none">
+                    <BrainCircuit className="text-white" size={20} />
+                 </div>
+                 <div>
+                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">Analisis Mental AI</h3>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">Dapatkan insight khusus dari SafeTana AI</p>
+                 </div>
+              </div>
+              <div className={`p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm ${isAnalyzing ? 'animate-pulse' : ''}`}>
+                 {isAnalyzing ? <RefreshCw size={16} className="animate-spin" /> : <Sparkles size={16} />}
+              </div>
+           </button>
+           
+           {aiAnalysis && (
+              <div className="p-6 border-t border-slate-100 dark:border-slate-700 animate-in fade-in slide-in-from-top-2 duration-500">
+                 <div className="flex items-center gap-2 mb-4">
+                    <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 text-[10px] font-black rounded uppercase">AI Insights</span>
+                    <div className="h-px flex-1 bg-slate-100 dark:bg-slate-700"></div>
+                 </div>
+                 <div className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-line font-medium">
+                    {aiAnalysis}
+                 </div>
+                 <button 
+                   onClick={() => setAiAnalysis(null)} 
+                   className="mt-6 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors"
+                 >
+                   Tutup Analisis
+                 </button>
+              </div>
+           )}
+        </section>
+
         {/* INPUT SECTION */}
-        <section className="bg-gradient-to-br from-purple-600 to-indigo-700 text-white rounded-3xl p-6 shadow-lg border border-purple-500/50">
-           <h2 className="text-center font-black text-xl mb-1 text-white">Bagaimana perasaanmu hari ini?</h2>
-           <p className="text-center text-xs text-purple-200 mb-6 font-medium">Bantu kami mencatat kondisi emosionalmu hari ini.</p>
+        <section className="bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-3xl p-6 shadow-lg border border-white/10">
+           <h2 className="text-center font-black text-xl mb-1 text-white uppercase tracking-tight">Kondisi Mental Pasca Bencana</h2>
+           <p className="text-center text-[10px] text-indigo-200 mb-6 font-bold uppercase tracking-widest">Ruang Aman untuk Mencatat Pemulihan Anda</p>
            
            <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">
              {MOOD_EMOJIS.map(mood => (

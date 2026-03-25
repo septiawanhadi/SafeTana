@@ -127,7 +127,7 @@ const HealthDashboard = () => {
                <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <MessageSquare size={24} className="text-blue-600 dark:text-blue-400" />
                </div>
-               <h3 className="font-bold text-slate-900 dark:text-white mb-1">Tanya SafeTanaBot</h3>
+               <h3 className="font-bold text-slate-900 dark:text-white mb-1">Tanya SafeTana AI</h3>
                <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">
                  Konsultasi gejala ringan dengan asisten AI kesehatan mandiri 24 jam.
                </p>
@@ -161,9 +161,9 @@ const HealthDashboard = () => {
                <div className="w-12 h-12 bg-purple-50 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Calendar size={24} className="text-purple-600 dark:text-purple-400" />
                </div>
-               <h3 className="font-bold text-slate-900 dark:text-white mb-1">Catat Mood 30 Hari</h3>
+               <h3 className="font-bold text-slate-900 dark:text-white mb-1">Konseling & Jurnal Mental</h3>
                <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">
-                 Pelacak kesehatan mental harian agar Anda selalu termotivasi.
+                 Pelacak kesehatan mental harian dan ruang aman untuk pemulihan psikologis.
                </p>
                <div className="flex items-center text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider group-hover:gap-2 transition-all">
                   Isi Jurnal <ArrowRight size={14} />

@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Send, Bot, User, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Send, Bot, User, RefreshCw, HeartPulse } from 'lucide-react';
+
+// Integration: Service Pattern
+import { aiService } from '../../services/health/aiService';
 
 const HealthChatbot = () => {
   const navigate = useNavigate();
@@ -8,7 +11,7 @@ const HealthChatbot = () => {
     {
       id: 1,
       sender: 'bot',
-      text: 'Halo! Aku SafeTanaBot 🤖, asisten AI untuk layanan kesehatan Anda. Anda bisa menanyakan gejala, rekomendasi gaya hidup sehat, atau info layanan darurat. Ada yang bisa dibantu hari ini?'
+      text: 'Halo, saya SafeTana AI 🌿. Saya asisten medis & konseling pasca bencana Anda. Bagaimana perasaan atau kondisi kesehatan Anda hari ini?'
     }
   ]);
   const [input, setInput] = useState('');
@@ -23,31 +26,41 @@ const HealthChatbot = () => {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
 
-    const userMessage = { id: Date.now(), sender: 'user', text: input.trim() };
+    const userInputText = input.trim();
+    const userMessage = { id: Date.now(), sender: 'user', text: userInputText };
+    
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsTyping(true);
 
-    // Dummy delay untuk respon AI
-    setTimeout(() => {
-      const responses = [
-        "Baik, saya catat. Untuk gejala tersebut, disarankan untuk banyak minum air putih dan istirahat yang cukup. Namun jika berlanjut lebih dari 3 hari, sebaiknya konsultasi ke dokter ya.",
-        "Menarik. Berdasarkan data kesehatan umum, itu bisa jadi pertanda kelelahan. Jangan lupa makan teratur.",
-        "Saya mengerti. Ingat, kesehatan mental sama pentingnya dengan fisik. Anda bisa coba gunakan fitur Mood Tracker di menu kami.",
-        "Jika kondisinya darurat, seperti sesak napas berat atau nyeri dada, segera tekan tombol SOS di halaman utama SafeTana!",
-        "Rekomendasi yang baik untuk itu adalah meningkatkan asupan vitamin C dan olahraga ringan selama 15 menit setiap hari."
-      ];
-      const botResponse = {
-        id: Date.now() + 1,
-        sender: 'bot',
-        text: responses[Math.floor(Math.random() * responses.length)]
-      };
+    try {
+      // Prepare history for aiService (excluding welcome message)
+      const history = messages
+        .filter(m => m.id !== 1) 
+        .map(m => ({
+          role: m.sender === 'user' ? 'user' : 'model',
+          parts: [{ text: m.text }]
+        }));
+
+      // Call the centralized aiService
+      const responseText = await aiService.getHealthChatResponse(history, userInputText);
+      
+      const botResponse = { id: Date.now() + 1, sender: 'bot', text: responseText };
       setMessages(prev => [...prev, botResponse]);
+    } catch (error) {
+      console.error("HealthChatbot AI Error:", error);
+      const errorMessage = { 
+        id: Date.now() + 1, 
+        sender: 'bot', 
+        text: "Maaf, koneksi saya sedang terganggu. Tetap tenang, dan jika ini kesehatan darurat, segera hubungi petugas terdekat atau tekan tombol SOS." 
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1200);
+    }
   };
 
   const handleReset = () => {
@@ -73,12 +86,12 @@ const HealthChatbot = () => {
                <ArrowLeft size={20} />
              </button>
              <div className="flex items-center gap-2">
-               <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center">
-                 <Bot size={18} />
+               <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center border border-emerald-200 dark:border-emerald-700">
+                 <HeartPulse size={18} />
                </div>
                <div>
-                  <h1 className="font-bold text-sm leading-tight">SafeTanaBot</h1>
-                  <p className="text-[10px] text-green-500 font-medium">Asisten Kesehatan Aktif</p>
+                  <h1 className="font-bold text-sm leading-tight text-emerald-700 dark:text-emerald-400">SafeTana AI</h1>
+                  <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-tighter">Klinik AI & Konseling</p>
                </div>
              </div>
           </div>
@@ -166,7 +179,7 @@ const HealthChatbot = () => {
                <Send size={18} />
             </button>
          </div>
-         <p className="text-center text-[9px] text-slate-400 mt-3 font-medium">SafeTanaBot dapat membuat kesalahan. Selalu periksa informasi medis dan konsultasikan gejala serius ke dokter RS.</p>
+         <p className="text-center text-[9px] text-slate-400 mt-3 font-medium italic">SafeTana AI dirancang untuk dukungan awal. Untuk diagnosis medis formal atau kondisi kritis, segera hubungi 112 atau RS terdekat.</p>
       </footer>
     </div>
   );
