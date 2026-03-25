@@ -5,7 +5,7 @@
 ---
 
 ## 📌 Tentang SafeTana AI
-SafeTana AI adalah platform progresif yang dirancang untuk memperkuat resiliensi masyarakat terhadap bencana alam dan krisis kesehatan. Dengan menggabungkan pemetaan data geospasial real-time, kecerdasan buatan (**Gemini AI**), dan modul layanan medis prediktif (**Klinik AI/SafeTana AI Health**), platform ini memberikan perlindungan menyeluruh—baik dari ancaman alam maupun risiko kesehatan personal.
+SafeTana AI adalah platform progresif yang dirancang untuk memperkuat resiliensi masyarakat terhadap bencana alam dan krisis kesehatan. Dengan menggabungkan pemetaan data geospasial real-time, kecerdasan buatan (**Google Gemini AI**), dan modul layanan medis prediktif (**Klinik AI/SafeTana AI Health**), platform ini memberikan perlindungan menyeluruh—baik dari ancaman alam maupun risiko kesehatan personal.
 
 ---
 
@@ -16,43 +16,62 @@ SafeTana mengintegrasikan **Gemini AI** untuk memahami risiko bencana di lokasi 
 
 ### 📍 Live User Tracking & SOS System
 * **Anonymous Tracking**: Memantau lokasi dan status keamanan pengguna secara *real-time* menggunakan algoritma Haversine.
+* **Security & Privacy**: Implementasi enkripsi koordinat dan *masking* PII (Personal Identifiable Information) untuk keamanan data pengguna.
 * **Status Updates & SOS**: Pengguna dapat dengan mudah memperbarui status (Aman / Butuh Evakuasi) hanya dengan satu klik.
 
 ### 🗺️ Peta Bencana Live & Titik Aman Terpadu
 Visualisasi peta interaktif 24/7 menggunakan *Leaflet* yang menampilkan titik bencana dari sumber terpercaya (GDACS, BMKG) beserta **61 Titik Kumpul Evakuasi Terpadu** di wilayah Bandung, lengkap beserta panduan jarak spesifik ke setiap Fasilitas Kesehatan.
 
-### 📡 Command Center & Location-Based Broadcasting
-Dashboard komando bagi pihak berwenang untuk melacak dan mengirimkan notifikasi peringatan massal (dibacakan secara otomatis via Voice Assistant) kepada korban di zona bahaya secara spesifik.
-
 ---
 
 ## ⚕️ Fitur Utama Kesehatan (Klinik AI / SafeTana AI Health)
-*Terintegrasi penuh di bawah rute `/health` menggunakan Firebase Authentication Tersentralisasi.*
 
-### 📋 Skrining Kesehatan Mandiri (Rule-Based Expert System)
-Sistem Penilaian Cerdas (Client-Side) yang dapat mengevaluasi kondisi pasien secara instan berdasarkan parameter medis:
+### 📋 Skrining Kesehatan Mandiri
+Sistem Penilaian Cerdas yang dapat mengevaluasi kondisi pasien secara instan berdasarkan parameter medis:
 - **Kalkulasi IMT (BMI)** untuk risiko berat badan berlebih & obesitas.
 - **Deteksi Pra-Hipertensi** melalui input tekanan Sistolik/Diastolik.
-- Analisis indikasi gangguan pernapasan, riwayat penyakit keluarga, dan tingkat stres mental.
-Sistem akan langsung memberikan **Kartu Hasil Skrining dengan saran medis deterministik**.
+- **Analisis Risiko**: Mengidentifikasi indikasi gangguan pernapasan dan tingkat stres mental.
 
 ### 📊 Catatan Jurnal & Mood Tracker 30 Hari
 Layanan log psikologis harian yang didukung dengan **Dashboard Analitik Personal**:
 - Menghitung rentetan **Hari Aktif Jurnal (Streaks)**.
 - Menentukan **Emosi/Mood Dominan** dalam sebulan terakhir.
-- Memberikan skor rata-rata tingkat kebahagiaan untuk memantau fluktuasi _mental health_.
 
 ### 💬 SafeTanaBot (Health AI Assistant)
 Chatbot interaktif khusus untuk layanan kesehatan. Pengguna dapat menanyakan gejala medis umum, rekomendasi gaya hidup, atau akses darurat RS dengan antarmuka chatting yang intuitif.
 
+### 📚 Kamus Kesehatan
+Akses cepat ke istilah medis dan informasi kesehatan yang akurat untuk meningkatkan literasi kesehatan pengguna.
+
+---
+
+## 🏗️ Technical Architecture & Refactoring
+
+### 🔄 Service Pattern Architecture
+Projek ini telah direfaktorisasi menggunakan **Service Pattern** untuk memisahkan logika bisnis dari komponen UI, sehingga meningkatkan keterbacaan, keamanan, dan skalabilitas kode:
+- `aiService.js`: Mengelola interaksi dengan Google Gemini AI secara tersentralisasi.
+- `dataService.js`: Mengelola operasi database Firestore dengan validasi yang lebih kuat.
+
+### 🛡️ Layer Keamanan Tambahan
+- **Location Encryption**: Koordinat lokasi pengguna dienkripsi sebelum diproses ke server.
+- **PII Masking**: Nama dan nomor telepon pengguna disamarkan dalam tampilan publik/admin tertentu.
+- **XSS & Input Sanitization**: Melindungi aplikasi dari serangan injeksi skrip berbahaya.
+
 ---
 
 ## 🛠️ Tech Stack
-- **Frontend**: [React.js](https://reactjs.org/) + [Vite](https://vitejs.dev/) + [React Router](https://reactrouter.com/)
+- **Frontend**: [React.js](https://reactjs.org/) + [Vite](https://vitejs.dev/)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Database, Auth & Backend**: [Firebase Firestore](https://firebase.google.com/) & [Firebase Authentication](https://firebase.google.com/docs/auth)
-- **AI Engine Utama**: [Google Gemini AI API](https://ai.google.dev/) (Untuk Chatbot Evaluasi Bencana)
-- **Maps**: [Leaflet.js](https://leafletjs.com/) + React Leaflet
+- **Database & Auth**: [Firebase Firestore](https://firebase.google.com/) & [Authentication](https://firebase.google.com/docs/auth)
+- **AI Engine**: [Google Gemini AI API](https://ai.google.dev/)
+- **Maps**: [Leaflet.js](https://leafletjs.com/)
+
+---
+
+## 👥 Tim Developer
+Inti dari platform tangguh ini dibangun oleh talenta yang berdedikasi:
+- **Septiawan Hadi Prasetyo** – Lead Developer
+- **Restu Utami** – Developer
 
 ---
 
@@ -70,16 +89,7 @@ npm install
 ```
 
 3. **Konfigurasi Environment**
-Buat file `.env` di root folder dengan variabel berikut untuk mengakses Firebase & Gemini:
-```env
-VITE_FIREBASE_API_KEY=your_firebase_api_key
-VITE_GEMINI_API_KEY=your_gemini_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
-```
+Buat file `.env` di root folder dengan variabel Firebase & Gemini API.
 
 4. **Menjalankan Aplikasi**
 ```bash
@@ -89,16 +99,16 @@ npm run dev
 ---
 
 ## 📂 Struktur Proyek Terkini
-- `src/App.jsx` - Main Routing, Navbar, Pelacakan Lokasi, dan Peta Pusat.
-- `src/components/health/*` - **[NEW]** Komponen SafeTana AI Health: `HealthDashboard`, `HealthAuth`, `HealthScreening`, `MoodTracker`, dan `HealthChatbot`.
-- `src/AiChatbot.jsx` - Chatbot AI Bencana (Gemini AI).
-- `src/CommandCenter.jsx` & `src/AdminLogin.jsx` - Dashboard Otoritas.
-- `src/MapComponent.jsx` - Komponen pemetaan geospasial *real-time*.
-- `src/EducationDashboard.jsx` & `src/NewsDashboard.jsx` - Portal edukasi dan integrasi berita.
+- `src/services/` - **[NEW]** Layer arsitektur servis (AI & Data).
+- `src/components/health/` - Komponen fitur SafeTana AI Health.
+- `src/securityUtils.js` - **[NEW]** Utilitas keamanan dan privasi.
+- `src/MapComponent.jsx` - Pemetaan geospasial real-time.
+
+---
 
 ## 🤝 Kontribusi
 Kami menyambut baik inovasi maupun perbaikan _bug_ dari para kontributor. Silakan lakukan Fork pada proyek ini dan ajukan _Pull Request_.
 
 ## 🔗 Live Deployments
-Anda dapat mecoba langsung aplikasi ini:
-**https://safetana.vercel.app/**
+Anda dapat mencoba langsung aplikasi ini:
+**[https://safetana.vercel.app/](https://safetana.vercel.app/)**

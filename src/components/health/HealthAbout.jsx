@@ -70,14 +70,23 @@ const HealthAbout = () => {
              Inti dari platform tangguh ini dibangun oleh talenta yang berdedikasi.
            </p>
 
-           <div className="flex justify-center">
+           <div className="flex flex-wrap justify-center gap-6">
+             {/* Septi Card */}
              <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 w-full max-w-xs transition-transform hover:-translate-y-2">
                <div className="w-24 h-24 mx-auto bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden mb-4 border-4 border-blue-100 dark:border-blue-900/30">
-                 {/* Replace this empty src with standard avatar if no image */}
                  <img src="/Septi.png" alt="Septiawan Hadi Prasetyo" className="w-full h-full object-cover" />
                </div>
                <h4 className="font-bold text-lg mb-1 leading-tight text-slate-900 dark:text-white">Septiawan Hadi Prasetyo</h4>
                <span className="text-xs font-black uppercase text-blue-600 dark:text-blue-400 tracking-wider">Developer</span>
+             </div>
+
+             {/* Restu Card */}
+             <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 w-full max-w-xs transition-transform hover:-translate-y-2">
+               <div className="w-24 h-24 mx-auto bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden mb-4 border-4 border-emerald-100 dark:border-emerald-900/30">
+                 <img src="/Restu.png" alt="Restu Utami" className="w-full h-full object-cover" />
+               </div>
+               <h4 className="font-bold text-lg mb-1 leading-tight text-slate-900 dark:text-white">Restu Utami</h4>
+               <span className="text-xs font-black uppercase text-emerald-600 dark:text-emerald-400 tracking-wider">Developer</span>
              </div>
            </div>
         </div>

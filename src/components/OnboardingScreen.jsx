@@ -64,14 +64,26 @@ const OnboardingScreen = ({ onDone }) => {
           </div>
         </div>
 
-        {/* Developer */}
-        <div className="onb-founder">
-          <div className="onb-founder-avatar">
-            <img src="/Septi.png" alt="Septiawan Hadi Prasetyo" className="onb-founder-img" />
+        {/* Developers */}
+        <div className="flex flex-col gap-2 w-full">
+          <div className="onb-founder">
+            <div className="onb-founder-avatar border-blue-400">
+              <img src="/Septi.png" alt="Septiawan Hadi Prasetyo" className="onb-founder-img" />
+            </div>
+            <div>
+              <p className="onb-founder-name">Septiawan Hadi Prasetyo</p>
+              <p className="onb-founder-role">Lead Developer</p>
+            </div>
           </div>
-          <div>
-            <p className="onb-founder-name">Septiawan Hadi Prasetyo</p>
-            <p className="onb-founder-role">Developer</p>
+          
+          <div className="onb-founder">
+            <div className="onb-founder-avatar border-emerald-400">
+              <img src="/Restu.png" alt="Restu Utami" className="onb-founder-img" />
+            </div>
+            <div>
+              <p className="onb-founder-name">Restu Utami</p>
+              <p className="onb-founder-role">Developer</p>
+            </div>
           </div>
         </div>
       </div>
