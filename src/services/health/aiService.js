@@ -25,7 +25,7 @@ export const aiService = {
       `;
 
       const model = genAI.getGenerativeModel({ 
-        model: "gemini-2.5-flash",
+        model: "gemini-2.0-flash",
         systemInstruction: systemPrompt 
       });
 
@@ -55,7 +55,7 @@ export const aiService = {
         return `[${date}] Mood: ${log.moodLabel}. Catatan: ${log.note || 'Tanpa catatan'}`;
       }).join('\n');
 
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
       
       const prompt = `
         Sebagai "SafeTana AI" konselor kesehatan mental pasca bencana, analisis 30 hari riwayat jurnal berikut:

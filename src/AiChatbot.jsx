@@ -105,7 +105,7 @@ const AiChatbot = ({ onClose, isSOS, userLocation, reports }) => {
     setIsTyping(true);
 
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
       // Injecting Strategic Insight (BPBD & KOMDIGI) ke dalam System Prompt
       const prompt = `
