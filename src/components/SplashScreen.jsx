@@ -109,14 +109,14 @@ const SplashScreen = ({ onDone }) => {
           <img
             src="/logo.png"
             alt="SafeTana AI Logo"
-            className="splash-logo-img"
+            className="w-16 h-16 object-contain"
           />
         </div>
 
         <div className="splash-app-name" data-phase={phase}>
-          <span className="splash-name-safe">Safe</span>
-          <span className="splash-name-tana">Tana</span>
-          <span className="splash-name-ai"> AI</span>
+          <span className="text-white">Safe</span>
+          <span className="text-error">Tana</span>
+          <span className="text-primary text-[1.2rem] align-super font-black ml-1">AI</span>
         </div>
 
         <p className="splash-tagline" data-phase={phase === 'tagline' || phase === 'exit' ? 'show' : 'hidden'}>

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, Lock, User, AlertCircle, X, Loader2 } from 'lucide-react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from './firebase';
 
 const AdminLogin = ({ onLogin, onClose }) => {
+  const navigate = useNavigate();
   const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -15,7 +17,11 @@ const AdminLogin = ({ onLogin, onClose }) => {
 
     try {
       await signInWithEmailAndPassword(auth, credentials.email, credentials.password);
-      onLogin();
+      if (onLogin) {
+        onLogin();
+      } else {
+        navigate('/commands');
+      }
     } catch (err) {
       console.error(err);
       setError('Kredensial tidak valid. Silakan coba lagi.');
@@ -24,10 +30,18 @@ const AdminLogin = ({ onLogin, onClose }) => {
     }
   };
 
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    } else {
+      navigate('/');
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-[4000] bg-[#020617]/95 backdrop-blur-xl flex items-center justify-center p-6">
       <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-[3rem] p-10 shadow-2xl relative overflow-hidden">
-        <button onClick={onClose} className="absolute top-6 right-6 text-slate-500 hover:text-white">
+        <button onClick={handleClose} className="absolute top-6 right-6 text-slate-500 hover:text-white">
           <X size={20} />
         </button>
 

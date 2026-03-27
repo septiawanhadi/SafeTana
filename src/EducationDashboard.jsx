@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   BookOpen, ShieldCheck, Zap, Info, PhoneCall, X, 
   FileText, Rocket, Brain, HelpCircle, ChevronRight,
@@ -6,9 +7,19 @@ import {
 } from 'lucide-react';
 
 const EducationDashboard = ({ onClose }) => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('intro');
 
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    } else {
+      navigate('/');
+    }
+  };
+
   const sopBencana = [
+// ... (rest of the component)
     {
       title: "Gempa Bumi (Siaga & Evakuasi)",
       steps: [
@@ -78,7 +89,7 @@ const EducationDashboard = ({ onClose }) => {
           >
             Panduan Mitigasi
           </button>
-          <button onClick={onClose} className="p-2 bg-slate-800 rounded-xl hover:bg-red-600 transition-all ml-2 text-white">
+          <button onClick={handleClose} className="p-2 bg-slate-800 rounded-xl hover:bg-red-600 transition-all ml-2 text-white">
             <X size={18} />
           </button>
         </div>

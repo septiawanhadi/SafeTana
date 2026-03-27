@@ -1,123 +1,156 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Stethoscope, Pill, Search } from 'lucide-react';
 import kamusData from '../../kamusData.json';
 
 const HealthDictionary = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('penyakit'); // 'penyakit' or 'obat'
-  const [activeLetter, setActiveLetter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
   const currentData = activeTab === 'penyakit' ? kamusData.penyakit : kamusData.obat;
 
   const filteredData = currentData.filter((item) => {
-    const matchesSearch = item.nama.toLowerCase().includes(searchQuery.toLowerCase());
-    const itemFirstLetter = item.abjad ? item.abjad.toUpperCase() : item.nama.charAt(0).toUpperCase();
-    const matchesLetter = activeLetter === 'all' || itemFirstLetter === activeLetter;
-    return matchesSearch && matchesLetter;
+    return item.nama.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
+  const categories = [
+    { id: 'all', label: 'All Topics', active: true },
+    { id: 'firstaid', label: 'First Aid' },
+    { id: 'mental', label: 'Mental Health' },
+    { id: 'nutrition', label: 'Nutrition' },
+    { id: 'prep', label: 'Preparedness' },
+  ];
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-sans pb-20">
-      
-      {/* HEADER */}
-      <header className="bg-white dark:bg-slate-800 shadow-sm sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto px-4 h-16 flex items-center gap-3">
-           <button 
-            onClick={() => navigate('/health')} 
-            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition"
-           >
-              <ArrowLeft size={24} className="text-slate-600 dark:text-slate-300" />
-           </button>
-           <h1 className="text-lg font-bold">Kamus Kesehatan</h1>
-        </div>
-      </header>
-
-      <main className="max-w-4xl mx-auto px-4 pt-8">
-        
-        {/* HERO */}
-        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-8 sm:p-12 text-center text-white shadow-lg mb-8">
-           <h1 className="text-3xl sm:text-4xl font-black mb-3">Kamus Kesehatan</h1>
-           <p className="text-blue-100 text-sm sm:text-base max-w-xl mx-auto">
-             Temukan informasi lengkap mengenai penyakit dan obat-obatan dari database tepercaya kami.
-           </p>
-        </div>
-
-        {/* CONTENT */}
-        <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 dark:border-slate-700">
+    <div className="bg-background text-on-background font-body min-h-screen pb-28">
+      {/* Hero Section & Search */}
+      <main className="pt-24 px-6 max-w-2xl mx-auto">
+        <section className="mb-10">
+          <h2 className="font-display text-4xl text-on-surface leading-tight mb-2 tracking-tighter">Kamus Kesehatan</h2>
+          <p className="text-on-surface-variant font-medium mb-6 opacity-80">Expert medical insights and disaster preparedness at your fingertips.</p>
           
-          {/* TABS */}
-          <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-2xl mb-6">
-             <button 
-               onClick={() => { setActiveTab('penyakit'); setActiveLetter('all'); setSearchQuery(''); }}
-               className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 rounded-xl transition ${activeTab === 'penyakit' ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
-             >
-                <Stethoscope size={18} />
-                Daftar Penyakit
-             </button>
-             <button 
-               onClick={() => { setActiveTab('obat'); setActiveLetter('all'); setSearchQuery(''); }}
-               className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 rounded-xl transition ${activeTab === 'obat' ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
-             >
-                <Pill size={18} />
-                Daftar Obat
-             </button>
-          </div>
-
-          {/* SEARCH */}
-          <div className="relative mb-6">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search size={18} className="text-slate-400" />
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+              <span className="material-symbols-outlined text-outline">search</span>
             </div>
-            <input
-              type="text"
-              placeholder={`Cari ${activeTab === 'penyakit' ? 'penyakit' : 'obat'}...`}
+            <input 
+              type="text" 
+              className="w-full bg-surface-container-low border-none rounded-2xl py-4 pl-12 pr-4 text-on-surface focus:ring-2 focus:ring-primary transition-all placeholder:text-outline-variant shadow-sm"
+              placeholder={`Search ${activeTab === 'penyakit' ? 'diseases' : 'medicines'}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
             />
           </div>
+        </section>
 
-          {/* A-Z FILTER */}
-          <div className="flex flex-wrap gap-2 mb-8 justify-center">
-             <button
-               onClick={() => setActiveLetter('all')}
-               className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${activeLetter === 'all' ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
-             >
-               Semua
-             </button>
-             {alphabet.map((letter) => (
-               <button
-                 key={letter}
-                 onClick={() => setActiveLetter(letter)}
-                 className={`w-8 h-8 flex items-center justify-center text-xs font-bold rounded-lg transition ${activeLetter === letter ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
-               >
-                 {letter}
-               </button>
-             ))}
+        {/* Categories horizontal scroll */}
+        <section className="mb-10 -mx-6 px-6 overflow-x-auto no-scrollbar flex gap-3">
+          {categories.map((cat) => (
+            <button 
+              key={cat.id}
+              className={`whitespace-nowrap px-6 py-2.5 rounded-full font-black text-sm transition-all active:scale-95 ${
+                cat.active 
+                  ? 'bg-gradient-to-br from-[#c3c0ff] to-[#d0bcff] text-[#1d00a5] shadow-lg shadow-primary/20' 
+                  : 'bg-surface-container-high text-on-surface-variant hover:bg-white/10'
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </section>
+
+        {/* Bento Grid Dictionary */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Hero Bento Cell: Tab Toggle */}
+          <div className="col-span-2 glass-card rounded-lg p-6 flex flex-col justify-between min-h-[180px] relative overflow-hidden group active:scale-[0.99] transition-transform">
+            <div className="absolute top-0 right-0 p-4 opacity-10">
+              <span className="material-symbols-outlined text-8xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                {activeTab === 'penyakit' ? 'stethoscopes' : 'medication'}
+              </span>
+            </div>
+            <div>
+              <div className="flex bg-black/20 p-1 rounded-xl w-fit mb-4">
+                <button 
+                  onClick={() => setActiveTab('penyakit')}
+                  className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'penyakit' ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:text-white'}`}
+                >
+                  Penyakit
+                </button>
+                <button 
+                   onClick={() => setActiveTab('obat')}
+                   className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'obat' ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:text-white'}`}
+                >
+                  Obat
+                </button>
+              </div>
+              <h3 className="font-headline font-black text-2xl text-on-surface mb-2 tracking-tight">
+                {activeTab === 'penyakit' ? 'Daftar Penyakit' : 'Database Obat'}
+              </h3>
+              <p className="text-on-surface-variant text-xs line-clamp-2 font-medium opacity-80">
+                Informasi detail mengenai diagnosis, gejala, dan penggunaan farmakologis yang tepat.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 text-tertiary font-black text-[10px] mt-4 uppercase tracking-widest">
+              Explore Intelligence <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </div>
           </div>
 
-          {/* LIST */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredData.length > 0 ? (
-              filteredData.map((item, index) => (
-                <div key={index} className="p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 hover:border-blue-200 dark:hover:border-blue-800/50 transition-colors group cursor-pointer">
-                  <h3 className="font-bold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                    {item.nama}
-                  </h3>
+          {/* Featured Cards */}
+          <div className="glass-card rounded-lg p-5 flex flex-col gap-4 active:scale-95 transition-transform">
+            <div className="w-12 h-12 rounded-2xl bg-[#14B8A6]/20 flex items-center justify-center text-[#14B8A6] border border-[#14B8A6]/20">
+              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>healing</span>
+            </div>
+            <div>
+              <h4 className="font-headline font-black text-on-surface tracking-tight">Basic First Aid</h4>
+              <p className="text-[10px] text-on-surface-variant mt-1 font-bold uppercase tracking-tight opacity-70">12 Essential Tips</p>
+            </div>
+          </div>
+
+          <div className="glass-card rounded-lg p-5 flex flex-col gap-4 active:scale-95 transition-transform">
+            <div className="w-12 h-12 rounded-2xl bg-secondary-container/30 flex items-center justify-center text-secondary border border-secondary/20">
+              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>psychology</span>
+            </div>
+            <div>
+              <h4 className="font-headline font-black text-on-surface tracking-tight">Mental Health</h4>
+              <p className="text-[10px] text-on-surface-variant mt-1 font-bold uppercase tracking-tight opacity-70">Stress Management</p>
+            </div>
+          </div>
+
+          {/* Dictionary Items Grid */}
+          <div className="col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+            {filteredData.slice(0, 10).map((item, index) => (
+              <div 
+                key={index} 
+                className="glass-card rounded-lg p-4 flex items-center justify-between hover:bg-white/5 active:scale-[0.98] transition-all cursor-pointer border-outline-variant/10 shadow-sm"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-primary" />
+                  <span className="font-headline font-bold text-on-surface text-sm">{item.nama}</span>
                 </div>
-              ))
-            ) : (
-              <div className="col-span-full text-center py-10 text-slate-500">
-                Tidak ada data ditemukan untuk pencarian ini.
+                <span className="material-symbols-outlined text-outline-variant text-sm">chevron_right</span>
+              </div>
+            ))}
+            {filteredData.length === 0 && (
+              <div className="col-span-full py-20 text-center opacity-50">
+                <span className="material-symbols-outlined text-4xl mb-2">search_off</span>
+                <p className="font-headline font-bold text-sm tracking-tight">No results found for your search.</p>
               </div>
             )}
           </div>
-
         </div>
+
+        {/* Weekly Tip Section */}
+        <section className="mt-10 mb-6">
+          <div className="bg-surface-container-low rounded-lg p-6 border-l-4 border-tertiary shadow-md">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="material-symbols-outlined text-tertiary">lightbulb</span>
+              <span className="text-tertiary font-black text-[10px] uppercase tracking-[0.2em]">Guardian Insight</span>
+            </div>
+            <p className="text-on-surface font-headline font-bold leading-relaxed italic text-sm">
+              "Regular hydration isn't just about thirst; it's the foundation of cognitive resilience during high-stress disaster scenarios."
+            </p>
+          </div>
+        </section>
       </main>
     </div>
   );

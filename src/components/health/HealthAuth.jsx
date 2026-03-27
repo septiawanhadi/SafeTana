@@ -80,8 +80,8 @@ const HealthAuth = () => {
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-            <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6">
-                <span className="text-3xl font-black text-white">S</span>
+            <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-xl p-3 mb-2">
+                <img src="/logo.png" alt="SafeTana AI Logo" className="w-full h-full object-contain" />
             </div>
         </div>
         <h2 className="mt-6 text-center text-3xl font-black tracking-tight text-slate-900 dark:text-white">

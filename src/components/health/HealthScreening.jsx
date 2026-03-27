@@ -196,43 +196,43 @@ const HealthScreening = () => {
 
   if (result) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col items-center justify-center p-4">
-        <div className="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-[2rem] shadow-xl max-w-lg w-full border border-slate-200 dark:border-slate-700 animate-in fade-in duration-500">
+      <div className="min-h-screen bg-background font-body text-on-background flex flex-col items-center justify-center p-4">
+        <div className="glass-card p-6 md:p-8 rounded-[2rem] shadow-2xl max-w-lg w-full border border-outline-variant/20 animate-in fade-in duration-500">
           
-          <div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-200 dark:border-slate-700">
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center shrink-0 shadow-inner ${
-                result.riskLevel === 'Tinggi' ? 'bg-red-100 text-red-500' : 
-                result.riskLevel === 'Sedang' ? 'bg-amber-100 text-amber-500' : 'bg-emerald-100 text-emerald-500'
+          <div className="flex items-center gap-4 mb-6 pb-6 border-b border-outline-variant/20">
+            <div className={`w-16 h-16 rounded-[1.2rem] flex items-center justify-center shrink-0 border ${
+                result.riskLevel === 'Tinggi' ? 'bg-error/10 text-error border-error/20' : 
+                result.riskLevel === 'Sedang' ? 'bg-tertiary/10 text-tertiary border-tertiary/20' : 'bg-success/10 text-success border-success/20'
             }`}>
-              {result.riskLevel === 'Tinggi' ? <AlertTriangle size={36} /> : <CheckCircle2 size={36} />}
+              <span className="material-symbols-outlined text-3xl">{result.riskLevel === 'Tinggi' ? 'warning' : 'check_circle'}</span>
             </div>
             <div>
-              <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase">Hasil Screening</h2>
-              <p className="text-sm font-bold mt-1">Risiko Bawaan: <span className={`${
-                 result.riskLevel === 'Tinggi' ? 'text-red-500' : result.riskLevel === 'Sedang' ? 'text-amber-500' : 'text-emerald-500'
+              <h2 className="text-xl font-headline font-black text-on-surface uppercase tracking-tight">Hasil Screening</h2>
+              <p className="text-xs font-bold mt-1 text-on-surface-variant uppercase tracking-widest">Risiko Bawaan: <span className={`ml-1 ${
+                 result.riskLevel === 'Tinggi' ? 'text-error' : result.riskLevel === 'Sedang' ? 'text-tertiary' : 'text-success'
               }`}>{result.riskLevel}</span></p>
             </div>
           </div>
 
           <div className="mb-6 space-y-4">
-            <h3 className="font-bold text-sm text-slate-500 uppercase tracking-widest">Temuan Kondisi:</h3>
+            <h3 className="font-headline font-black text-xs text-on-surface-variant uppercase tracking-widest">Temuan Kondisi:</h3>
             <ul className="space-y-3">
               {result.findings.map((item, idx) => (
-                <li key={idx} className="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
-                  <span className="font-bold text-slate-800 dark:text-slate-200 block text-sm">{item.title}</span>
-                  <span className="text-xs text-slate-500">{item.desc}</span>
+                <li key={idx} className="bg-surface-container-lowest/50 p-4 rounded-xl border border-outline-variant/10">
+                  <span className="font-bold text-on-surface block text-sm mb-1">{item.title}</span>
+                  <span className="text-xs text-on-surface-variant font-medium">{item.desc}</span>
                 </li>
               ))}
             </ul>
           </div>
 
           <div className="mb-8 space-y-4">
-            <h3 className="font-bold text-sm text-slate-500 uppercase tracking-widest">Saran & Rekomendasi Khusus:</h3>
-            <ul className="space-y-2">
+            <h3 className="font-headline font-black text-xs text-on-surface-variant uppercase tracking-widest">Saran Khusus:</h3>
+            <ul className="space-y-3">
               {result.recommendations.map((rec, idx) => (
-                <li key={idx} className="flex gap-3 text-sm font-medium text-slate-700 dark:text-slate-300">
-                  <span className="text-blue-500 shrink-0 mt-0.5">•</span>
-                  <span>{rec}</span>
+                <li key={idx} className="flex gap-3 text-sm font-medium text-on-surface-variant">
+                  <span className="material-symbols-outlined text-primary text-lg shrink-0">check_circle</span>
+                  <span className="pt-0.5">{rec}</span>
                 </li>
               ))}
             </ul>
@@ -240,7 +240,7 @@ const HealthScreening = () => {
 
           <button 
             onClick={() => navigate('/health')}
-            className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-slate-900 font-bold py-4 rounded-xl transition-all shadow-md active:scale-95 uppercase tracking-wider text-sm"
+            className="w-full bg-primary hover:bg-primary/90 text-on-primary font-black py-4 rounded-2xl transition-all shadow-xl active:scale-95 uppercase tracking-widest text-sm"
           >
             Selesai & Kembali ke Beranda
           </button>
@@ -250,99 +250,100 @@ const HealthScreening = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-sans pb-20">
-      <header className="bg-white dark:bg-slate-800 shadow-sm sticky top-0 z-50">
-        <div className="max-w-3xl mx-auto px-4 h-16 flex items-center gap-4">
-          <button onClick={() => navigate('/health')} className="p-2 -ml-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-            <ArrowLeft size={20} />
+    <div className="min-h-screen bg-background text-on-background font-body pb-20">
+      <header className="glass-card shadow-sm sticky top-0 z-50 border-b border-outline-variant/20 relative">
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-md z-[-1]" />
+        <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between relative z-10">
+          <button onClick={() => navigate('/health')} className="w-10 h-10 flex items-center justify-center hover:bg-surface-container-high rounded-full transition-colors text-on-surface-variant">
+            <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <div className="flex-1 flex justify-center items-center gap-2">
-            <Activity className="text-emerald-500" size={20} />
-            <h1 className="font-bold text-lg">Skrining Kesehatan Menyeluruh</h1>
+          <div className="flex flex-col items-center">
+             <div className="flex items-center gap-2">
+               <span className="material-symbols-outlined text-success">vital_signs</span>
+               <h1 className="font-headline font-black text-lg text-on-surface tracking-tight">Skrining Cerdas</h1>
+             </div>
           </div>
-          <div className="w-8"></div>
+          <div className="w-10"></div>
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 pt-6">
-        <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded-r-xl mb-6 shadow-sm">
-          <div className="flex items-start gap-3">
-            <Info className="text-blue-500 shrink-0 mt-0.5" size={20} />
-            <p className="text-xs sm:text-sm text-blue-800 dark:text-blue-200 leading-relaxed font-medium">
-              Sistem Penilaian Cerdas (Rule-Based Expert System) ini akan mengevaluasi kondisi Anda secara instan berdasarkan parameter medis standar. Isi data sejujurnya.
-            </p>
-          </div>
+      <main className="max-w-3xl mx-auto px-4 pt-6 space-y-6">
+        <div className="glass-card p-5 rounded-2xl border-l-4 border-l-primary shadow-sm flex items-start gap-4">
+           <span className="material-symbols-outlined text-primary text-2xl shrink-0">info</span>
+           <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed font-medium">
+             Sistem Penilaian Cerdas (Rule-Based AI) ini akan mengevaluasi kondisi Anda secara instan berdasarkan parameter medis terenkripsi.
+           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm">
-            <h2 className="text-sm font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-4">Pengukuran Fisik</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="glass-card p-6 rounded-[2rem] border border-outline-variant/20 shadow-sm">
+            <h2 className="font-headline font-black text-xs text-on-surface-variant uppercase tracking-widest mb-6">Pengukuran Fisik</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                <label className="block text-xs font-bold mb-1.5 uppercase text-slate-500">Keterangan Usia</label>
-                <input type="number" name="usia" value={formData.usia} onChange={handleChange} required className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:ring-2 focus:ring-emerald-500 outline-none text-sm font-bold" placeholder="Tahun" />
+                <label className="block text-[10px] font-bold mb-2 uppercase text-on-surface-variant tracking-wider">Usia (Tahun)</label>
+                <input type="number" name="usia" value={formData.usia} onChange={handleChange} required className="w-full p-4 rounded-xl border border-outline-variant/20 bg-surface-container-highest focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm font-bold text-on-surface transition-all placeholder:text-on-surface-variant/40" placeholder="Ketik disini..." />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold mb-1.5 uppercase text-slate-500">Berat (KG)</label>
-                  <input type="number" name="bb" value={formData.bb} onChange={handleChange} required min="20" className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:ring-2 focus:ring-emerald-500 outline-none text-sm font-bold text-center" placeholder="0" />
+                  <label className="block text-[10px] font-bold mb-2 uppercase text-on-surface-variant tracking-wider">Berat (KG)</label>
+                  <input type="number" name="bb" value={formData.bb} onChange={handleChange} required min="20" className="w-full p-4 rounded-xl border border-outline-variant/20 bg-surface-container-highest focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm font-bold text-on-surface text-center transition-all placeholder:text-on-surface-variant/40" placeholder="0" />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold mb-1.5 uppercase text-slate-500">Tinggi (CM)</label>
-                   <input type="number" name="tb" value={formData.tb} onChange={handleChange} required min="50" className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:ring-2 focus:ring-emerald-500 outline-none text-sm font-bold text-center" placeholder="0" />
+                  <label className="block text-[10px] font-bold mb-2 uppercase text-on-surface-variant tracking-wider">Tinggi (CM)</label>
+                   <input type="number" name="tb" value={formData.tb} onChange={handleChange} required min="50" className="w-full p-4 rounded-xl border border-outline-variant/20 bg-surface-container-highest focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm font-bold text-on-surface text-center transition-all placeholder:text-on-surface-variant/40" placeholder="0" />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold mb-1.5 uppercase text-slate-500">Tensi Sistolik</label>
-                <input type="number" name="sistolik" value={formData.sistolik} onChange={handleChange} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:ring-2 focus:ring-emerald-500 outline-none text-sm font-bold" placeholder="Batas Atas (Cth: 120)" />
+                <label className="block text-[10px] font-bold mb-2 uppercase text-on-surface-variant tracking-wider">Tensi Sistolik</label>
+                <input type="number" name="sistolik" value={formData.sistolik} onChange={handleChange} className="w-full p-4 rounded-xl border border-outline-variant/20 bg-surface-container-highest focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm font-bold text-on-surface transition-all placeholder:text-on-surface-variant/40" placeholder="Atas (Cth: 120)" />
               </div>
               <div>
-                <label className="block text-xs font-bold mb-1.5 uppercase text-slate-500">Tensi Diastolik</label>
-                <input type="number" name="diastolik" value={formData.diastolik} onChange={handleChange} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:ring-2 focus:ring-emerald-500 outline-none text-sm font-bold" placeholder="Bawah (Cth: 80)" />
+                <label className="block text-[10px] font-bold mb-2 uppercase text-on-surface-variant tracking-wider">Tensi Diastolik</label>
+                <input type="number" name="diastolik" value={formData.diastolik} onChange={handleChange} className="w-full p-4 rounded-xl border border-outline-variant/20 bg-surface-container-highest focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm font-bold text-on-surface transition-all placeholder:text-on-surface-variant/40" placeholder="Bawah (Cth: 80)" />
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-xs font-bold mb-1.5 uppercase text-slate-500">Denyut Jantung (BPM)</label>
+                <label className="block text-[10px] font-bold mb-2 uppercase text-on-surface-variant tracking-wider">Detak Jantung (BPM)</label>
                 <div className="relative">
-                  <input type="number" name="denyutJantung" value={formData.denyutJantung} onChange={handleChange} className="w-full p-3 pr-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 focus:ring-2 focus:ring-emerald-500 outline-none text-sm font-bold" placeholder="Detak per menit" />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">BPM</span>
+                  <input type="number" name="denyutJantung" value={formData.denyutJantung} onChange={handleChange} className="w-full p-4 pr-16 rounded-xl border border-outline-variant/20 bg-surface-container-highest focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm font-bold text-on-surface transition-all placeholder:text-on-surface-variant/40" placeholder="Detak per menit" />
+                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-on-surface-variant uppercase tracking-widest">BPM</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm">
-            <h2 className="text-sm font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-4">Kebiasaan Sehari-hari</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="glass-card p-6 rounded-[2rem] border border-outline-variant/20 shadow-sm">
+            <h2 className="font-headline font-black text-xs text-on-surface-variant uppercase tracking-widest mb-6">Kebiasaan Sehari-hari</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                 <label className="block text-xs font-bold mb-1.5 uppercase text-slate-500">Merokok Aktif?</label>
-                 <select name="merokok" value={formData.merokok} onChange={handleChange} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-sm font-bold cursor-pointer">
+                 <label className="block text-[10px] font-bold mb-2 uppercase text-on-surface-variant tracking-wider">Merokok Aktif?</label>
+                 <select name="merokok" value={formData.merokok} onChange={handleChange} className="w-full p-4 rounded-xl border border-outline-variant/20 bg-surface-container-highest text-sm font-bold cursor-pointer text-on-surface outline-none focus:ring-2 focus:ring-primary">
                     <option value="Tidak">Tidak</option>
                     <option value="Ya">Ya</option>
                  </select>
               </div>
               <div>
-                 <label className="block text-xs font-bold mb-1.5 uppercase text-slate-500">Paparan Asap Rokok</label>
-                 <select name="paparanRokok" value={formData.paparanRokok} onChange={handleChange} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-sm font-bold cursor-pointer">
-                    <option value="Tidak Pernah">Tidak Pernah / Jarang</option>
-                    <option value="Sering">Sering (Lingkungan Perokok)</option>
-                    <option value="Setiap Hari">Sangat Sering (Tiap Hari)</option>
+                 <label className="block text-[10px] font-bold mb-2 uppercase text-on-surface-variant tracking-wider">Paparan Asap Rokok</label>
+                 <select name="paparanRokok" value={formData.paparanRokok} onChange={handleChange} className="w-full p-4 rounded-xl border border-outline-variant/20 bg-surface-container-highest text-sm font-bold cursor-pointer text-on-surface outline-none focus:ring-2 focus:ring-primary">
+                    <option value="Tidak Pernah">Jarang / Tidak Pernah</option>
+                    <option value="Sering">Sering</option>
+                    <option value="Setiap Hari">Tiap Hari</option>
                  </select>
               </div>
               <div>
-                 <label className="block text-xs font-bold mb-1.5 uppercase text-slate-500">Durasi Kebiasaan (Tahun)</label>
-                 <input type="number" name="durasiRokok" value={formData.durasiRokok} onChange={handleChange} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-sm font-bold focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Cth: 5" />
+                 <label className="block text-[10px] font-bold mb-2 uppercase text-on-surface-variant tracking-wider">Durasi Merokok (Tahun)</label>
+                 <input type="number" name="durasiRokok" value={formData.durasiRokok} onChange={handleChange} className="w-full p-4 rounded-xl border border-outline-variant/20 bg-surface-container-highest text-sm font-bold outline-none focus:ring-2 focus:ring-primary text-on-surface placeholder:text-on-surface-variant/40" placeholder="0" />
               </div>
               <div>
-                 <label className="block text-xs font-bold mb-1.5 uppercase text-slate-500">Pola Makan Umum</label>
-                 <select name="polaMakan" value={formData.polaMakan} onChange={handleChange} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-sm font-bold cursor-pointer">
-                    <option value="Sehat">Sehat (Banyak Sayur/Buah)</option>
-                    <option value="Kurang Sehat">Kurang Sehat (Jarang Sayur)</option>
-                    <option value="Tidak Sehat">Tidak Sehat (Gorengan/Gula Tinggi)</option>
+                 <label className="block text-[10px] font-bold mb-2 uppercase text-on-surface-variant tracking-wider">Pola Makan</label>
+                 <select name="polaMakan" value={formData.polaMakan} onChange={handleChange} className="w-full p-4 rounded-xl border border-outline-variant/20 bg-surface-container-highest text-sm font-bold cursor-pointer text-on-surface outline-none focus:ring-2 focus:ring-primary">
+                    <option value="Sehat">Sehat</option>
+                    <option value="Kurang Sehat">Kurang Sehat</option>
+                    <option value="Tidak Sehat">Tidak Sehat</option>
                  </select>
               </div>
               <div className="sm:col-span-2">
-                 <label className="block text-xs font-bold mb-1.5 uppercase text-slate-500">Sering Begadang?</label>
-                 <select name="begadang" value={formData.begadang} onChange={handleChange} className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-sm font-bold cursor-pointer">
+                 <label className="block text-[10px] font-bold mb-2 uppercase text-on-surface-variant tracking-wider">Sering Begadang?</label>
+                 <select name="begadang" value={formData.begadang} onChange={handleChange} className="w-full p-4 rounded-xl border border-outline-variant/20 bg-surface-container-highest text-sm font-bold cursor-pointer text-on-surface outline-none focus:ring-2 focus:ring-primary">
                     <option value="Tidak">Tidak</option>
                     <option value="Ya">Ya</option>
                  </select>
@@ -351,52 +352,56 @@ const HealthScreening = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm">
-              <h2 className="text-[11px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-4 line-clamp-1">Riwayat Medis Sendiri</h2>
+            <div className="glass-card p-6 rounded-[2rem] border border-outline-variant/20 shadow-sm">
+              <h2 className="font-headline font-black text-[10px] text-on-surface-variant uppercase tracking-widest mb-5">Riwayat Medis Pribadi</h2>
               <div className="space-y-3">
                 {Object.keys(formData.riwayatPribadi).map(item => (
-                  <label key={item} className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
-                    <input type="checkbox" name={`riwayatPribadi.${item}`} checked={formData.riwayatPribadi[item]} onChange={handleChange} className="w-5 h-5 text-emerald-600 rounded bg-slate-100 border-slate-300 focus:ring-emerald-500 dark:ring-offset-slate-800" />
-                    <span className="text-sm font-bold capitalize">{item}</span>
+                  <label key={item} className="flex items-center gap-4 p-3 rounded-xl hover:bg-surface-container-high transition group cursor-pointer border border-transparent hover:border-outline-variant/10">
+                    <input type="checkbox" name={`riwayatPribadi.${item}`} checked={formData.riwayatPribadi[item]} onChange={handleChange} className="w-5 h-5 text-primary rounded border-outline-variant/30 focus:ring-primary bg-surface-container-highest" />
+                    <span className="text-sm font-bold capitalize text-on-surface group-hover:text-primary transition-colors">{item}</span>
                   </label>
                 ))}
               </div>
             </div>
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm">
-              <h2 className="text-[11px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-4 line-clamp-1">Riwayat Medis Keluarga</h2>
+            <div className="glass-card p-6 rounded-[2rem] border border-outline-variant/20 shadow-sm">
+              <h2 className="font-headline font-black text-[10px] text-on-surface-variant uppercase tracking-widest mb-5">Riwayat Bawaan Keluarga</h2>
               <div className="space-y-3">
                 {Object.keys(formData.riwayatKeluarga).map(item => (
-                  <label key={item} className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
-                    <input type="checkbox" name={`riwayatKeluarga.${item}`} checked={formData.riwayatKeluarga[item]} onChange={handleChange} className="w-5 h-5 text-emerald-600 rounded bg-slate-100 border-slate-300 focus:ring-emerald-500 dark:ring-offset-slate-800" />
-                    <span className="text-sm font-bold capitalize">{item}</span>
+                  <label key={item} className="flex items-center gap-4 p-3 rounded-xl hover:bg-surface-container-high transition group cursor-pointer border border-transparent hover:border-outline-variant/10">
+                    <input type="checkbox" name={`riwayatKeluarga.${item}`} checked={formData.riwayatKeluarga[item]} onChange={handleChange} className="w-5 h-5 text-primary rounded border-outline-variant/30 focus:ring-primary bg-surface-container-highest" />
+                    <span className="text-sm font-bold capitalize text-on-surface group-hover:text-primary transition-colors">{item}</span>
                   </label>
                 ))}
               </div>
             </div>
           </div>
 
-           <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm">
-            <h2 className="text-sm font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest mb-4">Keluhan 2 Minggu Terakhir</h2>
+           <div className="glass-card p-6 rounded-[2rem] border border-outline-variant/20 shadow-sm">
+            <h2 className="font-headline font-black text-xs text-on-surface-variant uppercase tracking-widest mb-6">Keluhan 2 Minggu Terakhir</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
-              <div className="col-span-1 md:col-span-2 text-xs font-bold text-slate-500 mb-1 border-b pb-2 dark:border-slate-700">Gejala Fisik Utama</div>
+              <div className="col-span-1 md:col-span-2 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2 border-b border-outline-variant/20 pb-2">Gejala Fisik</div>
               {Object.keys(formData.gejalaFisik).map(item => (
-                <label key={item} className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition bg-slate-50/50 dark:bg-slate-900/30">
-                  <input type="checkbox" name={`gejalaFisik.${item}`} checked={formData.gejalaFisik[item]} onChange={handleChange} className="w-5 h-5 text-emerald-600 rounded bg-slate-100 border-slate-300 focus:ring-emerald-500 dark:ring-offset-slate-800" />
-                  <span className="text-sm font-bold capitalize">{item.replace(/([A-Z])/g, ' $1').trim()}</span>
+                <label key={item} className="flex items-center gap-4 p-3 rounded-xl bg-surface-container-lowest/50 hover:bg-surface-container-high border border-outline-variant/10 transition group cursor-pointer">
+                  <input type="checkbox" name={`gejalaFisik.${item}`} checked={formData.gejalaFisik[item]} onChange={handleChange} className="w-5 h-5 text-primary rounded border-outline-variant/30 focus:ring-primary bg-surface-container-highest" />
+                  <span className="text-sm font-bold capitalize text-on-surface group-hover:text-primary transition-colors">{item.replace(/([A-Z])/g, ' $1').trim()}</span>
                 </label>
               ))}
-              <div className="col-span-1 md:col-span-2 text-xs font-bold text-slate-500 mb-1 mt-4 border-b pb-2 dark:border-slate-700">Gejala Mental / Emosional</div>
+              <div className="col-span-1 md:col-span-2 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2 mt-4 border-b border-outline-variant/20 pb-2">Gejala Mental</div>
               {Object.keys(formData.gejalaMental).map(item => (
-                <label key={item} className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition bg-slate-50/50 dark:bg-slate-900/30">
-                  <input type="checkbox" name={`gejalaMental.${item}`} checked={formData.gejalaMental[item]} onChange={handleChange} className="w-5 h-5 text-emerald-600 rounded bg-slate-100 border-slate-300 focus:ring-emerald-500 dark:ring-offset-slate-800" />
-                  <span className="text-sm font-bold capitalize">{item.replace(/([A-Z])/g, ' $1').trim()}</span>
+                <label key={item} className="flex items-center gap-4 p-3 rounded-xl bg-surface-container-lowest/50 hover:bg-surface-container-high border border-outline-variant/10 transition group cursor-pointer">
+                  <input type="checkbox" name={`gejalaMental.${item}`} checked={formData.gejalaMental[item]} onChange={handleChange} className="w-5 h-5 text-primary rounded border-outline-variant/30 focus:ring-primary bg-surface-container-highest" />
+                  <span className="text-sm font-bold capitalize text-on-surface group-hover:text-primary transition-colors">{item.replace(/([A-Z])/g, ' $1').trim()}</span>
                 </label>
               ))}
             </div>
           </div>
 
-          <button type="submit" disabled={submitting} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest py-4 rounded-2xl transition-all shadow-md active:scale-95 disabled:opacity-70 disabled:active:scale-100 flex items-center justify-center gap-2">
-            {submitting ? 'Menganalisa Data...' : 'Analisis Kesehatan Saya'}
+          <button type="submit" disabled={submitting} className="w-full bg-primary hover:bg-primary/90 text-on-primary font-black uppercase tracking-widest py-4 md:py-5 rounded-2xl transition-all shadow-xl active:scale-95 disabled:opacity-70 flex items-center justify-center gap-3">
+            {submitting ? (
+              <><span className="material-symbols-outlined animate-spin">autorenew</span> Menganalisa Data...</>
+            ) : (
+              <><span className="material-symbols-outlined">analytics</span> Analisis Kesehatan Saya</>
+            )}
           </button>
         </form>
       </main>

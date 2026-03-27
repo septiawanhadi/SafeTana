@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Users, MapPin, Battery, AlertCircle, CheckCircle,
   Clock, X, Search, ShieldAlert, Send, Radio, Smartphone, MessageSquare, AlertTriangle, RefreshCw
@@ -9,6 +10,16 @@ import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp } from 
 import SafeZoneManager from './SafeZoneManager';
 
 const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
+  const navigate = useNavigate();
+  
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    } else {
+      navigate('/');
+    }
+  };
+
   const [users, setUsers] = useState([]);
   const [activeTab, setActiveTab] = useState('users'); // 'users', 'safezones'
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,7 +29,6 @@ const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [broadcastSuccess, setBroadcastSuccess] = useState(false);
   const [broadcastError, setBroadcastError] = useState('');
-
 
   useEffect(() => {
     const q = query(collection(db, 'active_users'), orderBy('lastActive', 'desc'));
@@ -64,7 +74,6 @@ const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
     setBroadcastError('');
 
     try {
-      // Create broadcast document in Firestore
       await addDoc(collection(db, 'broadcasts'), {
         type: disaster.type,
         loc: disaster.loc,
@@ -95,13 +104,11 @@ const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
             <p className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.3em] mt-1 italic">Tactical Monitoring & Disaster Response</p>
           </div>
         </div>
-        <button onClick={onClose} className="bg-slate-800 p-3 rounded-2xl hover:bg-red-600 transition-all text-white"><X size={20} /></button>
+        <button onClick={handleClose} className="bg-slate-800 p-3 rounded-2xl hover:bg-red-600 transition-all text-white"><X size={20} /></button>
       </header>
 
       <div className="flex-1 p-6 lg:p-10 overflow-y-auto space-y-8 custom-scrollbar">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-          {/* BROADCAST PANEL - DISASTERS LIST */}
           <div className="lg:col-span-4 space-y-6">
             <div className="bg-gradient-to-br from-blue-900/20 to-slate-900 border border-blue-800/30 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden text-white h-full flex flex-col">
               <div className="absolute top-0 right-0 p-4 opacity-10"><Radio size={80} className="text-blue-500" /></div>
@@ -141,7 +148,6 @@ const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
             </div>
           </div>
 
-          {/* MAIN PANEL */}
           <div className="lg:col-span-8 bg-slate-900/30 border border-slate-800 rounded-[3rem] overflow-hidden flex flex-col text-white">
             <div className="flex border-b border-slate-800">
               <button onClick={() => setActiveTab('users')} className={`flex-1 py-4 text-xs font-black uppercase tracking-widest transition-colors ${activeTab === 'users' ? 'bg-blue-600/20 text-blue-400 border-b-2 border-blue-500' : 'text-slate-500 hover:text-slate-300'}`}>

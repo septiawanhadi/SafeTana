@@ -153,20 +153,21 @@ const MoodTracker = () => {
   if (loading) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-sans pb-20">
+    <div className="min-h-screen bg-background text-on-background font-body pb-20">
       
-      <header className="bg-white dark:bg-slate-800 shadow-sm sticky top-0 z-50 border-b border-slate-200 dark:border-slate-700">
-        <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
-          <button onClick={() => navigate('/health')} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-            <ArrowLeft size={20} />
+      <header className="glass-card shadow-sm sticky top-0 z-50 border-b border-outline-variant/20 relative">
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-md z-[-1]" />
+        <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between relative z-10">
+          <button onClick={() => navigate('/health')} className="w-10 h-10 flex items-center justify-center hover:bg-surface-container-high rounded-full transition-colors text-on-surface-variant">
+            <span className="material-symbols-outlined">arrow_back</span>
           </button>
           <div className="flex flex-col items-center">
              <div className="flex items-center gap-2">
-               <TrendingUp className="text-purple-500" size={18} />
-               <h1 className="font-bold text-lg">Konseling & Jurnal Mental</h1>
+               <span className="material-symbols-outlined text-purple-500">trending_up</span>
+               <h1 className="font-headline font-black text-lg text-on-surface tracking-tight">Konseling & Jurnal</h1>
              </div>
           </div>
-          <div className="w-9"></div>
+          <div className="w-10"></div>
         </div>
       </header>
 
@@ -174,56 +175,58 @@ const MoodTracker = () => {
         
         {/* STATISTIK 30 HARI */}
         <section className="grid grid-cols-3 gap-3">
-           <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
-              <Flame className="text-orange-500 mb-1" size={24} />
-              <p className="text-2xl font-black">{stats.streak}</p>
-              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">Hari Aktif</p>
+           <div className="glass-card p-4 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
+              <span className="material-symbols-outlined text-orange-500 mb-1 text-3xl">local_fire_department</span>
+              <p className="text-2xl font-headline font-black">{stats.streak}</p>
+              <p className="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest mt-1">Hari Aktif</p>
            </div>
-           <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
-              <span className="text-2xl mb-1">{stats.mostFrequent ? stats.mostFrequent.emoji : '➖'}</span>
+           <div className="glass-card p-4 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
+              <span className="text-3xl mb-1">{stats.mostFrequent ? stats.mostFrequent.emoji : '➖'}</span>
               <p className="text-sm font-bold truncate w-full">{stats.mostFrequent ? stats.mostFrequent.label : '-'}</p>
-              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">Sering Muncul</p>
+              <p className="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest mt-1">Sering Muncul</p>
            </div>
-           <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center">
-              <Activity className={`${stats.averageScore >= 3 ? 'text-green-500' : 'text-red-500'} mb-1`} size={24} />
-              <p className="text-2xl font-black">{stats.averageScore.toFixed(1)}/5</p>
-              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">Skor Rata-rata</p>
+           <div className="glass-card p-4 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
+              <span className={`material-symbols-outlined text-3xl ${stats.averageScore >= 3 ? 'text-success' : 'text-error'} mb-1`}>vital_signs</span>
+              <p className="text-2xl font-headline font-black">{stats.averageScore.toFixed(1)}/5</p>
+              <p className="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest mt-1">Skor Rata-rata</p>
            </div>
         </section>
 
         {/* AI ANALYSIS BUTTON */}
-        <section className="bg-white dark:bg-slate-800 p-1 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm">
+        <section className="glass-card p-1 rounded-[1.5rem] shadow-sm">
            <button 
              onClick={getAIAnalysis}
              disabled={isAnalyzing || moodLogs.length === 0}
-             className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-[22px] group transition-all"
+             className="w-full flex items-center justify-between p-4 bg-primary/5 rounded-[1.3rem] group transition-all"
            >
               <div className="flex items-center gap-4 text-left">
-                 <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-md shadow-blue-200 dark:shadow-none">
-                    <BrainCircuit className="text-white" size={20} />
+                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
+                    <span className="material-symbols-outlined text-primary text-2xl">psychology</span>
                  </div>
                  <div>
-                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">Analisis Mental AI</h3>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">Dapatkan insight khusus dari SafeTana AI</p>
+                    <h3 className="font-headline font-black text-sm text-on-surface tracking-tight">Analisis Mental AI</h3>
+                    <p className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">Dapatkan insight khusus</p>
                  </div>
               </div>
-              <div className={`p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm ${isAnalyzing ? 'animate-pulse' : ''}`}>
-                 {isAnalyzing ? <RefreshCw size={16} className="animate-spin" /> : <Sparkles size={16} />}
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-high border border-outline-variant/20 group-hover:bg-primary group-hover:text-on-primary transition-all shadow-sm ${isAnalyzing ? 'animate-pulse' : ''}`}>
+                 <span className={`material-symbols-outlined ${isAnalyzing ? 'animate-spin' : ''}`}>
+                   {isAnalyzing ? 'autorenew' : 'auto_awesome'}
+                 </span>
               </div>
            </button>
            
            {aiAnalysis && (
-              <div className="p-6 border-t border-slate-100 dark:border-slate-700 animate-in fade-in slide-in-from-top-2 duration-500">
+              <div className="p-6 border-t border-outline-variant/10 mt-2 animate-in fade-in slide-in-from-top-2 duration-500">
                  <div className="flex items-center gap-2 mb-4">
-                    <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 text-[10px] font-black rounded uppercase">AI Insights</span>
-                    <div className="h-px flex-1 bg-slate-100 dark:bg-slate-700"></div>
+                    <span className="px-2 py-0.5 bg-primary/10 text-primary border border-primary/20 text-[10px] font-black rounded uppercase">AI Insights</span>
+                    <div className="h-px flex-1 bg-outline-variant/20"></div>
                  </div>
-                 <div className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-line font-medium">
+                 <div className="text-xs text-on-surface-variant leading-relaxed whitespace-pre-line font-medium">
                     {aiAnalysis}
                  </div>
                  <button 
                    onClick={() => setAiAnalysis(null)} 
-                   className="mt-6 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors"
+                   className="mt-6 text-[10px] font-black text-on-surface-variant uppercase tracking-widest hover:text-on-surface transition-colors"
                  >
                    Tutup Analisis
                  </button>
@@ -232,41 +235,42 @@ const MoodTracker = () => {
         </section>
 
         {/* INPUT SECTION */}
-        <section className="bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-3xl p-6 shadow-lg border border-white/10">
-           <h2 className="text-center font-black text-xl mb-1 text-white uppercase tracking-tight">Kondisi Mental Pasca Bencana</h2>
-           <p className="text-center text-[10px] text-indigo-200 mb-6 font-bold uppercase tracking-widest">Ruang Aman untuk Mencatat Pemulihan Anda</p>
+        <section className="bg-primary text-on-primary rounded-[2rem] p-8 shadow-2xl relative overflow-hidden flex flex-col items-center">
+           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl pointer-events-none" />
+           <h2 className="text-center font-headline font-black text-xl mb-1 mt-2 uppercase tracking-tight relative z-10">Kondisi Mental Pasca Bencana</h2>
+           <p className="text-center text-[10px] text-on-primary/70 mb-8 font-bold uppercase tracking-widest relative z-10">Ruang Aman untuk Mencatat Pemulihan Anda</p>
            
-           <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">
+           <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-8 w-full relative z-10">
              {MOOD_EMOJIS.map(mood => (
                 <button
                   key={mood.id}
                   onClick={() => setSelectedMood(mood)}
                   className={`flex flex-col items-center justify-center p-3 rounded-2xl border-2 transition-all ${
                     selectedMood?.id === mood.id 
-                      ? 'bg-white text-slate-900 scale-110 shadow-xl border-white' 
+                      ? 'bg-white text-primary scale-110 shadow-xl border-white' 
                       : 'border-transparent bg-white/10 hover:bg-white/20 text-white opacity-80 hover:opacity-100'
                   }`}
                 >
-                   <span className="text-3xl mb-1">{mood.emoji}</span>
-                   <span className={`text-[9px] font-bold uppercase tracking-wider ${selectedMood?.id === mood.id ? mood.color.split(' ')[1] : ''}`}>{mood.label}</span>
+                   <span className="text-3xl mb-1 drop-shadow-sm">{mood.emoji}</span>
+                   <span className="text-[9px] font-bold uppercase tracking-wider mt-1">{mood.label}</span>
                 </button>
              ))}
            </div>
 
            {selectedMood && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="w-full space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 relative z-10">
                  <textarea
                    value={note}
                    onChange={(e) => setNote(e.target.value)}
                    placeholder="Ada cerita apa dibalik perasaanmu ini? (Opsional, tapi sangat disarankan ditulis)"
-                   className="w-full p-4 bg-white/10 border border-white/20 rounded-2xl text-sm text-white placeholder-purple-200 focus:ring-2 focus:ring-white outline-none resize-none h-24"
+                   className="w-full p-5 bg-white/10 border border-white/20 rounded-2xl text-sm text-white placeholder-white/50 focus:bg-white/20 outline-none resize-none h-28 backdrop-blur-md"
                  />
                  <button
                    onClick={handleSaveMood}
                    disabled={saving}
-                   className="w-full bg-white text-purple-700 hover:bg-purple-50 font-black uppercase tracking-widest py-3.5 rounded-2xl flex justify-center items-center gap-2 active:scale-95 transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-md"
+                   className="w-full bg-white text-primary hover:bg-white/90 font-black uppercase tracking-widest py-4 rounded-2xl flex justify-center items-center gap-2 shadow-xl active:scale-95 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
                  >
-                   <Save size={18} /> {saving ? 'Menyimpan...' : 'Simpan Jurnal'}
+                   <span className="material-symbols-outlined">save</span> {saving ? 'Menyimpan...' : 'Simpan Jurnal'}
                  </button>
               </div>
            )}
@@ -274,17 +278,17 @@ const MoodTracker = () => {
 
         {/* RECENT LOGS SECTION */}
         <section>
-           <div className="flex items-center justify-between mb-4 px-2">
-               <h3 className="font-bold text-sm text-slate-500 uppercase tracking-widest">Riwayat Entri Jurnal</h3>
-               <span className="text-xs font-bold text-slate-400 bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded-md">{stats.totalLogs} Catatan</span>
+           <div className="flex items-center justify-between mb-6 px-2">
+               <h3 className="font-headline font-black text-xs text-on-surface-variant uppercase tracking-widest">Riwayat Entri Jurnal</h3>
+               <span className="text-xs font-bold text-on-surface bg-surface-container-high px-3 py-1 rounded-full">{stats.totalLogs} Catatan</span>
            </div>
            
            {moodLogs.length === 0 ? (
-              <div className="bg-slate-100 dark:bg-slate-800/50 rounded-3xl p-8 text-center border border-slate-200 border-dashed dark:border-slate-700">
-                 <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Belum ada catatan mood dalam 30 hari terakhir. Mulailah hari ini!</p>
+              <div className="glass-card rounded-[2rem] p-10 text-center border-dashed">
+                 <p className="text-on-surface-variant text-sm font-medium">Belum ada catatan konseling dalam 30 hari terakhir. Mulailah hari ini!</p>
               </div>
            ) : (
-             <div className="space-y-3">
+             <div className="space-y-4">
                {moodLogs.map(log => {
                  const moodDef = MOOD_EMOJIS.find(m => m.id === log.moodId) || MOOD_EMOJIS[2];
                  const dateObj = log.timestamp ? log.timestamp.toDate() : new Date();
@@ -292,30 +296,42 @@ const MoodTracker = () => {
                  const timeStr = dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 
                  return (
-                   <div key={log.id} className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 flex gap-4 items-start shadow-sm hover:shadow transition-shadow group">
-                      <div className={`w-14 h-14 rounded-2xl flex flex-col justify-center items-center shrink-0 border ${moodDef.color}`}>
-                        <span className="text-2xl mb-0.5">{log.emoji}</span>
-                        <span className="text-[8px] font-black uppercase tracking-widest">{log.moodLabel}</span>
+                   <div key={log.id} className="glass-card p-5 rounded-[1.5rem] flex gap-4 items-start transition-all hover:shadow-lg shadow-sm group relative overflow-hidden border border-outline-variant/20">
+                      {/* Decorative background blur */}
+                      <div className={`absolute -right-8 -top-8 w-32 h-32 opacity-20 blur-2xl rounded-full ${moodDef.color.split(' ')[0]} pointer-events-none`}></div>
+                      
+                      <div className={`w-14 h-14 rounded-[1.1rem] flex items-center justify-center shrink-0 border ${moodDef.color} shadow-sm backdrop-blur-sm relative z-10`}>
+                        <span className="text-3xl drop-shadow-sm">{log.emoji}</span>
                       </div>
-                      <div className="flex-1 min-w-0">
-                         <div className="flex justify-between items-start mb-1">
-                            <h4 className="font-bold text-sm text-slate-900 dark:text-white capitalize">{dateStr}</h4>
-                            <span className="text-[10px] bg-slate-100 dark:bg-slate-700/50 px-2 py-1 rounded-md text-slate-500 dark:text-slate-300 font-medium shrink-0">{timeStr} WIB</span>
+                      
+                      <div className="flex-1 min-w-0 z-10 pt-0.5">
+                         <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <h4 className="font-headline font-black text-sm text-on-surface capitalize">{dateStr}</h4>
+                            <span className="w-1 h-1 rounded-full bg-outline-variant/40"></span>
+                            <span className="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider">{timeStr}</span>
+                            <div className={`ml-auto px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${moodDef.color} shadow-sm border`}>
+                               {moodDef.label || log.moodLabel}
+                            </div>
                          </div>
+                         
                          {log.note ? (
-                            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium mt-2 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800/50 italic">
-                               "{log.note}"
-                            </p>
+                            <div className="mt-3 relative group-hover:bg-surface-container-lowest/30 p-1 -ml-1 rounded-xl transition-colors">
+                               <div className="absolute left-2 top-2 bottom-2 w-1 rounded-full bg-outline-variant/20"></div>
+                               <p className="text-[13px] text-on-surface-variant leading-relaxed font-medium pl-6 pr-8 py-1">
+                                  {log.note}
+                               </p>
+                            </div>
                          ) : (
-                            <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-bold">Tanpa Catatan Ekstra</p>
+                            <p className="text-[10px] text-on-surface-variant/40 mt-3 uppercase tracking-widest font-bold">Tanpa Catatan Tambahan</p>
                          )}
                       </div>
+                      
                       <button 
                         onClick={() => handleDelete(log.id)}
-                        className="text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 p-2 rounded-xl transition sm:opacity-0 sm:group-hover:opacity-100 shrink-0"
+                        className="absolute right-3 bottom-3 md:top-4 md:bottom-auto text-on-surface-variant/30 hover:text-error hover:bg-error/10 p-2 rounded-xl transition-all opacity-0 group-hover:opacity-100 z-20"
                         title="Hapus Jurnal"
                       >
-                         <Trash2 size={16} />
+                         <span className="material-symbols-outlined text-[20px]">delete</span>
                       </button>
                    </div>
                  );

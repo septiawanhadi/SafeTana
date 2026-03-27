@@ -1,11 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import ReactDOMServer from 'react-dom/server';
-import { Activity, ShieldCheck, HeartPulse, User, Waves, Globe } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
-// 1. Perbaikan Default Icon (Penting agar tidak error/hilang)
+// Perbaikan Default Icon
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
@@ -13,16 +12,17 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
 });
 
-function MapController({ center }) {
+const MapController = ({ center }) => {
   const map = useMap();
   useEffect(() => {
     if (center && center[0] && center[1]) {
-      map.flyTo(center, 14, { duration: 2 });
+      map.flyTo(center, 15, { animate: true, duration: 2 });
     }
   }, [center, map]);
   return null;
-}
-function MapScopeController({ mapScope }) {
+};
+
+const MapScopeController = ({ mapScope }) => {
   const map = useMap();
   useEffect(() => {
     if (mapScope === 'lokal') {
@@ -32,148 +32,246 @@ function MapScopeController({ mapScope }) {
     }
   }, [mapScope, map]);
   return null;
-}
+};
 
-const MapComponent = ({ reports, selectedReportPosition, showSafeZones, safeZones, userLocation, mapScope }) => {
+const MapComponent = ({ reports = [], selectedReportPosition, showSafeZones = true, safeZones = [], userLocation, mapScope = 'lokal', isInteractive = false }) => {
+  const [mapInstance, setMapInstance] = useState(null);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(true);
+  const [isAllZonesOpen, setIsAllZonesOpen] = useState(false);
 
-  // 2. Perbaikan Custom Icon: Menambahkan iconAnchor agar ujung lancip marker tepat di koordinat
-  const createIcon = (iconComponent, color) => L.divIcon({
-    html: `<div style="
-            background: white; 
-            border: 2px solid ${color}; 
-            border-radius: 50%; 
-            width: 36px; 
-            height: 36px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            position: relative;
-          ">
-            <div style="color: ${color};">${ReactDOMServer.renderToString(iconComponent)}</div>
-            <div style="
-              position: absolute;
-              bottom: -6px;
-              width: 0;
-              height: 0;
-              border-left: 6px solid transparent;
-              border-right: 6px solid transparent;
-              border-top: 8px solid white;
-            "></div>
+  const createHazardIcon = (colorHex, pulseClass, type) => {
+    let symbol = 'warning';
+    if (type?.toLowerCase().includes('gempa')) symbol = 'e-bike_class_speed_moped'; // Workaround for earthquake
+    else if (type?.toLowerCase().includes('banjir')) symbol = 'flood';
+    else if (type?.toLowerCase().includes('angin')) symbol = 'air';
+    else if (type?.toLowerCase().includes('kebakaran')) symbol = 'local_fire_department';
+    else if (type?.toLowerCase().includes('gunung')) symbol = 'volcano';
+
+    return L.divIcon({
+      html: `<div class="relative group flex items-center justify-center">
+              <div class="w-8 h-8 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white" style="background-color: ${colorHex}">
+                 <span class="material-symbols-outlined" style="font-size: 16px;">${symbol}</span>
+              </div>
+              <div class="absolute inset-0 rounded-full animate-ping opacity-50" style="background-color: ${colorHex}"></div>
+            </div>`,
+      className: '',
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+    });
+  };
+
+  const createUserIcon = () => L.divIcon({
+    html: `<div class="relative flex items-center justify-center">
+            <div class="w-8 h-8 bg-cyan-400 rounded-full border-4 border-white shadow-[0_0_20px_rgba(34,211,238,0.8)] z-10 flex items-center justify-center text-white">
+              <span class="material-symbols-outlined" style="font-size: 14px; font-weight: bold;">accessibility_new</span>
+            </div>
+            <div class="absolute inset-0 bg-cyan-400/50 rounded-full animate-ping shadow-[0_0_30px_rgba(34,211,238,0.6)]"></div>
           </div>`,
     className: '',
-    iconSize: [36, 42],     // Ukuran wadah icon
-    iconAnchor: [18, 42],    // Titik tumpu (setengah lebar, seluruh tinggi) agar presisi
-    popupAnchor: [0, -42]    // Posisi popup relatif terhadap icon
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
   });
 
   return (
-    <MapContainer center={[-6.9147, 107.6098]} zoom={12} className="h-full w-full">
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <MapController center={selectedReportPosition} />
-      <MapScopeController mapScope={mapScope} />
+    <div className={`relative w-full h-full bg-surface-container-lowest ${isInteractive ? 'h-screen' : ''}`}>
 
-      {/* Scope Indicator UI */}
-      {mapScope && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[400] pointer-events-none">
-          <div className={`px-4 py-2 rounded-full font-black text-[10px] md:text-xs tracking-widest uppercase shadow-lg border backdrop-blur-sm ${
-            mapScope === 'lokal' 
-              ? 'bg-blue-600/90 text-white border-blue-400' 
-              : 'bg-indigo-900/90 text-white border-indigo-500'
-          }`}>
-            {mapScope === 'lokal' ? '📍 PETA LOKAL WILAYAH BANDUNG' : '🌍 PETA NASIONAL INDONESIA'}
+      {/* Side Actions */}
+      <div className="absolute top-24 right-6 z-[500] flex flex-col gap-3">
+        <button 
+          onClick={() => userLocation && mapInstance && mapInstance.flyTo(userLocation, 16)}
+          className="w-12 h-12 glass-card rounded-xl flex items-center justify-center text-[#00e5ff] font-bold border-[#00e5ff]/30 shadow-[0_0_20px_rgba(0,229,255,0.4)] hover:bg-[#00e5ff]/20 active:scale-90 transition-all z-10"
+          title="Recenter"
+        >
+          <span className="material-symbols-outlined">my_location</span>
+        </button>
+        {isInteractive && (
+          <button 
+            onClick={() => setIsBottomSheetOpen(!isBottomSheetOpen)}
+            className={`w-12 h-12 glass-card rounded-xl flex items-center justify-center shadow-2xl active:scale-90 transition-all ${isBottomSheetOpen ? 'text-primary' : 'text-slate-400 opacity-70'}`}
+            title="Sembunyikan/Tampilkan Panel"
+          >
+            <span className="material-symbols-outlined">
+              {isBottomSheetOpen ? 'visibility_off' : 'visibility'}
+            </span>
+          </button>
+        )}
+      </div>
+
+      {/* Map Container */}
+      <MapContainer 
+        center={[-6.9147, 107.6098]} 
+        zoom={12} 
+        zoomControl={false}
+        ref={setMapInstance}
+        className="h-full w-full z-0 grayscale-[0.6] brightness-[0.5] contrast-[1.1]"
+      >
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <MapController center={selectedReportPosition} />
+        <MapScopeController mapScope={mapScope} />
+
+        {/* User Location */}
+        {userLocation && (
+          <Marker position={userLocation} icon={createUserIcon()} />
+        )}
+
+        {/* BMKG Disaster Radius */}
+        {reports.filter(r => r.source === 'BMKG').map((r, i) => (
+          <Circle
+            key={`risk-radius-${i}`}
+            center={r.position}
+            pathOptions={{ color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.1, weight: 1 }}
+            radius={50000}
+          />
+        ))}
+
+        {/* Hazards */}
+        {reports.map((r, i) =>
+          r.position && r.position.length === 2 && !isNaN(r.position[0]) && !isNaN(r.position[1]) ? (
+            <Marker 
+              key={`hazard-${i}`} 
+              position={r.position} 
+              icon={createHazardIcon((r.statusColor || '').includes('red') || (r.statusColor || '').includes('error') ? '#DC2626' : (r.statusColor || '').includes('tertiary') ? '#14b8a6' : '#F59E0B', r.statusColor || 'bg-error', r.type)}
+            >
+              <Popup className="custom-popup">
+                <div className="p-2 font-headline">
+                  <p className="text-[10px] font-black uppercase text-error tracking-widest">{r.type}</p>
+                  <p className="text-xs font-bold text-on-surface mt-1">{r.loc}</p>
+                </div>
+              </Popup>
+            </Marker>
+          ) : null
+        )}
+
+        {/* Safe Zones Markers */}
+        {showSafeZones && safeZones.map((zone, i) => 
+          zone.position && zone.position.length === 2 && !isNaN(zone.position[0]) && !isNaN(zone.position[1]) ? (
+            <Marker 
+              key={`zone-${i}`} 
+              position={zone.position}
+              icon={L.divIcon({
+                html: `<div class="p-2 bg-[#00ff9d] text-slate-900 rounded-full border-[3px] border-white shadow-[0_0_25px_rgba(0,255,157,0.8)] flex items-center justify-center transform hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-sm font-black" style="font-weight: 900;">gpp_good</span>
+                      </div>`,
+                className: '',
+                iconSize: [36, 36],
+                iconAnchor: [18, 18],
+              })}
+            >
+              <Popup>
+                <div className="p-2 font-headline">
+                  <p className="text-[10px] font-black uppercase text-tertiary tracking-widest">Titik Aman</p>
+                  <p className="text-xs font-bold text-on-surface mt-1">{zone.name}</p>
+                </div>
+              </Popup>
+            </Marker>
+          ) : null
+        )}
+      </MapContainer>
+
+      {/* Bottom Sheet: Nearby Safe Zones (Only if interactive) */}
+      {isInteractive && (
+        <section className={`absolute bottom-0 w-full bg-surface-container-low/80 backdrop-blur-2xl rounded-t-[32px] border-t border-outline-variant/15 z-[400] pb-28 transition-transform duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${isBottomSheetOpen ? 'translate-y-0' : 'translate-y-full'}`}>
+          <div className="w-12 h-1.5 bg-outline-variant/30 rounded-full mx-auto mt-3 mb-6"></div>
+          <div className="px-6 space-y-6">
+            <div className="flex items-end justify-between">
+              <div>
+                <h2 className="font-display text-2xl text-on-surface leading-none mb-1 tracking-tight">Titik Evakuasi Terdekat</h2>
+                <p className="text-slate-400 text-sm font-medium">{safeZones.length} lokasi terverifikasi aktif</p>
+              </div>
+              <button 
+                onClick={() => setIsAllZonesOpen(true)}
+                className="text-primary font-black text-xs tracking-widest uppercase hover:underline active:scale-95 transition-all"
+              >
+                LIHAT SEMUA
+              </button>
+            </div>
+
+            {/* Safe Zone Bento Horizontal Scroll */}
+            <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-6 px-6">
+              {safeZones.slice(0, 5).map((zone, idx) => (
+                <div key={idx} className="min-w-[280px] bg-surface-container-highest/40 rounded-lg p-5 border border-outline-variant/10">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="p-2 bg-tertiary/10 rounded-xl">
+                      <span className="material-symbols-outlined text-tertiary">health_and_safety</span>
+                    </div>
+                    <span className="bg-tertiary/20 text-tertiary text-[10px] font-black px-2 py-1 rounded uppercase tracking-wider">Aman</span>
+                  </div>
+                  <h3 className="font-headline font-black text-lg text-on-surface tracking-tight">{zone.name}</h3>
+                  <p className="text-slate-400 text-xs font-medium mb-4">{zone.addr.slice(0, 40)}...</p>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${zone.position[0]},${zone.position[1]}`, '_blank')}
+                      className="flex-1 bg-primary text-white font-headline font-black py-3 rounded-xl text-[10px] uppercase tracking-widest active:scale-95 transition-transform shadow-xl shadow-primary/30"
+                    >
+                      Rute
+                    </button>
+                    <button 
+                      onClick={() => window.location.href = `tel:${zone.phone || '112'}`}
+                      className="w-12 h-12 bg-surface-container-highest rounded-xl border border-outline-variant/20 text-on-surface active:scale-90 transition-transform flex items-center justify-center"
+                    >
+                      <span className="material-symbols-outlined text-xl">call</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Modal Semua Titik Evakuasi */}
+      {isAllZonesOpen && (
+        <div className="absolute inset-0 z-[600] bg-surface-container-lowest/95 backdrop-blur-3xl overflow-y-auto w-full h-full flex flex-col p-6 animate-in fade-in zoom-in-95 duration-200">
+          <div className="flex items-center justify-between mb-8 mt-4 sticky top-0 bg-surface-container-lowest/90 backdrop-blur-md pt-4 pb-4 z-10 -mx-6 px-6">
+            <div>
+              <h2 className="font-display text-2xl font-black text-on-surface tracking-tight leading-none mb-1">Semua Titik Evakuasi</h2>
+              <p className="text-slate-400 text-sm font-medium">{safeZones.length} lokasi terverifikasi aktif</p>
+            </div>
+            <button 
+              onClick={() => setIsAllZonesOpen(false)}
+              className="w-10 h-10 bg-surface-container-highest rounded-full flex items-center justify-center text-on-surface active:scale-90 transition-transform flex-shrink-0"
+              title="Tutup"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pb-24">
+            {safeZones.map((zone, idx) => (
+              <div key={idx} className="bg-surface-container-highest/40 rounded-xl p-5 border border-outline-variant/10 flex flex-col">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="p-2 bg-tertiary/10 rounded-xl">
+                    <span className="material-symbols-outlined text-tertiary">health_and_safety</span>
+                  </div>
+                  <span className="bg-tertiary/20 text-tertiary text-[10px] font-black px-2 py-1 rounded uppercase tracking-wider">Aman</span>
+                </div>
+                <h3 className="font-headline font-black text-lg text-on-surface tracking-tight mb-1">{zone.name}</h3>
+                <p className="text-slate-400 text-xs font-medium mb-4 flex-1">{zone.addr}</p>
+                <div className="flex gap-2 mt-auto">
+                  <button 
+                    onClick={() => {
+                      setIsAllZonesOpen(false);
+                      if (mapInstance && zone.position) {
+                        mapInstance.flyTo(zone.position, 16);
+                      }
+                    }}
+                    className="flex-1 bg-surface-container-highest text-on-surface font-headline font-black py-3 rounded-xl text-[10px] uppercase tracking-widest active:scale-95 transition-transform border border-outline-variant/20"
+                  >
+                    Lihat Peta
+                  </button>
+                  <button 
+                    onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${zone.position[0]},${zone.position[1]}`, '_blank')}
+                    className="flex-1 bg-primary text-white font-headline font-black py-3 rounded-xl text-[10px] uppercase tracking-widest active:scale-95 transition-transform shadow-xl shadow-primary/30"
+                  >
+                    Rute
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
-
-      {/* Circle Radius Bencana */}
-      {reports.filter(r => r.source === 'BMKG').map((r, i) => (
-        <Circle
-          key={`risk-radius-${i}`}
-          center={r.position}
-          pathOptions={{ color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.1, weight: 1 }}
-          radius={50000}
-        />
-      ))}
-
-      {/* 3. Perbaikan Marker User: Pastikan userLocation valid */}
-      {userLocation && Array.isArray(userLocation) && userLocation.length === 2 && (
-        <Marker
-          position={userLocation}
-          icon={createIcon(<User size={20} />, '#3b82f6')}
-        >
-          <Popup>
-            <div className="text-center font-sans">
-              <p className="font-black text-[10px] text-blue-600 uppercase">Posisi Anda</p>
-              <p className="text-[9px] text-slate-500 font-bold">${userLocation[0].toFixed(5)}, ${userLocation[1].toFixed(5)}</p>
-            </div>
-          </Popup>
-        </Marker>
-      )}
-
-      {/* Marker Laporan Bencana */}
-      {reports.map((r, i) => {
-        if (!r.position) return null;
-
-        // Tentukan warna dan icon berdasarkan jenis bencana
-        let markerColor = '#ef4444'; // Default Merah (e.g., Gempa, Kebakaran)
-        let IconComponent = <Waves size={18} />;
-
-        if (r.source === 'BMKG') {
-          IconComponent = <Activity size={18} />;
-        } else if (r.source === 'GDACS') {
-          IconComponent = <Globe size={18} />;
-          if (r.statusColor.includes('red')) markerColor = '#dc2626';
-          else if (r.statusColor.includes('orange') || r.statusColor.includes('yellow')) markerColor = '#f97316';
-          else if (r.statusColor.includes('green')) markerColor = '#22c55e';
-          else if (r.statusColor.includes('blue')) markerColor = '#3b82f6';
-        } else if (r.type === 'Banjir') {
-          markerColor = '#3b82f6'; // Biru untuk Banjir
-          IconComponent = <Waves size={18} />;
-        } else if (r.type === 'Kebakaran' || r.type === 'Gunung Api') {
-          markerColor = '#ea580c'; // Oranye tua
-        } else if (r.type === 'Angin Kencang') {
-          markerColor = '#64748b'; // Slate/Abu-abu
-        }
-
-        return (
-          <Marker
-            key={`report-${i}`}
-            position={r.position}
-            icon={createIcon(IconComponent, markerColor)}
-          >
-            <Popup>
-              <div className="font-sans">
-                <h4 className="font-black text-xs uppercase" style={{ color: markerColor }}>{r.type}</h4>
-                <p className="text-[10px] text-slate-500">{r.loc}</p>
-                <p className="text-[9px] text-slate-400 mt-1 italic">{r.source}</p>
-              </div>
-            </Popup>
-          </Marker>
-        );
-      })}
-
-      {/* Marker Titik Aman */}
-      {showSafeZones && safeZones.map((zone) => (
-        <Marker
-          key={zone.id}
-          position={zone.position}
-          icon={createIcon(zone.type === "Kesehatan" ? <HeartPulse size={18} /> : <ShieldCheck size={18} />, '#10b981')}
-        >
-          <Popup>
-            <div className="font-sans p-1">
-              <h4 className="font-black text-xs text-green-600 uppercase">{zone.name}</h4>
-              <p className="text-[9px] text-slate-500 font-bold mb-2">{zone.addr}</p>
-              <div className="border-t border-slate-100 pt-2 space-y-1">
-                <p className="text-[8px]"><span className="font-bold">Faskes:</span> {zone.faskes}</p>
-                <p className="text-[8px]"><span className="font-bold">Alt:</span> {zone.alt}</p>
-              </div>
-            </div>
-          </Popup>
-        </Marker>
-      ))}
-    </MapContainer>
+    </div>
   );
 };
-
 export default MapComponent;

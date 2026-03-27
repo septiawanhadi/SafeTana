@@ -76,61 +76,67 @@ const HealthChatbot = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50 dark:bg-slate-900 font-sans text-slate-900 dark:text-slate-100">
+    <div className="flex flex-col h-screen bg-background font-body text-on-background">
       
       {/* HEADER */}
-      <header className="bg-white dark:bg-slate-800 shadow-sm shrink-0 border-b border-slate-200 dark:border-slate-700">
+      <header className="glass-card shadow-sm shrink-0 border-b border-outline-variant/20 relative z-10">
         <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-             <button onClick={() => navigate('/health')} className="p-2 -ml-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">
-               <ArrowLeft size={20} />
+             <button onClick={() => navigate('/health')} className="w-10 h-10 flex items-center justify-center hover:bg-surface-container-high rounded-full transition text-on-surface-variant">
+               <span className="material-symbols-outlined">arrow_back</span>
              </button>
-             <div className="flex items-center gap-2">
-               <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center border border-emerald-200 dark:border-emerald-700">
-                 <HeartPulse size={18} />
+             <div className="flex items-center gap-3">
+               <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center border border-primary/20">
+                 <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>neurology</span>
                </div>
                <div>
-                  <h1 className="font-bold text-sm leading-tight text-emerald-700 dark:text-emerald-400">SafeTana AI</h1>
-                  <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-tighter">Klinik AI & Konseling</p>
+                  <h1 className="font-headline font-black text-sm leading-tight text-on-surface tracking-tight">SafeTana AI</h1>
+                  <p className="text-[10px] text-primary font-bold uppercase tracking-widest">Klinik AI & Konseling</p>
                </div>
              </div>
           </div>
           
-          <button onClick={handleReset} className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-lg transition" title="Mulai ulang chat">
-             <RefreshCw size={18} />
+          <button onClick={handleReset} className="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-full transition" title="Mulai ulang chat">
+             <span className="material-symbols-outlined text-xl">autorenew</span>
           </button>
         </div>
       </header>
 
       {/* CHAT AREA */}
-      <main className="flex-1 overflow-y-auto px-4 py-6 max-w-3xl mx-auto w-full custom-scrollbar">
-         <div className="space-y-6">
-            <div className="text-center text-xs text-slate-400 font-medium uppercase tracking-widest my-4">Percakapan Terenkripsi</div>
+      <main className="flex-1 overflow-y-auto px-4 py-6 max-w-3xl mx-auto w-full custom-scrollbar relative">
+         <div className="absolute top-0 right-0 w-[50%] h-[50%] bg-primary/5 blur-[100px] rounded-full pointer-events-none" />
+         
+         <div className="space-y-6 relative z-10">
+            <div className="text-center text-[10px] text-on-surface-variant/50 font-bold uppercase tracking-[0.2em] my-6 flex items-center justify-center gap-2">
+               <span className="h-px w-8 bg-outline-variant/20"></span>
+               Percakapan Terenkripsi
+               <span className="h-px w-8 bg-outline-variant/20"></span>
+            </div>
             
             {messages.map(msg => (
-               <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+               <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 fade-in duration-300`}>
                   <div className={`flex gap-3 max-w-[85%] ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                     
                     {/* AVATAR */}
-                    <div className="shrink-0">
+                    <div className="shrink-0 mt-auto">
                       {msg.sender === 'bot' ? (
-                         <div className="w-8 h-8 bg-blue-600 text-white rounded-xl flex justify-center items-center shadow-md">
-                           <Bot size={16} />
+                         <div className="w-8 h-8 bg-primary text-on-primary rounded-full flex justify-center items-center shadow-lg border-2 border-background">
+                           <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
                          </div>
                       ) : (
-                         <div className="w-8 h-8 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl flex justify-center items-center">
-                           <User size={16} />
+                         <div className="w-8 h-8 bg-surface-container-high text-on-surface-variant rounded-full flex justify-center items-center border-2 border-background">
+                           <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
                          </div>
                       )}
                     </div>
 
                     {/* BUBBLE */}
-                    <div className={`p-4 rounded-2xl shadow-sm ${
+                    <div className={`p-4 shadow-sm ${
                        msg.sender === 'user'
-                        ? 'bg-blue-600 text-white rounded-tr-none' 
-                        : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-tl-none'
+                        ? 'bg-primary text-on-primary rounded-[1.5rem] rounded-br-none' 
+                        : 'glass-card border border-outline-variant/20 rounded-[1.5rem] rounded-bl-none'
                     }`}>
-                       <p className={`text-sm leading-relaxed ${msg.sender === 'user' ? 'font-medium' : ''}`}>
+                       <p className={`text-sm leading-relaxed ${msg.sender === 'user' ? 'font-medium' : 'text-on-surface'}`}>
                          {msg.text}
                        </p>
                     </div>
@@ -140,46 +146,48 @@ const HealthChatbot = () => {
             ))}
 
             {isTyping && (
-               <div className="flex justify-start">
+               <div className="flex justify-start animate-in fade-in duration-300">
                   <div className="flex gap-3 max-w-[85%]">
-                    <div className="shrink-0">
-                       <div className="w-8 h-8 bg-blue-600 text-white rounded-xl flex justify-center items-center shadow-md">
-                         <Bot size={16} />
+                    <div className="shrink-0 mt-auto">
+                       <div className="w-8 h-8 bg-primary text-on-primary rounded-full flex justify-center items-center shadow-lg border-2 border-background">
+                         <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
                        </div>
                     </div>
-                    <div className="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-tl-none flex gap-1 items-center">
-                       <div className="w-2 h-2 bg-slate-300 dark:bg-slate-500 rounded-full animate-bounce"></div>
-                       <div className="w-2 h-2 bg-slate-300 dark:bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                       <div className="w-2 h-2 bg-slate-300 dark:bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                    <div className="p-4 glass-card border border-outline-variant/20 rounded-[1.5rem] rounded-bl-none flex gap-1.5 items-center justify-center min-w-[4rem]">
+                       <div className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce"></div>
+                       <div className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                       <div className="w-1.5 h-1.5 bg-primary/80 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
                     </div>
                   </div>
                </div>
             )}
             
-            <div ref={messagesEndRef} />
+            <div ref={messagesEndRef} className="h-4" />
          </div>
       </main>
 
       {/* INPUT AREA */}
-      <footer className="bg-white dark:bg-slate-800 p-4 shrink-0 border-t border-slate-200 dark:border-slate-700">
-         <div className="max-w-3xl mx-auto relative flex items-center">
+      <footer className="glass-card p-4 shrink-0 border-t border-outline-variant/20 relative z-10">
+         <div className="max-w-3xl mx-auto relative flex items-center gap-3">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleSend(); }}
               placeholder="Ceritakan keluhan Anda..."
-              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-full py-4 pl-6 pr-14 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-inner"
+              className="w-full bg-surface-container-highest border border-outline-variant/20 rounded-full py-4 px-6 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all shadow-inner placeholder:text-on-surface-variant/50"
             />
             <button
                onClick={handleSend}
                disabled={!input.trim()}
-               className="absolute right-2 p-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white rounded-full transition-all active:scale-95 disabled:active:scale-100"
+               className="shrink-0 w-14 h-14 flex items-center justify-center bg-primary hover:bg-primary/90 disabled:bg-surface-container-high disabled:text-on-surface-variant/30 text-on-primary rounded-full transition-all active:scale-95 disabled:active:scale-100 shadow-lg disabled:shadow-none"
             >
-               <Send size={18} />
+               <span className="material-symbols-outlined text-xl ml-1">send</span>
             </button>
          </div>
-         <p className="text-center text-[9px] text-slate-400 mt-3 font-medium italic">SafeTana AI dirancang untuk dukungan awal. Untuk diagnosis medis formal atau kondisi kritis, segera hubungi 112 atau RS terdekat.</p>
+         <p className="text-center text-[10px] text-on-surface-variant/50 mt-4 font-bold uppercase tracking-[0.2em]">
+           SafeTana AI ditujukan untuk dukungan awal. Hubungi 112 untuk keadaan darurat.
+         </p>
       </footer>
     </div>
   );

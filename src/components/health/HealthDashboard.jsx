@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  MessageSquare, ClipboardList, Activity, ArrowRight,
-  User, LogOut, ChevronLeft, Calendar
-} from 'lucide-react';
 import { auth } from '../../firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 
@@ -24,7 +20,7 @@ const HealthDashboard = () => {
     try {
       if (window.confirm('Keluar dari layanan kesehatan?')) {
         await signOut(auth);
-        navigate('/'); // Kemabli ke safetana awal
+        navigate('/');
       }
     } catch (error) {
       console.error("Error logging out:", error);
@@ -33,158 +29,135 @@ const HealthDashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-slate-50 dark:bg-slate-900">
-        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex justify-center items-center h-screen bg-background">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-sans pb-20">
-      
-      {/* HEADER */}
-      <header className="bg-white dark:bg-slate-800 shadow-sm sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto px-4 h-16 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-             <button 
-              onClick={() => navigate('/')} 
-              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition"
-             >
-                <ChevronLeft size={24} className="text-slate-600 dark:text-slate-300" />
-             </button>
-             <div className="flex items-center gap-2">
-               <span className="text-xl font-black tracking-tight"><span className="text-blue-600 dark:text-blue-400">SafeTana AI</span> Health</span>
-             </div>
+    <div className="bg-background text-on-background font-body min-h-screen pb-28">
+      <main className="pt-24 px-6 max-w-4xl mx-auto space-y-8">
+        
+        {/* Profile & Welcome Section */}
+        <section className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-1">
+            <h2 className="font-display text-4xl text-on-surface leading-tight tracking-tighter">
+              Aman, {user ? (user.displayName || user.email.split('@')[0]) : 'Sobat SafeTana'}
+            </h2>
+            <p className="text-on-surface-variant font-medium opacity-80 uppercase tracking-[0.2em] text-[10px]">
+              {user ? 'Verified Citizen Account' : 'Guest Health Access'}
+            </p>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4 bg-surface-container-low p-2 rounded-2xl border border-outline-variant/10 shadow-sm">
             {user ? (
-              <div className="flex items-center gap-3">
-                <div className="hidden sm:flex flex-col items-end">
-                   <p className="text-sm font-bold leading-tight">{user.displayName || user.email.split('@')[0]}</p>
-                   <p className="text-xs text-slate-500 dark:text-slate-400">Pasien Terdaftar</p>
-                </div>
-                <div className="w-9 h-9 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-full flex justify-center items-center font-bold border border-blue-200 dark:border-blue-800">
+               <>
+                 <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center font-headline font-black text-xl border border-primary/20">
                    {user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
-                </div>
-                <button 
-                  onClick={handleLogout}
-                  className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition"
-                  title="Keluar"
-                >
-                  <LogOut size={20} />
-                </button>
-              </div>
+                 </div>
+                 <div className="pr-4">
+                   <p className="text-xs font-black text-on-surface uppercase tracking-widest leading-none mb-1">Health Profile</p>
+                   <button onClick={handleLogout} className="text-[10px] text-error font-bold uppercase tracking-widest hover:underline">Log Out</button>
+                 </div>
+               </>
             ) : (
-               <button 
-                  onClick={() => navigate('/health/auth')} 
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition shadow-sm"
-               >
-                 Masuk
-               </button>
+              <button 
+                onClick={() => navigate('/health/auth')}
+                className="bg-primary text-on-primary px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20"
+              >
+                Sign In / Register
+              </button>
             )}
           </div>
-        </div>
-      </header>
+        </section>
 
-      <main className="max-w-4xl mx-auto px-4 pt-6 space-y-8">
-        
-        {/* WELCOME BANNER */}
-        <section className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
-           <div className="relative z-10 w-full sm:w-2/3">
-             <h1 className="text-2xl sm:text-3xl font-black mb-2">Solusi Kesehatan di Tanganmu</h1>
-             <p className="text-blue-100 mb-6 text-sm sm:text-base leading-relaxed">
-               Layanan mandiri pendeteksi gejala, pemantau mood, dan asisten AI pintar yang siap melayanimu 24 jam.
+        {/* Hero Banner Bento */}
+        <section className="relative glass-card rounded-lg p-8 overflow-hidden group min-h-[220px] flex flex-col justify-center border-l-4 border-primary shadow-xl">
+           <div className="absolute top-0 right-0 p-8 opacity-[0.03] rotate-12 group-hover:rotate-0 transition-transform duration-700">
+             <span className="material-symbols-outlined text-[12rem]">clinical_notes</span>
+           </div>
+           <div className="relative z-10 space-y-4 max-w-md">
+             <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-[0.2em]">
+               <span className="material-symbols-outlined text-sm">auto_awesome</span>
+                AI Enhanced Diagnostic
+             </div>
+             <h1 className="text-3xl font-headline font-black text-on-surface leading-none tracking-tight">Kesehatan Digital di Tangan Anda.</h1>
+             <p className="text-on-surface-variant text-sm font-medium leading-relaxed opacity-80">
+               Chatbot medis 24/7 dan rekam medis digital yang terenkripsi untuk keamanan data Anda.
              </p>
-             {!user && (
-                 <button 
-                    onClick={() => navigate('/health/auth')} 
-                    className="bg-white text-blue-600 px-6 py-3 rounded-2xl font-bold text-sm shadow-md hover:scale-105 active:scale-95 transition-transform"
-                 >
-                   Daftar Sekarang
-                 </button>
-             )}
-           </div>
-           
-           <div className="absolute -right-10 -bottom-10 opacity-20 transform rotate-12">
-              <Activity size={250} />
            </div>
         </section>
 
-        {/* SERVICES GRID */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-             <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200">Layanan Utama</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            
-            {/* CARD 1: Chatbot */}
-            <div 
-              onClick={() => user ? navigate('/health/chat') : navigate('/health/auth')}
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5 rounded-3xl hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-lg transition-all cursor-pointer group"
-            >
-               <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <MessageSquare size={24} className="text-blue-600 dark:text-blue-400" />
-               </div>
-               <h3 className="font-bold text-slate-900 dark:text-white mb-1">Tanya SafeTana AI</h3>
-               <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">
-                 Konsultasi gejala ringan dengan asisten AI kesehatan mandiri 24 jam.
-               </p>
-               <div className="flex items-center text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider group-hover:gap-2 transition-all">
-                  Mulai Chat <ArrowRight size={14} />
-               </div>
-            </div>
+        {/* Services Bento Grid */}
+        <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
+           {/* Service 1: AI Chat */}
+           <div 
+             onClick={() => user ? navigate('/health/chat') : navigate('/health/auth')}
+             className="col-span-2 glass-card rounded-lg p-6 flex flex-col justify-between aspect-square md:aspect-auto md:h-64 cursor-pointer active:scale-[0.98] transition-all hover:bg-white/5 shadow-lg"
+           >
+              <div className="w-12 h-12 bg-primary/20 rounded-2xl flex items-center justify-center text-primary border border-primary/20">
+                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>neurology</span>
+              </div>
+              <div>
+                <h3 className="font-headline font-black text-xl text-on-surface tracking-tight mb-1">Tanya AI</h3>
+                <p className="text-[10px] text-on-surface-variant font-bold uppercase tracking-tight opacity-70">Symptom Checker</p>
+              </div>
+           </div>
 
-            {/* CARD 2: Skrining Fisik */}
-            <div 
-              onClick={() => user ? navigate('/health/screening') : navigate('/health/auth')}
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5 rounded-3xl hover:border-emerald-500 dark:hover:border-emerald-500 hover:shadow-lg transition-all cursor-pointer group"
-            >
-               <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <Activity size={24} className="text-emerald-600 dark:text-emerald-400" />
-               </div>
-               <h3 className="font-bold text-slate-900 dark:text-white mb-1">Skrining Kesehatan</h3>
-               <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">
-                 Isi form asesmen diri untuk hipertensi, diabetes, dan gejala lainnya.
-               </p>
-               <div className="flex items-center text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider group-hover:gap-2 transition-all">
-                  Cek Sekarang <ArrowRight size={14} />
-               </div>
-            </div>
+           {/* Service 2: Screening */}
+           <div 
+             onClick={() => user ? navigate('/health/screening') : navigate('/health/auth')}
+             className="glass-card rounded-lg p-5 flex flex-col justify-between aspect-square cursor-pointer active:scale-[0.98] transition-all hover:bg-white/5 border-emerald-500/20 shadow-md"
+           >
+              <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-500">
+                <span className="material-symbols-outlined">health_metrics</span>
+              </div>
+              <h3 className="font-headline font-bold text-on-surface text-sm tracking-tight leading-none">Skrining</h3>
+           </div>
 
-            {/* CARD 3: Mood Tracker */}
-            <div 
-              onClick={() => user ? navigate('/health/mood') : navigate('/health/auth')}
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5 rounded-3xl hover:border-purple-500 dark:hover:border-purple-500 hover:shadow-lg transition-all cursor-pointer group"
-            >
-               <div className="w-12 h-12 bg-purple-50 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <Calendar size={24} className="text-purple-600 dark:text-purple-400" />
-               </div>
-               <h3 className="font-bold text-slate-900 dark:text-white mb-1">Konseling & Jurnal Mental</h3>
-               <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">
-                 Pelacak kesehatan mental harian dan ruang aman untuk pemulihan psikologis.
-               </p>
-               <div className="flex items-center text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider group-hover:gap-2 transition-all">
-                  Isi Jurnal <ArrowRight size={14} />
-               </div>
-            </div>
+           {/* Service 3: Konseling */}
+           <div 
+             onClick={() => user ? navigate('/health/mood') : navigate('/health/auth')}
+             className="glass-card rounded-lg p-5 flex flex-col justify-between aspect-square cursor-pointer active:scale-[0.98] transition-all hover:bg-white/5 border-purple-500/20 shadow-md"
+           >
+              <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-500">
+                <span className="material-symbols-outlined">psychology</span>
+              </div>
+              <h3 className="font-headline font-bold text-on-surface text-sm tracking-tight leading-none">Konseling</h3>
+           </div>
 
-          </div>
+           {/* Full Width Info Link */}
+           <div 
+             onClick={() => navigate('/health/dictionary')}
+             className="col-span-2 md:col-span-4 bg-tertiary/10 border border-tertiary/20 rounded-lg p-5 flex items-center justify-between group cursor-pointer active:scale-[0.99] transition-transform"
+           >
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-tertiary/20 rounded-xl text-tertiary">
+                   <span className="material-symbols-outlined">menu_book</span>
+                </div>
+                <div>
+                  <h4 className="font-headline font-black text-on-surface uppercase text-xs tracking-widest">Medical Dictionary</h4>
+                  <p className="text-[10px] text-on-surface-variant font-medium opacity-80">Pelajari penyakit & obat dari sumber tepercaya.</p>
+                </div>
+              </div>
+              <span className="material-symbols-outlined text-tertiary group-hover:translate-x-1 transition-transform">arrow_forward</span>
+           </div>
         </section>
 
-        {/* FOOTER SECTION */}
-        <footer className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center gap-4 text-center">
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-bold text-slate-500 dark:text-slate-400">
-            <button onClick={() => navigate('/health/dictionary')} className="hover:text-blue-600 transition-colors">Kamus Kesehatan</button>
-            <button onClick={() => navigate('/health/privacy')} className="hover:text-blue-600 transition-colors">Pemberitahuan Privasi</button>
-            <button onClick={() => navigate('/health/terms')} className="hover:text-blue-600 transition-colors">Syarat & Ketentuan</button>
-            <button onClick={() => navigate('/health/about')} className="hover:text-blue-600 transition-colors">Tentang Kami</button>
+        {/* Daily Insight Cell */}
+        <section className="glass-card rounded-lg p-6 bg-surface-container-highest/20">
+          <div className="flex items-center gap-2 mb-4">
+             <div className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+             <span className="text-[10px] font-black text-secondary uppercase tracking-[0.2em]">Bio-Metric Sync</span>
           </div>
-          <p className="text-[10px] text-slate-400 font-medium">
-            &copy; {new Date().getFullYear()} SafeTana AI Health. Hak Cipta Dilindungi.
+          <p className="text-on-surface font-headline font-bold text-lg leading-tight tracking-tight mb-2">
+            "Your rest period was 15% more effective yesterday. Maintain this sleep window for peak disaster response readiness."
           </p>
-        </footer>
+          <div className="h-1 bg-outline-variant/20 rounded-full overflow-hidden">
+            <div className="w-3/4 h-full bg-gradient-to-r from-secondary to-tertiary" />
+          </div>
+        </section>
 
       </main>
     </div>
