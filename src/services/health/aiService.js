@@ -77,5 +77,44 @@ export const aiService = {
       console.error("aiService.analyzeMoodLogs error:", error);
       throw error;
     }
+  },
+
+  /**
+   * Fetch medical information for the Health Dictionary
+   */
+  async getDictionaryInfo(query, category = 'Medis') {
+    try {
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+      
+      const prompt = `
+        Sebagai "SafeTana AI" asisten medis, berikan penjelasan komprehensif namun ringkas tentang topik ${category} berikut: "${query}".
+        
+        Gunakan bahasa Indonesia yang profesional dan mudah dipahami.
+        Format jawaban dalam Markdown (tanpa tag blok kode keseluruhan):
+        
+        **Deskripsi Singkat:**
+        [Penjelasan apa itu ${query}]
+
+        **Gejala / Tanda-tanda Utama:**
+        - [Poin 1]
+        - [Poin 2]
+
+        **Penanganan Pertama / Rekomendasi Medis:**
+        - [Tindakan 1]
+        - [Tindakan 2]
+
+        **Peringatan (Red Flag):**
+        [Kapan harus segera ke rumah sakit atau menghubungi dokter]
+        
+        Batas maksimal 250 kata.
+      `;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      return response.text();
+    } catch (error) {
+      console.error("aiService.getDictionaryInfo error:", error);
+      throw error;
+    }
   }
 };
