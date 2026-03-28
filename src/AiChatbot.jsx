@@ -50,7 +50,23 @@ const AiChatbot = ({ onClose, isSOS, userLocation, reports }) => {
       const result = await model.generateContent(prompt);
       setMessages(prev => [...prev, { role: 'bot', text: result.response.text().replace(/[#*`]/g, '') }]);
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'bot', text: "Sinyal lemah. Hubungi 112 jika darurat." }]);
+      // Offline fallback dictionary
+      const text = cleanInput.toLowerCase();
+      let fallbackText = "Sinyal sangat lemah/terputus. Hubungi 112 untuk keadaan darurat bencana.";
+      
+      if (text.includes('gempa')) {
+        fallbackText = "Sinyal lemah. [Info Darurat Offline]: Saat gempa, jauhi jendela dan lemari. Berlindung di bawah meja kuat (Drop, Cover, Hold on). Bila di luar, jauhi gedung, pohon, dan tiang listrik.";
+      } else if (text.includes('banjir')) {
+        fallbackText = "Sinyal lemah. [Info Darurat Offline]: Segera evakuasi ke tempat yang lebih tinggi. Cabut semua peralatan listrik. Jangan menerobos arus air, sekecil apapun arusnya.";
+      } else if (text.includes('api') || text.includes('kebakaran')) {
+        fallbackText = "Sinyal lemah. [Info Darurat Offline]: Segera keluar bangunan. Berjalan merangkak jika ada asap (asap mengarah ke atas). Tutup mulut/hidung dengan kain basah. Hubungi pemadam kebakaran.";
+      } else if (text.includes('luka') || text.includes('darah') || text.includes('pendarahan')) {
+        fallbackText = "Sinyal lemah. [Info Darurat Offline]: Tekan luka langsung dengan kain bersih atau perban untuk menghentikan pendarahan. Cari bantuan medis segera. Hubungi 112 atau 119.";
+      } else if (text.includes('tsunami')) {
+        fallbackText = "Sinyal lemah. [Info Darurat Offline]: Jika Anda berada di pesisir dan merasakan gempa kuat, JANGAN TUNGGU SIRINE. Segera berlari ke dataran tinggi atau gedung bertingkat yang kokoh.";
+      }
+      
+      setMessages(prev => [...prev, { role: 'bot', text: fallbackText }]);
     } finally {
       setIsTyping(false);
     }

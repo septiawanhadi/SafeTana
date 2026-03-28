@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, limit, setDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from './firebase';
 import { calculateDistance, reverseGeocode } from './utils/geoUtils';
 import { maskName, maskPhone } from './securityUtils';
+import { playSiren, stopSiren } from './utils/audioUtils';
 import { bandungSafeZones } from './data/safeZones';
 import { kabBandungSafeZones } from './data/kabBandungSafeZones';
 
@@ -298,19 +299,48 @@ const App = () => {
     fetchRealtimeEnv();
   }, [userLocation]);
 
-  const handleSOSClick = useCallback(() => {
-    setIsSOSActive(prev => !prev);
-    if (!isSOSActive && "vibrate" in navigator) navigator.vibrate([200, 100, 200]);
+  const handleSOSClick = useCallback(async () => {
+    const nextState = !isSOSActive;
+    setIsSOSActive(nextState);
+    
+    if (nextState) {
+      if ("vibrate" in navigator) navigator.vibrate([200, 100, 200]);
+      playSiren();
+      
+      const userId = localStorage.getItem('safetana_uid') || ('user_' + Math.random().toString(36).substr(2, 9));
+      localStorage.setItem('safetana_uid', userId);
+      
+      setDoc(doc(db, 'active_users', userId), {
+        name: "Warga Darurat",
+        status: "Butuh Evakuasi",
+        pos: userLocation || [-6.914744, 107.609810], 
+        lastActive: serverTimestamp()
+      }).catch(console.error);
+
+    } else {
+      stopSiren();
+      
+      const userId = localStorage.getItem('safetana_uid');
+      if (userId) {
+        setDoc(doc(db, 'active_users', userId), {
+          name: "Warga",
+          status: "Aman",
+          pos: userLocation || [-6.914744, 107.609810],
+          lastActive: serverTimestamp()
+        }).catch(console.error);
+      }
+    }
+    
     navigate('/');
-  }, [isSOSActive, navigate]);
+  }, [isSOSActive, navigate, userLocation]);
 
   const DashboardContent = (
-    <main className="pt-24 pb-32 px-6 space-y-10 max-w-6xl mx-auto relative z-10">
+    <main className="pt-20 pb-32 px-4 md:pt-24 md:px-6 space-y-8 md:space-y-10 max-w-6xl mx-auto relative z-10">
       <BroadcastBanner broadcast={latestBroadcast} />
       
       <HeroStatus isSOS={isSOSActive} />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         <StatCard label="Kualitas Udara" value={weatherData.aqi} unit="AQI" icon="air" color="text-tertiary" />
         <StatCard label="Risiko Seismik" value="RENDAH" unit="lvl 0" icon="earthquake" color="text-error" />
         <StatCard label="Curah Hujan" value={weatherData.precipitation} unit="mm/h" icon="rainy" color="text-primary" />
@@ -359,17 +389,17 @@ const App = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <button onClick={() => navigate('/news')} className="glass-card p-6 rounded-lg flex items-center gap-4 hover:bg-surface-container-low transition-all shadow-lg text-left group">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <button onClick={() => navigate('/news')} className="glass-card p-4 md:p-6 rounded-lg flex flex-col md:flex-row items-center justify-center md:justify-start gap-2 md:gap-4 hover:bg-surface-container-low transition-all shadow-lg text-center md:text-left group">
            <span className="material-symbols-outlined text-secondary text-2xl group-hover:scale-125 transition-transform">newspaper</span>
-           <span className="font-headline font-black text-xs uppercase tracking-widest leading-none">Berita Terkini</span>
+           <span className="font-headline font-black text-[10px] md:text-xs uppercase tracking-widest leading-none">Berita</span>
         </button>
-        <button onClick={() => navigate('/education')} className="glass-card p-6 rounded-lg flex items-center gap-4 hover:bg-surface-container-low transition-all shadow-lg text-left group">
+        <button onClick={() => navigate('/education')} className="glass-card p-4 md:p-6 rounded-lg flex flex-col md:flex-row items-center justify-center md:justify-start gap-2 md:gap-4 hover:bg-surface-container-low transition-all shadow-lg text-center md:text-left group">
            <span className="material-symbols-outlined text-primary-fixed text-2xl group-hover:scale-125 transition-transform">school</span>
-           <span className="font-headline font-black text-xs uppercase tracking-widest leading-none">Edukasi</span>
+           <span className="font-headline font-black text-[10px] md:text-xs uppercase tracking-widest leading-none">Edukasi</span>
         </button>
-        <button onClick={handleSOSClick} className={`md:col-span-2 px-8 py-6 rounded-lg flex items-center justify-center gap-6 font-headline font-black text-lg uppercase tracking-[0.3em] shadow-2xl active:scale-95 transition-all ${isSOSActive ? 'bg-white text-error' : 'bg-error text-white pulse-red'}`}>
-           <span className="material-symbols-outlined text-3xl">sos</span>
+        <button onClick={handleSOSClick} className={`col-span-2 md:col-span-2 px-6 py-4 md:px-8 md:py-6 rounded-lg flex items-center justify-center gap-4 md:gap-6 font-headline font-black text-base md:text-lg uppercase tracking-[0.2em] md:tracking-[0.3em] shadow-2xl active:scale-95 transition-all ${isSOSActive ? 'bg-white text-error' : 'bg-error text-white pulse-red'}`}>
+           <span className="material-symbols-outlined text-2xl md:text-3xl">sos</span>
            {isSOSActive ? 'NONAKTIFKAN SOS' : 'AKTIFKAN SOS'}
         </button>
       </div>

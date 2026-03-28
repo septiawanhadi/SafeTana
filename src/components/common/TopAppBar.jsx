@@ -3,13 +3,13 @@ import React from 'react';
 const TopAppBar = ({ title = "SafeTana AI", userAvatar = null, isSOS = false }) => {
   return (
     <header className={`fixed top-0 w-full z-50 transition-colors duration-500 ${isSOS ? 'bg-error shadow-2xl' : 'bg-[#0b1326]/60 backdrop-blur-xl shadow-lg'}`}>
-      <div className="flex items-center justify-between px-6 h-16 w-full">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 flex items-center justify-center overflow-hidden">
+      <div className="flex items-center justify-between px-4 sm:px-6 h-16 w-full">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center overflow-hidden">
             <img src="/logo.png" alt="SafeTana Logo" className="w-full h-full object-contain drop-shadow-md" />
           </div>
-          <h1 className={`font-headline font-black text-xl tracking-tight ${isSOS ? 'text-white' : 'text-[#c3c0ff]'}`}>
-            {isSOS ? 'PERINGATAN KRITIS' : title}
+          <h1 className={`font-headline font-black text-lg sm:text-xl tracking-tight ${isSOS ? 'text-white' : 'text-[#c3c0ff]'}`}>
+            {isSOS ? 'PERINGATAN' : title}
           </h1>
         </div>
         <div className="flex items-center gap-2">

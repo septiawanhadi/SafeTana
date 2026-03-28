@@ -160,14 +160,14 @@ const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
 
             {activeTab === 'users' ? (
               <>
-                <div className="p-8 border-b border-slate-800 flex justify-between items-center gap-4">
+                <div className="p-6 md:p-8 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div className="flex flex-col">
                     <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Live User Analytics</h3>
                     {lastRefreshedTime && is24HourFilter && (
                       <span className="text-[9px] text-green-500 font-bold mt-1 tracking-widest uppercase">24 Jam Terakhir • {lastRefreshedTime.toLocaleTimeString('id-ID')}</span>
                     )}
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-col w-full sm:w-auto sm:flex-row items-stretch sm:items-center gap-3">
                     <button 
                       onClick={toggle24HourFilter}
                       className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${is24HourFilter ? 'bg-green-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'}`}
@@ -175,7 +175,7 @@ const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
                       <RefreshCw size={14} className={is24HourFilter ? 'animate-[spin_0.5s_linear_1]' : ''} />
                       {is24HourFilter ? 'Filter Aktif' : 'Refresh 24 Jam'}
                     </button>
-                    <input type="text" placeholder="Cari User..." className="bg-slate-950 border border-slate-700 rounded-2xl py-2 px-4 text-xs text-white outline-none w-48" onChange={(e) => setSearchTerm(e.target.value)} />
+                    <input type="text" placeholder="Cari User..." className="bg-slate-950 w-full sm:w-48 border border-slate-700 rounded-2xl py-2 px-4 text-xs text-white outline-none" onChange={(e) => setSearchTerm(e.target.value)} />
                   </div>
                 </div>
                 <div className="overflow-x-auto flex-1 h-[500px] overflow-y-auto custom-scrollbar">

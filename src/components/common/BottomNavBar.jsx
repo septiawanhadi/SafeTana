@@ -21,7 +21,7 @@ const BottomNavBar = ({ onSOSClick, isSOS = false }) => {
       ? 'bg-red-900/90 backdrop-blur-2xl border-white/20 shadow-[0_-20px_50px_rgba(220,38,38,0.3)]' 
       : 'bg-[#0b1326]/60 backdrop-blur-xl border-white/5 shadow-2xl'
     }`}>
-      <div className="flex justify-around items-center px-4 pt-3 pb-8 w-full gap-2">
+      <div className="flex justify-around items-center px-2 sm:px-4 pt-3 pb-8 w-full gap-1 sm:gap-2">
         {navItems.map((item) => (
           <button
             key={item.id}
