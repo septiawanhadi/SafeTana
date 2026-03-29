@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useRef } from 'react';
-import ReactPlayer from 'react-player';
 
 const DynamicIslandContext = createContext();
 
@@ -17,7 +16,7 @@ export const DynamicIslandProvider = ({ children }) => {
     isPlaying: false,
     progress: 0,
     isLoading: false,
-    isReady: false
+    isReady: true
   });
 
   const [notificationData, setNotificationData] = useState({
@@ -27,7 +26,6 @@ export const DynamicIslandProvider = ({ children }) => {
     action: null
   });
 
-  const playerRef = useRef(null);
   const isTogglingRef = useRef(false);
 
   const playMusic = (track) => {
@@ -46,19 +44,18 @@ export const DynamicIslandProvider = ({ children }) => {
       ...track,
       isPlaying: true,
       progress: 0,
-      isLoading: true,
-      isReady: false
+      isLoading: false,
+      isReady: true
     });
   };
 
   const togglePlay = () => {
-    // Zero-Friction: Remove isReady lock to allow immediate re-triggering
     if (isTogglingRef.current) return;
     
     isTogglingRef.current = true;
     setMusicData(prev => ({ ...prev, isPlaying: !prev.isPlaying }));
     
-    // 500ms debounce to allow the YouTube play/pause promise to settle
+    // 500ms debounce to allow browser to manage the IFrame lifecycle
     setTimeout(() => {
       isTogglingRef.current = false;
     }, 500);
@@ -66,16 +63,6 @@ export const DynamicIslandProvider = ({ children }) => {
 
   const stopMusic = () => {
     setIslandType(null);
-    setMusicData(prev => ({ ...prev, isPlaying: false, progress: 0 }));
-  };
-
-  const onProgress = (state) => {
-    setMusicData(prev => ({ ...prev, progress: state.played * 100 }));
-  };
-
-  const onReady = () => setMusicData(prev => ({ ...prev, isReady: true, isLoading: false }));
-  
-  const onEnded = () => {
     setMusicData(prev => ({ ...prev, isPlaying: false, progress: 0 }));
   };
 
@@ -99,38 +86,35 @@ export const DynamicIslandProvider = ({ children }) => {
       {children}
       
       {/* 
-        VISIBLE-HIDDEN PLAYER (BROWSER COMPLIANCE)
-        Modern browsers (Chrome/Vercel) block audio for iframes < 30px or hidden.
-        40x40px at 0.01 opacity makes the browser treat it as a valid, audible element.
+        NATIVE YOUTUBE BRIDGE (UNSTOPPABLE STABILITY)
+        Replacing library-heavy ReactPlayer with a standard embed.
+        Size 60x60px + 5% opacity ensures it's 'visible' to Chrome/Vercel policies.
       */}
       <div style={{ 
         position: 'fixed', 
-        bottom: '10px', 
-        right: '10px', 
-        width: '40px', 
-        height: '40px', 
+        bottom: '12px', 
+        right: '12px', 
+        width: '60px', 
+        height: '60px', 
         overflow: 'hidden', 
         pointerEvents: 'none', 
-        opacity: 0.01, 
-        zIndex: 9999,
-        background: 'black',
-        borderRadius: '50%'
+        opacity: 0.05, 
+        zIndex: 99999,
+        background: '#000',
+        borderRadius: '12px',
+        border: '1px solid rgba(255,255,255,0.1)',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
       }}>
-        {musicData.videoId && (
-          <ReactPlayer
-            ref={playerRef}
-            url={`https://www.youtube.com/watch?v=${musicData.videoId}`}
-            playing={musicData.isPlaying}
-            onProgress={onProgress}
-            onReady={onReady}
-            onEnded={onEnded}
-            width="40px"
-            height="40px"
-            config={{
-              youtube: {
-                playerVars: { autoplay: 1, controls: 0, showinfo: 0, rel: 0, modestbranding: 1 }
-              }
-            }}
+        {musicData.isPlaying && musicData.videoId && (
+          <iframe
+            key={musicData.videoId}
+            width="60"
+            height="60"
+            src={`https://www.youtube.com/embed/${musicData.videoId}?autoplay=1&mute=0&controls=0&showinfo=0&rel=0&modestbranding=1&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`}
+            title="SafeTana Playback Engine"
+            frameBorder="0"
+            allow="autoplay; encrypted-media; picture-in-picture"
+            style={{ pointerEvents: 'none' }}
           />
         )}
       </div>
