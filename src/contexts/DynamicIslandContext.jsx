@@ -52,8 +52,8 @@ export const DynamicIslandProvider = ({ children }) => {
   };
 
   const togglePlay = () => {
-    // Advanced Guard: Only toggle if ready and not already toggling
-    if (!musicData.isReady || isTogglingRef.current) return;
+    // Zero-Friction: Remove isReady lock to allow immediate re-triggering
+    if (isTogglingRef.current) return;
     
     isTogglingRef.current = true;
     setMusicData(prev => ({ ...prev, isPlaying: !prev.isPlaying }));
@@ -98,8 +98,24 @@ export const DynamicIslandProvider = ({ children }) => {
     }}>
       {children}
       
-      {/* HIDDEN YOUTUBE PLAYER (OFFICIAL STABILITY) */}
-      <div style={{ position: 'fixed', bottom: 0, right: 0, width: '1px', height: '1px', overflow: 'hidden', pointerEvents: 'none', opacity: 0.001, zIndex: -1 }}>
+      {/* 
+        VISIBLE-HIDDEN PLAYER (BROWSER COMPLIANCE)
+        Modern browsers (Chrome/Vercel) block audio for iframes < 30px or hidden.
+        40x40px at 0.01 opacity makes the browser treat it as a valid, audible element.
+      */}
+      <div style={{ 
+        position: 'fixed', 
+        bottom: '10px', 
+        right: '10px', 
+        width: '40px', 
+        height: '40px', 
+        overflow: 'hidden', 
+        pointerEvents: 'none', 
+        opacity: 0.01, 
+        zIndex: 9999,
+        background: 'black',
+        borderRadius: '50%'
+      }}>
         {musicData.videoId && (
           <ReactPlayer
             ref={playerRef}
@@ -108,11 +124,11 @@ export const DynamicIslandProvider = ({ children }) => {
             onProgress={onProgress}
             onReady={onReady}
             onEnded={onEnded}
-            width="1px"
-            height="1px"
+            width="40px"
+            height="40px"
             config={{
               youtube: {
-                playerVars: { autoplay: 1, controls: 0, showinfo: 0, rel: 0 }
+                playerVars: { autoplay: 1, controls: 0, showinfo: 0, rel: 0, modestbranding: 1 }
               }
             }}
           />
