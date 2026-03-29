@@ -37,27 +37,33 @@ const MoodTracker = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [serverStatus, setServerStatus] = useState('online');
+  const [loadingTrackId, setLoadingTrackId] = useState(null);
 
   const SEARCH_SOURCES = [
     { name: 'Piped Kavin', url: 'https://pipedapi.kavin.rocks/search?q=', type: 'piped' },
     { name: 'Piped Mha', url: 'https://api-piped.mha.fi/search?q=', type: 'piped' },
+    { name: 'Piped Mint', url: 'https://piped-api.garudalinux.org/search?q=', type: 'piped' },
+    { name: 'Piped ProjectSegf', url: 'https://piped-api.projectsegfau.lt/search?q=', type: 'piped' },
     { name: 'Piped Lunar', url: 'https://piped-api.lunar.icu/search?q=', type: 'piped' },
-    { name: 'Invidious Puffyan', url: 'https://vid.puffyan.us/api/v1/search?q=', type: 'invidious' },
+    { name: 'Invidious Segfault', url: 'https://invidious.projectsegfau.lt/api/v1/search?q=', type: 'invidious' },
     { name: 'Invidious NoLogs', url: 'https://invidious.no-logs.com/api/v1/search?q=', type: 'invidious' },
     { name: 'Invidious Melmac', url: 'https://iv.melmac.space/api/v1/search?q=', type: 'invidious' },
-    { name: 'Invidious Snopyta', url: 'https://invidious.snopyta.org/api/v1/search?q=', type: 'invidious' }
+    { name: 'Invidious Snopyta', url: 'https://invidious.snopyta.org/api/v1/search?q=', type: 'invidious' },
+    { name: 'Invidious Tux', url: 'https://inv.tux.rs/api/v1/search?q=', type: 'invidious' }
   ];
 
   const PROXY_CHANNELS = [
     '', // Priority 1: Direct Fetch
     'https://api.allorigins.win/raw?url=',
+    'https://corsproxy.io/?',
     'https://api.codetabs.com/v1/proxy?quest=',
-    'https://thingproxy.freeboard.io/fetch/',
-    'https://corsproxy.io/?'
+    'https://thingproxy.freeboard.io/fetch/'
   ];
 
   const fetchWithFallback = async (query) => {
-    const encodedQuery = encodeURIComponent(query);
+    // Force accuracy for curated songs
+    const refinedQuery = `${query} official audio album`;
+    const encodedQuery = encodeURIComponent(refinedQuery);
     
     for (const proxy of PROXY_CHANNELS) {
       for (const source of SEARCH_SOURCES) {
@@ -92,29 +98,84 @@ const MoodTracker = () => {
     throw new Error('Semua kanal pencarian sedang sibuk. Silakan coba beberapa saat lagi.');
   };
 
-  const [loadingTrackId, setLoadingTrackId] = useState(null);
-  const handlePlayCuratedSong = async (song) => {
-    // Zero-API Optimization: Use pre-mapped ID if available
-    if (song.videoId) {
-      playMusic({
-        videoId: song.videoId,
-        title: song.title,
-        artist: song.artist,
-        cover: `https://img.youtube.com/vi/${song.videoId}/mqdefault.jpg`
-      });
-      return;
+  const fetchAudioStream = async (videoId) => {
+    if (!videoId) return null;
+    const streamInstances = [
+      'https://pipedapi.kavin.rocks',
+      'https://api-piped.mha.fi',
+      'https://piped-api.garudalinux.org',
+      'https://piped-api.projectsegfau.lt'
+    ];
+    
+    for (const instance of streamInstances) {
+      try {
+        const res = await fetch(`${instance}/streams/${videoId}`, { signal: AbortSignal.timeout(4000) });
+        if (res.ok) {
+          const data = await res.json();
+          const audioStreams = data.audioStreams || [];
+          // Pick best M4A/MP4 stream
+          const best = audioStreams.find(s => s.format === 'M4A' || s.mimeType?.includes('audio/mp4')) || audioStreams[0];
+          if (best && best.url) return best.url;
+        }
+      } catch (e) { console.warn(`Stream fetch failed: ${instance}`); }
     }
+    return null;
+  };
 
-    setLoadingTrackId(song.id);
+  const handlePlayTrack = async (track) => {
+    // Show loading on searching if it's a search result
+    const isSearch = !track.id;
+    if (isSearch) setIsSearching(true);
+    else setLoadingTrackId(track.id);
+
     setServerStatus('online');
     try {
-      const query = song.artist ? `${song.title} ${song.artist}` : song.title;
-      const results = await fetchWithFallback(query);
-      if (results && results.length > 0) {
-        playMusic(results[0]);
-      }
+      let videoId = track.videoId;
+      if (!videoId) throw new Error('Invalid Video ID');
+
+      const streamUrl = await fetchAudioStream(videoId);
+      playMusic({
+        ...track,
+        audioUrl: streamUrl,
+        cover: track.cover || `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
+      });
     } catch (err) {
-      console.error('Gagal memutar lagu:', err);
+      console.error('Playback error:', err);
+      setServerStatus('error');
+    } finally {
+      if (isSearch) setIsSearching(false);
+      else setLoadingTrackId(null);
+    }
+  };
+
+  const [playbackRetryCount, setPlaybackRetryCount] = useState(0);
+
+  const handlePlayCuratedSong = async (song, isRetry = false) => {
+    setLoadingTrackId(song.id);
+    if (!isRetry) setPlaybackRetryCount(0);
+    setServerStatus('online');
+    
+    try {
+      let finalVideoId = (song.videoId && song.videoId.length >= 11 && !isRetry) ? song.videoId : null;
+      let finalTrackData = { ...song };
+
+      // Step 1: Search if no valid ID or if it's a retry
+      if (!finalVideoId) {
+        const query = song.artist ? `${song.title} ${song.artist}` : song.title;
+        const results = await fetchWithFallback(query);
+        if (results && results.length > 0) {
+          // Cycle through top 3 results on retry (Using current retry count)
+          const index = isRetry ? (Math.min(playbackRetryCount, results.length - 1)) : 0;
+          finalVideoId = results[index].videoId;
+          finalTrackData = { ...results[index], id: song.id };
+        }
+      }
+
+      if (!finalVideoId) throw new Error('Video not found');
+      handlePlayTrack({ ...finalTrackData, videoId: finalVideoId });
+
+    } catch (err) {
+      console.error('Gagal memutar lagu curated:', err);
       setServerStatus('error');
     } finally {
       setLoadingTrackId(null);
@@ -141,6 +202,18 @@ const MoodTracker = () => {
       setIsSearching(false);
     }
   };
+
+  useEffect(() => {
+    // Listener for manual "Cari Versi Lain" or Auto-Self-Healing
+    const handleFindAlternative = (e) => {
+      const { title, artist } = e.detail;
+      setPlaybackRetryCount(prev => prev + 1);
+      handlePlayCuratedSong({ title, artist, id: 'alt-search' }, true);
+    };
+
+    window.addEventListener('safetana:find-alternative', handleFindAlternative);
+    return () => window.removeEventListener('safetana:find-alternative', handleFindAlternative);
+  }, [playbackRetryCount]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -390,7 +463,7 @@ const MoodTracker = () => {
                       {searchResults.map((track) => (
                          <button 
                            key={track.videoId}
-                           onClick={() => playMusic(track)}
+                           onClick={() => handlePlayTrack(track)}
                            className={`flex items-center gap-4 p-3 rounded-[1.5rem] transition-all border w-full group ${musicData.videoId === track.videoId ? 'bg-indigo-500/10 border-indigo-500/30' : 'bg-surface-container-low border-transparent hover:border-outline-variant/20 hover:bg-surface-container-high'}`}
                          >
                             <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 shadow-sm relative">
@@ -417,8 +490,8 @@ const MoodTracker = () => {
               <div>
                 <div className="flex items-center justify-between mb-5 px-1">
                    <div>
-                      <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500">Playlist Konseling</h4>
-                      <p className="text-[8px] text-on-surface-variant/60 font-bold uppercase tracking-widest mt-0.5">{COUNSELING_PLAYLIST.length} lagu pilihan</p>
+                      <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500">Top 100 Indonesia</h4>
+                      <p className="text-[8px] text-on-surface-variant/60 font-bold uppercase tracking-widest mt-0.5">Sync YouTube March 2026 • {COUNSELING_PLAYLIST.length} Lagu</p>
                    </div>
                    <div className="flex gap-1">
                       <div className="w-1 h-1 rounded-full bg-indigo-500 animate-pulse"></div>
