@@ -75,7 +75,7 @@ const NewsDashboard = () => {
 
     return (
         <div className="bg-background text-on-background font-body min-h-screen pb-32">
-            <main className="pt-24 px-6 max-w-6xl mx-auto space-y-10">
+            <main className="pt-24 pb-32 px-6 max-w-6xl mx-auto space-y-10">
                 {/* News Header */}
                 <section className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                   <div>

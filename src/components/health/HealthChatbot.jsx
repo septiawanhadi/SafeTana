@@ -76,7 +76,7 @@ const HealthChatbot = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background font-body text-on-background">
+    <div className="flex flex-col h-[100dvh] pt-16 pb-28 bg-background font-body text-on-background">
       
       {/* HEADER */}
       <header className="glass-card shadow-sm shrink-0 border-b border-outline-variant/20 relative z-10">

@@ -71,7 +71,7 @@ const HealthDictionary = () => {
   return (
     <div className="bg-background text-on-background font-body min-h-screen pb-28">
       {/* Hero Section & Search */}
-      <main className="pt-24 px-6 max-w-2xl mx-auto">
+      <main className="pt-24 pb-32 px-6 max-w-2xl mx-auto">
         <section className="mb-10">
           <button 
             onClick={() => navigate('/health')}

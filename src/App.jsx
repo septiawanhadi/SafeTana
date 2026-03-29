@@ -16,6 +16,12 @@ import TopAppBar from './components/common/TopAppBar';
 import BottomNavBar from './components/common/BottomNavBar';
 import SplashScreen from './components/SplashScreen';
 import OnboardingScreen from './components/OnboardingScreen';
+import DynamicIsland from './components/common/DynamicIsland';
+
+// Integration: Service Pattern
+import { aiService } from './services/health/aiService';
+import { dataService } from './services/health/dataService';
+import { useDynamicIsland } from './contexts/DynamicIslandContext';
 
 // Health Module Components
 import HealthDashboard from './components/health/HealthDashboard';
@@ -96,6 +102,8 @@ const App = () => {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [weatherData, setWeatherData] = useState({ aqi: '--', precipitation: '--' });
   
+  const { showNotification, showReminder } = useDynamicIsland();
+
   // Splash & Onboarding Logic
   const [showSplash, setShowSplash] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -275,6 +283,32 @@ const App = () => {
     };
   }, []);
 
+  // Trigger Notification on New Broadcast
+  useEffect(() => {
+    if (latestBroadcast) {
+      showNotification({
+        title: 'Peringatan Terbaru',
+        description: latestBroadcast.message,
+        icon: 'campaign',
+        action: () => navigate('/')
+      });
+    }
+  }, [latestBroadcast]);
+
+  // Trigger Journal Reminder after 1 minute of inactivity
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      showReminder({
+        title: 'Jurnal Harian',
+        description: 'Bagaimana perasaanmu hari ini? Luapkan di jurnal.',
+        icon: 'edit_note',
+        action: () => navigate('/health/mood')
+      });
+    }, 60000); // 60 seconds
+
+    return () => clearTimeout(timer);
+  }, [navigate]);
+
   // Fetch Realtime Weather & AQI based on userLocation
   useEffect(() => {
     if (!userLocation) return;
@@ -429,10 +463,11 @@ const App = () => {
       </div>
 
       <TopAppBar isSOS={isSOSActive} />
+      <DynamicIsland />
       
       <Routes>
         <Route path="/" element={DashboardContent} />
-        <Route path="/map" element={<div className="pt-20 h-screen"><MapComponent reports={reports} userLocation={userLocation} safeZones={safeZones} showSafeZones={true} isInteractive={true} /></div>} />
+        <Route path="/map" element={<div className="pt-20 pb-28 h-[100dvh]"><MapComponent reports={reports} userLocation={userLocation} safeZones={safeZones} showSafeZones={true} isInteractive={true} /></div>} />
         <Route path="/news" element={<NewsDashboard />} />
         
         {/* Health Module Cluster */}

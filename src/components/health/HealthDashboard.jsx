@@ -37,7 +37,7 @@ const HealthDashboard = () => {
 
   return (
     <div className="bg-background text-on-background font-body min-h-screen pb-28">
-      <main className="pt-20 px-4 sm:pt-24 sm:px-6 max-w-4xl mx-auto space-y-6 sm:space-y-8">
+      <main className="pt-20 pb-32 px-4 sm:pt-24 sm:px-6 max-w-4xl mx-auto space-y-6 sm:space-y-8">
         
         {/* Profile & Welcome Section */}
         <section className="flex flex-col md:flex-row md:items-center justify-between gap-6">

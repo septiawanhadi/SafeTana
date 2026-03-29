@@ -7,6 +7,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 // Integration: Service Pattern
 import { aiService } from '../../services/health/aiService';
 import { dataService } from '../../services/health/dataService';
+import { useDynamicIsland } from '../../contexts/DynamicIslandContext';
 
 const MOOD_EMOJIS = [
   { id: 'bersyukur', emoji: '🙏', label: 'Bersyukur', color: 'bg-emerald-100 text-emerald-600 border-emerald-300', score: 5 },
@@ -29,6 +30,73 @@ const MoodTracker = () => {
   const [saving, setSaving] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  const { playMusic, musicData } = useDynamicIsland();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [trendingSongs, setTrendingSongs] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isTrendsLoading, setIsTrendsLoading] = useState(true);
+
+  const PIPED_API = '/piped-api';
+  const [serverStatus, setServerStatus] = useState('online'); // online, error
+
+  // Fetch Trending Hits Indonesia on mount
+  useEffect(() => {
+    const fetchTrends = async () => {
+      setIsTrendsLoading(true);
+      try {
+        const res = await fetch(`${PIPED_API}/search?q=Top%20Hits%20Indonesia%202024&filter=music_videos`);
+        if (!res.ok) throw new Error("Proxy error");
+        const data = await res.json();
+        
+        if (data.items) {
+          const trends = data.items.slice(0, 10).map(item => ({
+            videoId: item.url.split('v=')[1] || item.url.split('/').pop(),
+            title: item.title,
+            artist: item.uploaderName,
+            cover: item.thumbnail,
+            duration: item.duration
+          }));
+          setTrendingSongs(trends);
+          setServerStatus('online');
+        }
+      } catch (err) {
+        console.error("Trends fetch error", err);
+        setServerStatus('error');
+      } finally {
+        setIsTrendsLoading(false);
+      }
+    };
+    fetchTrends();
+  }, []);
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+    setIsSearching(true);
+    setServerStatus('online');
+    try {
+      const res = await fetch(`${PIPED_API}/search?q=${encodeURIComponent(searchQuery)}&filter=music_videos`);
+      if (!res.ok) throw new Error("Search proxy error");
+      const data = await res.json();
+      
+      if (data.items) {
+        const results = data.items.map(item => ({
+          videoId: item.url.split('v=')[1] || item.url.split('/').pop(),
+          title: item.title,
+          artist: item.uploaderName,
+          cover: item.thumbnail,
+          duration: item.duration
+        }));
+        setSearchResults(results);
+      }
+    } catch (err) {
+      console.error("Cloud search error", err);
+      setServerStatus('error');
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -171,7 +239,7 @@ const MoodTracker = () => {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 pt-6 space-y-6">
+      <main className="max-w-2xl mx-auto px-4 pt-24 pb-32 space-y-6">
         
         {/* STATISTIK 30 HARI */}
         <section className="grid grid-cols-3 gap-3">
@@ -232,6 +300,151 @@ const MoodTracker = () => {
                  </button>
               </div>
            )}
+        </section>
+
+        {/* MP3 VIBE CLOUD ENGINE */}
+        <section className="glass-card p-6 rounded-[2rem] shadow-sm border border-outline-variant/10">
+           <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-indigo-500/10 text-indigo-500 rounded-2xl flex items-center justify-center">
+                   <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>cloud_download</span>
+                </div>
+                <div>
+                   <h3 className="font-headline font-black text-lg text-on-surface tracking-tight leading-none">Vibe Search Pro</h3>
+                   <div className="flex items-center gap-2 mt-1">
+                      <p className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest leading-none">Cloud Streaming</p>
+                      <div className="flex items-center gap-1.5 bg-surface-container-high px-2 py-0.5 rounded-full border border-outline-variant/10">
+                         <div className={`w-1.5 h-1.5 rounded-full ${serverStatus === 'online' ? 'bg-success animate-pulse' : 'bg-error'}`}></div>
+                         <span className="text-[8px] font-black uppercase text-on-surface-variant tracking-wider">{serverStatus === 'online' ? 'Secure Proxy' : 'Reconnecting...'}</span>
+                      </div>
+                   </div>
+                </div>
+              </div>
+           </div>
+
+           {/* SEARCH INTERFACE */}
+           <div className="relative mb-8">
+              <input 
+                type="text" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
+                placeholder="Cari lagu apapun (Youtube/SoundCloud style)..." 
+                className="w-full bg-surface-container-high border border-outline-variant/20 rounded-2xl py-4.5 px-6 pr-16 text-sm text-on-surface focus:outline-none focus:ring-4 focus:ring-indigo-500/20 transition-all font-medium placeholder:text-on-surface-variant/40"
+              />
+              <button 
+                onClick={handleSearch}
+                disabled={isSearching}
+                className="absolute right-2 top-2 w-12 h-12 bg-indigo-500 text-white rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30 active:scale-95 transition-all disabled:opacity-50"
+              >
+                <span className={`material-symbols-outlined text-lg ${isSearching ? 'animate-spin' : ''}`}>
+                  {isSearching ? 'progress_activity' : 'search'}
+                </span>
+              </button>
+           </div>
+
+           <div className="space-y-10">
+              {/* RESULTS SECTION (If searching) */}
+              {searchResults.length > 0 && (
+                <div>
+                   <div className="flex items-center justify-between mb-4 px-1">
+                      <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500">Hasil Pencarian</h4>
+                      <button onClick={() => setSearchResults([])} className="text-[9px] font-bold text-on-surface-variant uppercase hover:text-error">Tutup</button>
+                   </div>
+                   <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                      {searchResults.map((track) => (
+                         <button 
+                           key={track.videoId}
+                           onClick={() => playMusic(track)}
+                           className={`flex items-center gap-4 p-3 rounded-[1.5rem] transition-all border w-full group ${
+                             musicData.videoId === track.videoId 
+                               ? 'bg-indigo-500/10 border-indigo-500/30' 
+                               : 'bg-surface-container-low border-transparent hover:border-outline-variant/20 hover:bg-surface-container-high'
+                           }`}
+                         >
+                            <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 shadow-sm relative">
+                               <img src={track.cover} alt={track.title} className="w-full h-full object-cover" />
+                               {track.duration && (
+                                 <span className="absolute bottom-1 right-1 bg-black/60 text-[8px] font-bold text-white px-1 rounded leading-tight">{Math.floor(track.duration/60)}:{(track.duration%60).toString().padStart(2,'0')}</span>
+                               )}
+                            </div>
+                            <div className="flex-1 text-left min-w-0">
+                               <h5 className="font-headline font-black text-xs text-on-surface truncate tracking-tight">{track.title}</h5>
+                               <p className="text-[10px] font-bold text-on-surface-variant/70 truncate uppercase tracking-widest mt-0.5">{track.artist}</p>
+                            </div>
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${musicData.videoId === track.videoId && musicData.isPlaying ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'bg-surface-container-highest/50 text-on-surface-variant group-hover:bg-indigo-500 group-hover:text-white'}`}>
+                               <span className="material-symbols-outlined text-lg">
+                                  {musicData.videoId === track.videoId && musicData.isPlaying ? 'pause' : 'play_arrow'}
+                               </span>
+                            </div>
+                         </button>
+                      ))}
+                   </div>
+                </div>
+              )}
+
+              {/* VIRAL TRENDS SECTION */}
+              <div>
+                 <div className="flex items-center justify-between mb-6 px-1">
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Hits Viral Indonesia</h4>
+                    <div className="flex gap-1">
+                       <div className="w-1 h-1 rounded-full bg-indigo-500 animate-pulse"></div>
+                       <div className="w-1 h-1 rounded-full bg-indigo-500 animate-pulse delay-75"></div>
+                       <div className="w-1 h-1 rounded-full bg-indigo-500 animate-pulse delay-150"></div>
+                    </div>
+                 </div>
+
+                 {isTrendsLoading ? (
+                   <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                      {[1,2,3].map(i => (
+                        <div key={i} className="w-64 aspect-[4/5] bg-surface-container-low rounded-[2.5rem] animate-pulse"></div>
+                      ))}
+                   </div>
+                 ) : (
+                   <div className="flex gap-5 overflow-x-auto pb-6 scrollbar-hide -mx-6 px-6">
+                      {trendingSongs.map((track, i) => (
+                         <button 
+                           key={track.videoId}
+                           onClick={() => playMusic(track)}
+                           className={`group relative flex-shrink-0 w-64 p-3 rounded-[2.5rem] transition-all border ${
+                             musicData.videoId === track.videoId 
+                               ? 'bg-indigo-500/10 border-indigo-500/30 shadow-xl shadow-indigo-500/10' 
+                               : 'bg-surface-container-low border-transparent hover:border-outline-variant/30 hover:bg-surface-container-high'
+                           }`}
+                         >
+                            <div className="relative aspect-square rounded-[2rem] overflow-hidden shadow-lg mb-4">
+                               <img src={track.cover} alt={track.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                               <div className="absolute top-4 left-4 w-9 h-9 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20">
+                                  <span className="text-white font-headline font-black text-xs italic">#{i+1}</span>
+                               </div>
+                               
+                               {musicData.videoId === track.videoId && musicData.isPlaying && (
+                                 <div className="absolute inset-0 bg-indigo-500/20 backdrop-blur-[4px] flex items-center justify-center">
+                                    <div className="flex gap-1.5 items-end h-8">
+                                       {[1,2,3,4,3,2,1].map((h, i) => (
+                                         <div key={i} className="w-1.5 bg-white rounded-full animate-music-bar" style={{ height: `${h*8}px`, animationDelay: `${i*0.1}s` }} />
+                                       ))}
+                                    </div>
+                                 </div>
+                               )}
+                            </div>
+
+                            <div className="px-3 pb-2 text-left">
+                               <h4 className="font-headline font-black text-sm text-on-surface truncate tracking-tight">{track.title}</h4>
+                               <p className="text-[10px] font-bold text-on-surface-variant/80 truncate mt-1 uppercase tracking-widest">{track.artist}</p>
+                            </div>
+
+                            <div className={`mt-3 w-full h-11 rounded-2xl flex items-center justify-center transition-all ${musicData.videoId === track.videoId && musicData.isPlaying ? 'bg-indigo-500 text-white' : 'bg-surface-container-highest/50 text-on-surface group-hover:bg-indigo-500 group-hover:text-white'}`}>
+                               <span className="material-symbols-outlined text-xl">
+                                  {musicData.videoId === track.videoId && musicData.isPlaying ? 'pause' : 'play_arrow'}
+                               </span>
+                            </div>
+                         </button>
+                      ))}
+                   </div>
+                 )}
+              </div>
+           </div>
         </section>
 
         {/* INPUT SECTION */}

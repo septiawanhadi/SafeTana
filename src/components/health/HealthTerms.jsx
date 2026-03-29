@@ -21,7 +21,7 @@ const HealthTerms = () => {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 pt-8">
+      <main className="max-w-4xl mx-auto px-4 pt-24 pb-32">
         <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200 dark:border-slate-700">
           
           <div className="mb-8 border-b border-slate-100 dark:border-slate-700 pb-6 text-center">

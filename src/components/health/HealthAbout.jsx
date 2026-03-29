@@ -21,7 +21,7 @@ const HealthAbout = () => {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 pt-8">
+      <main className="max-w-5xl mx-auto px-4 pt-24 pb-32">
         
         {/* HERO */}
         <div className="bg-blue-600 rounded-3xl p-8 sm:p-16 text-center text-white shadow-xl mb-8 relative overflow-hidden">

@@ -267,7 +267,7 @@ const HealthScreening = () => {
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 pt-6 space-y-6">
+      <main className="max-w-3xl mx-auto px-4 pt-24 pb-32 space-y-6">
         <div className="glass-card p-5 rounded-2xl border-l-4 border-l-primary shadow-sm flex items-start gap-4">
            <span className="material-symbols-outlined text-primary text-2xl shrink-0">info</span>
            <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed font-medium">
