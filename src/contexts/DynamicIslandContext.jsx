@@ -16,7 +16,8 @@ export const DynamicIslandProvider = ({ children }) => {
     videoId: '',
     isPlaying: false,
     progress: 0,
-    isLoading: false
+    isLoading: false,
+    isReady: false
   });
 
   const [notificationData, setNotificationData] = useState({
@@ -27,6 +28,7 @@ export const DynamicIslandProvider = ({ children }) => {
   });
 
   const playerRef = useRef(null);
+  const isTogglingRef = useRef(false);
 
   const playMusic = (track) => {
     if (!track) return;
@@ -34,7 +36,7 @@ export const DynamicIslandProvider = ({ children }) => {
     // If it's the same song, toggle play/pause
     const isSameSong = musicData.videoId === track.videoId || (track.url && musicData.url === track.url);
     if (isSameSong) {
-      setMusicData(prev => ({ ...prev, isPlaying: !prev.isPlaying }));
+      togglePlay();
       return;
     }
 
@@ -44,12 +46,22 @@ export const DynamicIslandProvider = ({ children }) => {
       ...track,
       isPlaying: true,
       progress: 0,
-      isLoading: true
+      isLoading: true,
+      isReady: false
     });
   };
 
   const togglePlay = () => {
+    // Advanced Guard: Only toggle if ready and not already toggling
+    if (!musicData.isReady || isTogglingRef.current) return;
+    
+    isTogglingRef.current = true;
     setMusicData(prev => ({ ...prev, isPlaying: !prev.isPlaying }));
+    
+    // 500ms debounce to allow the YouTube play/pause promise to settle
+    setTimeout(() => {
+      isTogglingRef.current = false;
+    }, 500);
   };
 
   const stopMusic = () => {
@@ -61,9 +73,7 @@ export const DynamicIslandProvider = ({ children }) => {
     setMusicData(prev => ({ ...prev, progress: state.played * 100 }));
   };
 
-  const onBuffer = () => setMusicData(prev => ({ ...prev, isLoading: true }));
-  const onBufferEnd = () => setMusicData(prev => ({ ...prev, isLoading: false }));
-  const onReady = () => setMusicData(prev => ({ ...prev, isLoading: false }));
+  const onReady = () => setMusicData(prev => ({ ...prev, isReady: true, isLoading: false }));
   
   const onEnded = () => {
     setMusicData(prev => ({ ...prev, isPlaying: false, progress: 0 }));
@@ -89,19 +99,17 @@ export const DynamicIslandProvider = ({ children }) => {
       {children}
       
       {/* HIDDEN YOUTUBE PLAYER (OFFICIAL STABILITY) */}
-      <div style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+      <div style={{ position: 'fixed', bottom: 0, right: 0, width: '1px', height: '1px', overflow: 'hidden', pointerEvents: 'none', opacity: 0.001, zIndex: -1 }}>
         {musicData.videoId && (
           <ReactPlayer
             ref={playerRef}
             url={`https://www.youtube.com/watch?v=${musicData.videoId}`}
             playing={musicData.isPlaying}
             onProgress={onProgress}
-            onBuffer={onBuffer}
-            onBufferEnd={onBufferEnd}
             onReady={onReady}
             onEnded={onEnded}
-            width="0"
-            height="0"
+            width="1px"
+            height="1px"
             config={{
               youtube: {
                 playerVars: { autoplay: 1, controls: 0, showinfo: 0, rel: 0 }

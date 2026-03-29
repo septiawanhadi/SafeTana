@@ -312,24 +312,52 @@ const App = () => {
   // Fetch Realtime Weather & AQI based on userLocation
   useEffect(() => {
     if (!userLocation) return;
+    
     const fetchRealtimeEnv = async () => {
-      try {
-        const [lat, lon] = userLocation;
-        const [weatherRes, aqiRes] = await Promise.all([
-          fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=precipitation`),
-          fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi`)
-        ]);
-        const wData = await weatherRes.json();
-        const aData = await aqiRes.json();
-        
-        setWeatherData({
-          precipitation: wData.current?.precipitation ?? 0,
-          aqi: aData.current?.us_aqi ?? '--'
-        });
-      } catch (err) {
-        console.error("Failed fetching live env data", err);
+      const [lat, lon] = userLocation;
+      const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=precipitation`;
+      const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi`;
+
+      const PROXIES = [
+        '', // Priority 1: Direct Fetch
+        'https://api.allorigins.win/raw?url=',
+        'https://thingproxy.freeboard.io/fetch/',
+        'https://api.codetabs.com/v1/proxy?quest=',
+        'https://corsproxy.io/?'
+      ];
+
+      for (const proxy of PROXIES) {
+        try {
+          const fetchTarget = async (url) => {
+            const finalUrl = proxy 
+              ? proxy.includes('allorigins') ? `${proxy}${encodeURIComponent(url)}` : `${proxy}${url}`
+              : url;
+
+            const res = await fetch(finalUrl, { signal: AbortSignal.timeout(5000) });
+            if (!res.ok) throw new Error('Fetch failed');
+            return await res.json();
+          };
+
+          const [wData, aData] = await Promise.all([
+            fetchTarget(weatherUrl),
+            fetchTarget(aqiUrl)
+          ]);
+
+          setWeatherData({
+            precipitation: wData.current?.precipitation ?? 0,
+            aqi: aData.current?.us_aqi ?? '--'
+          });
+          
+          return; // Success!
+        } catch (err) {
+          console.warn(`Weather fetch failed via ${proxy || 'direct'}, trying next...`);
+        }
       }
+
+      // Final Fallback
+      setWeatherData({ precipitation: 0, aqi: '--' });
     };
+
     fetchRealtimeEnv();
   }, [userLocation]);
 

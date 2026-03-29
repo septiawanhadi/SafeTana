@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, Save, Trash2, TrendingUp, Flame, Activity, BrainCircuit, Sparkles, RefreshCw } from 'lucide-react';
+import { ArrowLeft, TrendingUp } from 'lucide-react';
 import { auth } from '../../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
@@ -8,6 +8,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { aiService } from '../../services/health/aiService';
 import { dataService } from '../../services/health/dataService';
 import { useDynamicIsland } from '../../contexts/DynamicIslandContext';
+import { COUNSELING_PLAYLIST } from '../../constants/health/counselingPlaylist.js';
 
 const MOOD_EMOJIS = [
   { id: 'bersyukur', emoji: '🙏', label: 'Bersyukur', color: 'bg-emerald-100 text-emerald-600 border-emerald-300', score: 5 },
@@ -34,75 +35,99 @@ const MoodTracker = () => {
   const { playMusic, musicData } = useDynamicIsland();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const [trendingSongs, setTrendingSongs] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [isTrendsLoading, setIsTrendsLoading] = useState(true);
   const [serverStatus, setServerStatus] = useState('online');
 
-  const SEARCH_INSTANCES = [
-    'https://yewtu.be',
-    'https://invidious.snopyta.org',
-    'https://invidious.namu.blue',
-    'https://inv.riverside.rocks',
-    'https://invidious.sethforprivacy.com'
+  const SEARCH_SOURCES = [
+    { name: 'Piped Kavin', url: 'https://pipedapi.kavin.rocks/search?q=', type: 'piped' },
+    { name: 'Piped Mha', url: 'https://api-piped.mha.fi/search?q=', type: 'piped' },
+    { name: 'Piped Lunar', url: 'https://piped-api.lunar.icu/search?q=', type: 'piped' },
+    { name: 'Invidious Puffyan', url: 'https://vid.puffyan.us/api/v1/search?q=', type: 'invidious' },
+    { name: 'Invidious NoLogs', url: 'https://invidious.no-logs.com/api/v1/search?q=', type: 'invidious' },
+    { name: 'Invidious Melmac', url: 'https://iv.melmac.space/api/v1/search?q=', type: 'invidious' },
+    { name: 'Invidious Snopyta', url: 'https://invidious.snopyta.org/api/v1/search?q=', type: 'invidious' }
+  ];
+
+  const PROXY_CHANNELS = [
+    '', // Priority 1: Direct Fetch
+    'https://api.allorigins.win/raw?url=',
+    'https://api.codetabs.com/v1/proxy?quest=',
+    'https://thingproxy.freeboard.io/fetch/',
+    'https://corsproxy.io/?'
   ];
 
   const fetchWithFallback = async (query) => {
-    // We use AllOrigins (a stable, free CORS proxy) to bypass browser blocks
-    const corsProxy = 'https://api.allorigins.win/get?url=';
+    const encodedQuery = encodeURIComponent(query);
     
-    for (const api of SEARCH_INSTANCES) {
-      try {
-        const targetUrl = encodeURIComponent(`${api}/api/v1/search?q=${encodeURIComponent(query)}&type=video`);
-        const res = await fetch(`${corsProxy}${targetUrl}`);
-        
-        if (!res.ok) continue;
-        
-        const wrapper = await res.json();
-        // AllOrigins returns the actual JSON string in wrapper.contents
-        const data = JSON.parse(wrapper.contents);
-        
-        if (data && Array.isArray(data)) {
-           // Standardize output
-           return data.map(item => ({
-              videoId: item.videoId,
-              title: item.title,
-              artist: item.author,
-              cover: item.videoThumbnails?.[0]?.url || `https://img.youtube.com/vi/${item.videoId}/mqdefault.jpg`,
-              duration: item.lengthSeconds
-           }));
+    for (const proxy of PROXY_CHANNELS) {
+      for (const source of SEARCH_SOURCES) {
+        try {
+          const targetUrl = `${source.url}${encodedQuery}&type=video`;
+          const finalUrl = proxy 
+            ? proxy.includes('allorigins') ? `${proxy}${encodeURIComponent(targetUrl)}` : `${proxy}${targetUrl}`
+            : targetUrl;
+
+          const res = await fetch(finalUrl, { signal: AbortSignal.timeout(4000) });
+          if (!res.ok) continue;
+
+          const data = await res.json();
+          let items = source.type === 'piped' ? (data.items || []) : (Array.isArray(data) ? data : []);
+
+          if (items && items.length > 0) {
+            return items.filter(i => source.type === 'piped' ? i.type === 'video' : true)
+              .map(item => ({
+                videoId: source.type === 'piped' ? item.url?.split('v=')?.[1] : item.videoId,
+                title: item.title,
+                artist: source.type === 'piped' ? item.uploaderName : item.author,
+                cover: source.type === 'piped' ? item.thumbnail : (item.videoThumbnails?.[0]?.url || `https://img.youtube.com/vi/${item.videoId}/mqdefault.jpg`),
+                duration: item.duration || item.lengthSeconds
+              }))
+              .filter(v => v.videoId);
+          }
+        } catch (err) {
+          console.warn(`Channel failed: ${proxy || 'direct'} + ${source.name}`);
         }
-      } catch (err) {
-        console.warn(`Search instance ${api} failed, trying next...`);
       }
     }
-    throw new Error("Pencarian tidak tersedia. Silakan coba lagi nanti.");
+    throw new Error('Semua kanal pencarian sedang sibuk. Silakan coba beberapa saat lagi.');
   };
 
-  // Fetch Trending Hits Indonesia on mount
-  useEffect(() => {
-    const fetchTrends = async () => {
-      setIsTrendsLoading(true);
-      try {
-        const data = await fetchWithFallback('Top Hits Indonesia 2024');
-        if (data && data.length > 0) {
-          setTrendingSongs(data.slice(0, 10));
-          setServerStatus('online');
-        }
-      } catch (err) {
-        console.error("Trends fetch error", err);
-        setServerStatus('error');
-      } finally {
-        setIsTrendsLoading(false);
+  const [loadingTrackId, setLoadingTrackId] = useState(null);
+  const handlePlayCuratedSong = async (song) => {
+    // Zero-API Optimization: Use pre-mapped ID if available
+    if (song.videoId) {
+      playMusic({
+        videoId: song.videoId,
+        title: song.title,
+        artist: song.artist,
+        cover: `https://img.youtube.com/vi/${song.videoId}/mqdefault.jpg`
+      });
+      return;
+    }
+
+    setLoadingTrackId(song.id);
+    setServerStatus('online');
+    try {
+      const query = song.artist ? `${song.title} ${song.artist}` : song.title;
+      const results = await fetchWithFallback(query);
+      if (results && results.length > 0) {
+        playMusic(results[0]);
       }
-    };
-    fetchTrends();
-  }, []);
+    } catch (err) {
+      console.error('Gagal memutar lagu:', err);
+      setServerStatus('error');
+    } finally {
+      setLoadingTrackId(null);
+    }
+  };
+
+  const [showExternalFallback, setShowExternalFallback] = useState(false);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
     setIsSearching(true);
     setServerStatus('online');
+    setShowExternalFallback(false);
     try {
       const data = await fetchWithFallback(searchQuery);
       if (data && data.length > 0) {
@@ -111,6 +136,7 @@ const MoodTracker = () => {
     } catch (err) {
       console.error("Cloud search error", err);
       setServerStatus('error');
+      setShowExternalFallback(true);
     } finally {
       setIsSearching(false);
     }
@@ -130,44 +156,31 @@ const MoodTracker = () => {
 
   const calculateStats = (logs) => {
     if (logs.length === 0) return { totalLogs: 0, streak: 0, mostFrequent: null, averageScore: 0 };
-
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    
     const recentLogs = logs.filter(log => {
       const logDate = log.timestamp ? log.timestamp.toDate() : new Date();
       return logDate >= thirtyDaysAgo;
     });
-
     const frequency = {};
     let totalScore = 0;
-    
     recentLogs.forEach(log => {
       frequency[log.moodId] = (frequency[log.moodId] || 0) + 1;
       const moodDef = MOOD_EMOJIS.find(m => m.id === log.moodId);
       if (moodDef) totalScore += moodDef.score;
     });
-
     let topMoodId = null;
     let maxFreq = 0;
     for (const [id, count] of Object.entries(frequency)) {
       if (count > maxFreq) { maxFreq = count; topMoodId = id; }
     }
     const topMoodDef = MOOD_EMOJIS.find(m => m.id === topMoodId);
-
     const uniqueDays = new Set(recentLogs.map(log => {
       const d = log.timestamp ? log.timestamp.toDate() : new Date();
       return d.toDateString();
     })).size;
-
     const avgScore = recentLogs.length > 0 ? (totalScore / recentLogs.length) : 0;
-
-    return {
-      totalLogs: recentLogs.length,
-      streak: uniqueDays,
-      mostFrequent: topMoodDef,
-      averageScore: avgScore
-    };
+    return { totalLogs: recentLogs.length, streak: uniqueDays, mostFrequent: topMoodDef, averageScore: avgScore };
   };
 
   const fetchMoodLogs = async (userId) => {
@@ -193,7 +206,6 @@ const MoodTracker = () => {
         note: note.trim()
       };
       await dataService.moodLogs.add(user.uid, moodData);
-      
       setSelectedMood(null);
       setNote('');
       fetchMoodLogs(user.uid);
@@ -223,7 +235,6 @@ const MoodTracker = () => {
       alert("Butuh setidaknya satu entri jurnal untuk dianalisis.");
       return;
     }
-    
     setIsAnalyzing(true);
     try {
       const analysisText = await aiService.analyzeMoodLogs(moodLogs);
@@ -240,7 +251,6 @@ const MoodTracker = () => {
 
   return (
     <div className="min-h-screen bg-background text-on-background font-body pb-20">
-      
       <header className="glass-card shadow-sm sticky top-0 z-50 border-b border-outline-variant/20 relative">
         <div className="absolute inset-0 bg-background/80 backdrop-blur-md z-[-1]" />
         <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between relative z-10">
@@ -258,8 +268,6 @@ const MoodTracker = () => {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 pt-24 pb-32 space-y-6">
-        
-        {/* STATISTIK 30 HARI */}
         <section className="grid grid-cols-3 gap-3">
            <div className="glass-card p-4 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
               <span className="material-symbols-outlined text-orange-500 mb-1 text-3xl">local_fire_department</span>
@@ -278,7 +286,6 @@ const MoodTracker = () => {
            </div>
         </section>
 
-        {/* AI ANALYSIS BUTTON */}
         <section className="glass-card p-1 rounded-[1.5rem] shadow-sm">
            <button 
              onClick={getAIAnalysis}
@@ -310,17 +317,11 @@ const MoodTracker = () => {
                  <div className="text-xs text-on-surface-variant leading-relaxed whitespace-pre-line font-medium">
                     {aiAnalysis}
                  </div>
-                 <button 
-                   onClick={() => setAiAnalysis(null)} 
-                   className="mt-6 text-[10px] font-black text-on-surface-variant uppercase tracking-widest hover:text-on-surface transition-colors"
-                 >
-                   Tutup Analisis
-                 </button>
+                 <button onClick={() => setAiAnalysis(null)} className="mt-6 text-[10px] font-black text-on-surface-variant uppercase tracking-widest hover:text-on-surface transition-colors">Tutup Analisis</button>
               </div>
            )}
         </section>
 
-        {/* MP3 VIBE CLOUD ENGINE */}
         <section className="glass-card p-6 rounded-[2rem] shadow-sm border border-outline-variant/10">
            <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-4">
@@ -340,7 +341,6 @@ const MoodTracker = () => {
               </div>
            </div>
 
-           {/* SEARCH INTERFACE */}
            <div className="relative mb-8">
               <input 
                 type="text" 
@@ -362,7 +362,24 @@ const MoodTracker = () => {
            </div>
 
            <div className="space-y-10">
-              {/* RESULTS SECTION (If searching) */}
+              {showExternalFallback && (
+                <div className="glass-card p-6 border-indigo-500/20 bg-indigo-500/5 text-center animate-in zoom-in-95">
+                  <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/20">
+                    <span className="material-symbols-outlined text-3xl text-indigo-500">cloud_off</span>
+                  </div>
+                  <h4 className="font-headline font-black text-sm text-on-surface mb-2 tracking-tight">Koneksi Pencarian Sedang Sibuk</h4>
+                  <p className="text-[10px] text-on-surface-variant/80 font-bold uppercase tracking-widest leading-relaxed mb-6 px-4">Kami tidak dapat menemukan lagu secara otomatis saat ini. Silakan cari langsung di YouTube melalui tombol di bawah.</p>
+                  <a 
+                    href={`https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-8 py-4 bg-indigo-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/20 active:scale-95 transition-all w-full md:w-auto justify-center"
+                  >
+                    <span className="material-symbols-outlined text-sm">open_in_new</span> Buka di YouTube
+                  </a>
+                </div>
+              )}
+
               {searchResults.length > 0 && (
                 <div>
                    <div className="flex items-center justify-between mb-4 px-1">
@@ -374,11 +391,7 @@ const MoodTracker = () => {
                          <button 
                            key={track.videoId}
                            onClick={() => playMusic(track)}
-                           className={`flex items-center gap-4 p-3 rounded-[1.5rem] transition-all border w-full group ${
-                             musicData.videoId === track.videoId 
-                               ? 'bg-indigo-500/10 border-indigo-500/30' 
-                               : 'bg-surface-container-low border-transparent hover:border-outline-variant/20 hover:bg-surface-container-high'
-                           }`}
+                           className={`flex items-center gap-4 p-3 rounded-[1.5rem] transition-all border w-full group ${musicData.videoId === track.videoId ? 'bg-indigo-500/10 border-indigo-500/30' : 'bg-surface-container-low border-transparent hover:border-outline-variant/20 hover:bg-surface-container-high'}`}
                          >
                             <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 shadow-sm relative">
                                <img src={track.cover} alt={track.title} className="w-full h-full object-cover" />
@@ -401,71 +414,53 @@ const MoodTracker = () => {
                 </div>
               )}
 
-              {/* VIRAL TRENDS SECTION */}
               <div>
-                 <div className="flex items-center justify-between mb-6 px-1">
-                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Hits Viral Indonesia</h4>
-                    <div className="flex gap-1">
-                       <div className="w-1 h-1 rounded-full bg-indigo-500 animate-pulse"></div>
-                       <div className="w-1 h-1 rounded-full bg-indigo-500 animate-pulse delay-75"></div>
-                       <div className="w-1 h-1 rounded-full bg-indigo-500 animate-pulse delay-150"></div>
-                    </div>
-                 </div>
-
-                 {isTrendsLoading ? (
-                   <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-                      {[1,2,3].map(i => (
-                        <div key={i} className="w-64 aspect-[4/5] bg-surface-container-low rounded-[2.5rem] animate-pulse"></div>
-                      ))}
+                <div className="flex items-center justify-between mb-5 px-1">
+                   <div>
+                      <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500">Playlist Konseling</h4>
+                      <p className="text-[8px] text-on-surface-variant/60 font-bold uppercase tracking-widest mt-0.5">{COUNSELING_PLAYLIST.length} lagu pilihan</p>
                    </div>
-                 ) : (
-                   <div className="flex gap-5 overflow-x-auto pb-6 scrollbar-hide -mx-6 px-6">
-                      {trendingSongs.map((track, i) => (
-                         <button 
-                           key={track.videoId}
-                           onClick={() => playMusic(track)}
-                           className={`group relative flex-shrink-0 w-64 p-3 rounded-[2.5rem] transition-all border ${
-                             musicData.videoId === track.videoId 
-                               ? 'bg-indigo-500/10 border-indigo-500/30 shadow-xl shadow-indigo-500/10' 
-                               : 'bg-surface-container-low border-transparent hover:border-outline-variant/30 hover:bg-surface-container-high'
-                           }`}
-                         >
-                            <div className="relative aspect-square rounded-[2rem] overflow-hidden shadow-lg mb-4">
-                               <img src={track.cover} alt={track.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                               <div className="absolute top-4 left-4 w-9 h-9 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20">
-                                  <span className="text-white font-headline font-black text-xs italic">#{i+1}</span>
-                               </div>
-                               
-                               {musicData.videoId === track.videoId && musicData.isPlaying && (
-                                 <div className="absolute inset-0 bg-indigo-500/20 backdrop-blur-[4px] flex items-center justify-center">
-                                    <div className="flex gap-1.5 items-end h-8">
-                                       {[1,2,3,4,3,2,1].map((h, i) => (
-                                         <div key={i} className="w-1.5 bg-white rounded-full animate-music-bar" style={{ height: `${h*8}px`, animationDelay: `${i*0.1}s` }} />
-                                       ))}
-                                    </div>
-                                 </div>
-                               )}
-                            </div>
-
-                            <div className="px-3 pb-2 text-left">
-                               <h4 className="font-headline font-black text-sm text-on-surface truncate tracking-tight">{track.title}</h4>
-                               <p className="text-[10px] font-bold text-on-surface-variant/80 truncate mt-1 uppercase tracking-widest">{track.artist}</p>
-                            </div>
-
-                            <div className={`mt-3 w-full h-11 rounded-2xl flex items-center justify-center transition-all ${musicData.videoId === track.videoId && musicData.isPlaying ? 'bg-indigo-500 text-white' : 'bg-surface-container-highest/50 text-on-surface group-hover:bg-indigo-500 group-hover:text-white'}`}>
-                               <span className="material-symbols-outlined text-xl">
-                                  {musicData.videoId === track.videoId && musicData.isPlaying ? 'pause' : 'play_arrow'}
-                               </span>
-                            </div>
-                         </button>
-                      ))}
+                   <div className="flex gap-1">
+                      <div className="w-1 h-1 rounded-full bg-indigo-500 animate-pulse"></div>
+                      <div className="w-1 h-1 rounded-full bg-indigo-500 animate-pulse delay-75"></div>
+                      <div className="w-1 h-1 rounded-full bg-indigo-500 animate-pulse delay-150"></div>
                    </div>
-                 )}
+                </div>
+
+                <div className="space-y-2.5 max-h-[520px] overflow-y-auto pr-1 custom-scrollbar">
+                  {COUNSELING_PLAYLIST.map((song) => {
+                    const isLoading = loadingTrackId === song.id;
+                    return (
+                      <button
+                        key={song.id}
+                        onClick={() => handlePlayCuratedSong(song)}
+                        disabled={isLoading}
+                        className="flex items-center gap-3 w-full p-3 rounded-2xl transition-all border group bg-surface-container-low border-transparent hover:border-indigo-500/30 hover:bg-indigo-500/5 disabled:opacity-70 text-left"
+                      >
+                        <div className="w-9 h-9 rounded-xl bg-surface-container-highest/60 flex items-center justify-center shrink-0 border border-outline-variant/10 group-hover:bg-indigo-500 group-hover:border-indigo-500 transition-all">
+                          {isLoading ? (
+                            <span className="material-symbols-outlined text-sm animate-spin text-indigo-500 group-hover:text-white">progress_activity</span>
+                          ) : (
+                            <span className="text-[10px] font-black text-on-surface-variant group-hover:text-white transition-colors">{song.id}</span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h5 className="font-headline font-black text-xs text-on-surface truncate tracking-tight">{song.title}</h5>
+                          {song.artist && (
+                            <p className="text-[9px] font-bold text-on-surface-variant/70 truncate uppercase tracking-widest mt-0.5">{song.artist}</p>
+                          )}
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-surface-container-highest/50 flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white text-on-surface-variant transition-all shrink-0">
+                          <span className="material-symbols-outlined text-sm">play_arrow</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
            </div>
         </section>
 
-        {/* INPUT SECTION */}
         <section className="bg-primary text-on-primary rounded-[2rem] p-8 shadow-2xl relative overflow-hidden flex flex-col items-center">
            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl pointer-events-none" />
            <h2 className="text-center font-headline font-black text-xl mb-1 mt-2 uppercase tracking-tight relative z-10">Kondisi Mental Pasca Bencana</h2>
@@ -507,7 +502,6 @@ const MoodTracker = () => {
            )}
         </section>
 
-        {/* RECENT LOGS SECTION */}
         <section>
            <div className="flex items-center justify-between mb-6 px-2">
                <h3 className="font-headline font-black text-xs text-on-surface-variant uppercase tracking-widest">Riwayat Entri Jurnal</h3>
@@ -528,13 +522,10 @@ const MoodTracker = () => {
 
                  return (
                    <div key={log.id} className="glass-card p-5 rounded-[1.5rem] flex gap-4 items-start transition-all hover:shadow-lg shadow-sm group relative overflow-hidden border border-outline-variant/20">
-                      {/* Decorative background blur */}
                       <div className={`absolute -right-8 -top-8 w-32 h-32 opacity-20 blur-2xl rounded-full ${moodDef.color.split(' ')[0]} pointer-events-none`}></div>
-                      
                       <div className={`w-14 h-14 rounded-[1.1rem] flex items-center justify-center shrink-0 border ${moodDef.color} shadow-sm backdrop-blur-sm relative z-10`}>
                         <span className="text-3xl drop-shadow-sm">{log.emoji}</span>
                       </div>
-                      
                       <div className="flex-1 min-w-0 z-10 pt-0.5">
                          <div className="flex flex-wrap items-center gap-2 mb-2">
                             <h4 className="font-headline font-black text-sm text-on-surface capitalize">{dateStr}</h4>
@@ -544,19 +535,15 @@ const MoodTracker = () => {
                                {moodDef.label || log.moodLabel}
                             </div>
                          </div>
-                         
                          {log.note ? (
                             <div className="mt-3 relative group-hover:bg-surface-container-lowest/30 p-1 -ml-1 rounded-xl transition-colors">
                                <div className="absolute left-2 top-2 bottom-2 w-1 rounded-full bg-outline-variant/20"></div>
-                               <p className="text-[13px] text-on-surface-variant leading-relaxed font-medium pl-6 pr-8 py-1">
-                                  {log.note}
-                               </p>
+                               <p className="text-[13px] text-on-surface-variant leading-relaxed font-medium pl-6 pr-8 py-1">{log.note}</p>
                             </div>
                          ) : (
                             <p className="text-[10px] text-on-surface-variant/40 mt-3 uppercase tracking-widest font-bold">Tanpa Catatan Tambahan</p>
                          )}
                       </div>
-                      
                       <button 
                         onClick={() => handleDelete(log.id)}
                         className="absolute right-3 bottom-3 md:top-4 md:bottom-auto text-on-surface-variant/30 hover:text-error hover:bg-error/10 p-2 rounded-xl transition-all opacity-0 group-hover:opacity-100 z-20"
