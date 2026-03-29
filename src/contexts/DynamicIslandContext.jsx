@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
+import React, { createContext, useContext, useState, useRef } from 'react';
+import ReactPlayer from 'react-player';
 
 const DynamicIslandContext = createContext();
 
@@ -12,9 +13,10 @@ export const DynamicIslandProvider = ({ children }) => {
     artist: '',
     cover: '',
     url: '',
-    id: '', 
+    videoId: '',
     isPlaying: false,
-    progress: 0
+    progress: 0,
+    isLoading: false
   });
 
   const [notificationData, setNotificationData] = useState({
@@ -24,113 +26,46 @@ export const DynamicIslandProvider = ({ children }) => {
     action: null
   });
 
-  const audioRef = useRef(new Audio());
+  const playerRef = useRef(null);
 
-  // Handle Audio Playback
-  useEffect(() => {
-    const audio = audioRef.current;
-    audio.crossOrigin = "anonymous"; // Essential for CORS bypass on some proxies
+  const playMusic = (track) => {
+    if (!track) return;
     
-    const updateProgress = () => {
-      if (audio.duration) {
-        setMusicData(prev => ({ ...prev, progress: (audio.currentTime / audio.duration) * 100 }));
-      }
-    };
-
-    const handleEnded = () => {
-      setMusicData(prev => ({ ...prev, isPlaying: false, progress: 0 }));
-    };
-
-    audio.addEventListener('timeupdate', updateProgress);
-    audio.addEventListener('ended', handleEnded);
-
-    return () => {
-      audio.removeEventListener('timeupdate', updateProgress);
-      audio.removeEventListener('ended', handleEnded);
-    };
-  }, []);
-
-  const PIPED_API = '/piped-api';
-
-  const fetchStreamUrl = async (videoId) => {
-    try {
-      const res = await fetch(`${PIPED_API}/streams/${videoId}`);
-      if (!res.ok) throw new Error("Proxy error");
-      const data = await res.json();
-      // Prefer M4A/AAC audio-only streams
-      const audioStream = data.audioStreams.find(s => s.format === 'M4A' || s.format === 'AAC') 
-                       || data.audioStreams[0];
-      if (audioStream?.url) return audioStream.url;
-    } catch (err) {
-      console.warn(`Piped proxy failed for video ${videoId}:`, err);
-    }
-    return null;
-  };
-
-  const playMusic = async (track) => {
-    const audio = audioRef.current;
-    
-    // If it's the same URL or videoId and it's already loaded
-    if ((track.url && musicData.url === track.url) || (track.videoId && musicData.videoId === track.videoId)) {
-      if (musicData.isPlaying) {
-        audio.pause();
-        setMusicData(prev => ({ ...prev, isPlaying: false }));
-      } else {
-        audio.play().catch(e => console.error("Play failed", e));
-        setMusicData(prev => ({ ...prev, isPlaying: true }));
-      }
+    // If it's the same song, toggle play/pause
+    const isSameSong = musicData.videoId === track.videoId || (track.url && musicData.url === track.url);
+    if (isSameSong) {
+      setMusicData(prev => ({ ...prev, isPlaying: !prev.isPlaying }));
       return;
     }
 
-    // Stop and Reset
-    audio.pause();
-    setMusicData(prev => ({ ...prev, isPlaying: false, isLoading: true }));
+    // New song
     setIslandType('music');
-
-    let streamUrl = track.url;
-
-    // On-demand fetch for YouTube tracks
-    if (track.videoId && !streamUrl) {
-      streamUrl = await fetchStreamUrl(track.videoId);
-      if (!streamUrl) {
-        console.error("Critical Failure: Could not fetch stream URL from proxy.");
-        setMusicData(prev => ({ ...prev, isLoading: false }));
-        return;
-      }
-    }
-
-    audio.src = streamUrl;
-    audio.load();
-    audio.play().then(() => {
-      setMusicData({
-        ...track,
-        url: streamUrl,
-        isPlaying: true,
-        progress: 0,
-        isLoading: false
-      });
-    }).catch(err => {
-      console.error("Playback failed:", err);
-      setMusicData(prev => ({ ...prev, isLoading: false }));
+    setMusicData({
+      ...track,
+      isPlaying: true,
+      progress: 0,
+      isLoading: true
     });
   };
 
   const togglePlay = () => {
-    const audio = audioRef.current;
-    if (musicData.isPlaying) {
-      audio.pause();
-      setMusicData(prev => ({ ...prev, isPlaying: false }));
-    } else {
-      audio.play();
-      setMusicData(prev => ({ ...prev, isPlaying: true }));
-    }
+    setMusicData(prev => ({ ...prev, isPlaying: !prev.isPlaying }));
   };
 
   const stopMusic = () => {
-    const audio = audioRef.current;
-    audio.pause();
-    audio.currentTime = 0;
     setIslandType(null);
+    setMusicData(prev => ({ ...prev, isPlaying: false, progress: 0 }));
+  };
+
+  const onProgress = (state) => {
+    setMusicData(prev => ({ ...prev, progress: state.played * 100 }));
+  };
+
+  const onBuffer = () => setMusicData(prev => ({ ...prev, isLoading: true }));
+  const onBufferEnd = () => setMusicData(prev => ({ ...prev, isLoading: false }));
+  const onReady = () => setMusicData(prev => ({ ...prev, isLoading: false }));
+  
+  const onEnded = () => {
     setMusicData(prev => ({ ...prev, isPlaying: false, progress: 0 }));
   };
 
@@ -152,6 +87,29 @@ export const DynamicIslandProvider = ({ children }) => {
       notificationData, showNotification, showReminder
     }}>
       {children}
+      
+      {/* HIDDEN YOUTUBE PLAYER (OFFICIAL STABILITY) */}
+      <div style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+        {musicData.videoId && (
+          <ReactPlayer
+            ref={playerRef}
+            url={`https://www.youtube.com/watch?v=${musicData.videoId}`}
+            playing={musicData.isPlaying}
+            onProgress={onProgress}
+            onBuffer={onBuffer}
+            onBufferEnd={onBufferEnd}
+            onReady={onReady}
+            onEnded={onEnded}
+            width="0"
+            height="0"
+            config={{
+              youtube: {
+                playerVars: { autoplay: 1, controls: 0, showinfo: 0, rel: 0 }
+              }
+            }}
+          />
+        )}
+      </div>
     </DynamicIslandContext.Provider>
   );
 };

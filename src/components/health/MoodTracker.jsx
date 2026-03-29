@@ -37,28 +37,56 @@ const MoodTracker = () => {
   const [trendingSongs, setTrendingSongs] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isTrendsLoading, setIsTrendsLoading] = useState(true);
+  const [serverStatus, setServerStatus] = useState('online');
 
-  const PIPED_API = '/piped-api';
-  const [serverStatus, setServerStatus] = useState('online'); // online, error
+  const SEARCH_INSTANCES = [
+    'https://yewtu.be',
+    'https://invidious.snopyta.org',
+    'https://invidious.namu.blue',
+    'https://inv.riverside.rocks',
+    'https://invidious.sethforprivacy.com'
+  ];
+
+  const fetchWithFallback = async (query) => {
+    // We use AllOrigins (a stable, free CORS proxy) to bypass browser blocks
+    const corsProxy = 'https://api.allorigins.win/get?url=';
+    
+    for (const api of SEARCH_INSTANCES) {
+      try {
+        const targetUrl = encodeURIComponent(`${api}/api/v1/search?q=${encodeURIComponent(query)}&type=video`);
+        const res = await fetch(`${corsProxy}${targetUrl}`);
+        
+        if (!res.ok) continue;
+        
+        const wrapper = await res.json();
+        // AllOrigins returns the actual JSON string in wrapper.contents
+        const data = JSON.parse(wrapper.contents);
+        
+        if (data && Array.isArray(data)) {
+           // Standardize output
+           return data.map(item => ({
+              videoId: item.videoId,
+              title: item.title,
+              artist: item.author,
+              cover: item.videoThumbnails?.[0]?.url || `https://img.youtube.com/vi/${item.videoId}/mqdefault.jpg`,
+              duration: item.lengthSeconds
+           }));
+        }
+      } catch (err) {
+        console.warn(`Search instance ${api} failed, trying next...`);
+      }
+    }
+    throw new Error("Pencarian tidak tersedia. Silakan coba lagi nanti.");
+  };
 
   // Fetch Trending Hits Indonesia on mount
   useEffect(() => {
     const fetchTrends = async () => {
       setIsTrendsLoading(true);
       try {
-        const res = await fetch(`${PIPED_API}/search?q=Top%20Hits%20Indonesia%202024&filter=music_videos`);
-        if (!res.ok) throw new Error("Proxy error");
-        const data = await res.json();
-        
-        if (data.items) {
-          const trends = data.items.slice(0, 10).map(item => ({
-            videoId: item.url.split('v=')[1] || item.url.split('/').pop(),
-            title: item.title,
-            artist: item.uploaderName,
-            cover: item.thumbnail,
-            duration: item.duration
-          }));
-          setTrendingSongs(trends);
+        const data = await fetchWithFallback('Top Hits Indonesia 2024');
+        if (data && data.length > 0) {
+          setTrendingSongs(data.slice(0, 10));
           setServerStatus('online');
         }
       } catch (err) {
@@ -76,19 +104,9 @@ const MoodTracker = () => {
     setIsSearching(true);
     setServerStatus('online');
     try {
-      const res = await fetch(`${PIPED_API}/search?q=${encodeURIComponent(searchQuery)}&filter=music_videos`);
-      if (!res.ok) throw new Error("Search proxy error");
-      const data = await res.json();
-      
-      if (data.items) {
-        const results = data.items.map(item => ({
-          videoId: item.url.split('v=')[1] || item.url.split('/').pop(),
-          title: item.title,
-          artist: item.uploaderName,
-          cover: item.thumbnail,
-          duration: item.duration
-        }));
-        setSearchResults(results);
+      const data = await fetchWithFallback(searchQuery);
+      if (data && data.length > 0) {
+        setSearchResults(data);
       }
     } catch (err) {
       console.error("Cloud search error", err);
