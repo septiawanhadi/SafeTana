@@ -5,19 +5,22 @@ const DynamicIslandContext = createContext();
 export const useDynamicIsland = () => useContext(DynamicIslandContext);
 
 export const DynamicIslandProvider = ({ children }) => {
-  const [islandType, setIslandType] = useState(null); // null, 'music', 'notification', 'reminder'
+  const [islandType, setIslandType] = useState(null); // 'music', 'notification', 'reminder'
+  const [activeActivities, setActiveActivities] = useState([]); // Array of { id, type, data }
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isFutureMode, setIsFutureMode] = useState(false); // iPhone 18 Pro Mode (Narrower)
+  
   const [musicData, setMusicData] = useState({
     title: '',
     artist: '',
     cover: '',
     url: '',
     videoId: '',
-    audioUrl: '', // Direct stream URL (v8.0)
+    audioUrl: '', 
     isPlaying: false,
     progress: 0,
     currentTime: 0,
-    duration: 210, // Default 3:30
+    duration: 210, 
     isLoading: false,
     isReady: true
   });
@@ -113,7 +116,6 @@ export const DynamicIslandProvider = ({ children }) => {
   const playMusic = (track) => {
     if (!track) return;
     
-    // If it's the same song, toggle play/pause
     const isSameSong = (track.videoId && musicData.videoId === track.videoId) || 
                        (track.audioUrl && musicData.audioUrl === track.audioUrl);
 
@@ -122,9 +124,7 @@ export const DynamicIslandProvider = ({ children }) => {
       return;
     }
 
-    // New song
-    setIslandType('music');
-    setMusicData({
+    const newMusicData = {
       ...track,
       isPlaying: true,
       progress: 0,
@@ -132,6 +132,15 @@ export const DynamicIslandProvider = ({ children }) => {
       duration: track.duration || 210,
       isLoading: false,
       isReady: true
+    };
+    
+    setMusicData(newMusicData);
+    setIslandType('music');
+    
+    // Add to activities if not already there
+    setActiveActivities(prev => {
+      if (prev.find(a => a.type === 'music')) return prev;
+      return [{ id: 'music', type: 'music' }, ...prev];
     });
   };
 
@@ -145,6 +154,7 @@ export const DynamicIslandProvider = ({ children }) => {
   const stopMusic = () => {
     setIslandType(null);
     setMusicData(prev => ({ ...prev, isPlaying: false, progress: 0, audioUrl: '', videoId: '' }));
+    setActiveActivities(prev => prev.filter(a => a.type !== 'music'));
   };
 
   const handleAudioTimeUpdate = () => {
@@ -161,11 +171,7 @@ export const DynamicIslandProvider = ({ children }) => {
   };
 
   const findAlternativePlayback = () => {
-    // This will be implemented by components (like MoodTracker) 
-    // to search for different versions of the same song.
-    // For now, it's a bridge to trigger a search re-run.
     if (musicData.title) {
-       // Logic to trigger a search in MoodTracker if it's open
        window.dispatchEvent(new CustomEvent('safetana:find-alternative', { 
          detail: { title: musicData.title, artist: musicData.artist } 
        }));
@@ -175,19 +181,36 @@ export const DynamicIslandProvider = ({ children }) => {
   const showNotification = (data) => {
     setNotificationData(data);
     setIslandType('notification');
+    setActiveActivities(prev => {
+      const filtered = prev.filter(a => a.type !== 'notification');
+      return [{ id: 'notification', type: 'notification' }, ...filtered];
+    });
   };
 
   const showReminder = (data) => {
     setNotificationData(data);
     setIslandType('reminder');
+    setActiveActivities(prev => {
+      const filtered = prev.filter(a => a.type !== 'reminder');
+      return [{ id: 'reminder', type: 'reminder' }, ...filtered];
+    });
+  };
+
+  const removeActivity = (id) => {
+    setActiveActivities(prev => prev.filter(a => a.id !== id));
+    if (activeActivities.length <= 1) {
+      setIslandType(null);
+    }
   };
 
   return (
     <DynamicIslandContext.Provider value={{
       islandType, setIslandType,
+      activeActivities, setActiveActivities,
       isExpanded, setIsExpanded,
+      isFutureMode, setIsFutureMode,
       musicData, playMusic, togglePlay, stopMusic, seekTo,
-      notificationData, showNotification, showReminder
+      notificationData, showNotification, showReminder, removeActivity
     }}>
       {children}
       
