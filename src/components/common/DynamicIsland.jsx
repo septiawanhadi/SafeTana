@@ -62,6 +62,9 @@ const DynamicIsland = () => {
   };
 
   const renderActivity = (activity, isPrimary = true, mode = 'compact') => {
+    // Safety check to prevent "Cannot read properties of undefined (reading 'type')"
+    if (!activity) return null;
+    
     const type = activity.type;
 
     if (type === 'music') {
