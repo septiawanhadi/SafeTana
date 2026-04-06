@@ -175,13 +175,24 @@ const App = () => {
 
             let locName = props.tags?.district || props.tags?.local_area || 'Wilayah Terdampak';
             const coords = feature.geometry.coordinates;
-            const position = [coords[1], coords[0]];
+            let mapLat = 0, mapLng = 0;
+            if (feature.geometry.type === 'Point') {
+               mapLat = coords[1];
+               mapLng = coords[0];
+            } else if (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') {
+               const flatten = (arr) => Array.isArray(arr[0]) ? flatten(arr[0]) : arr;
+               const pt = flatten(coords);
+               if (pt && pt.length >= 2) {
+                  mapLat = pt[1];
+                  mapLng = pt[0];
+               }
+            }
 
             return {
               source: 'PetaBencana',
               type: typeMap,
               loc: maskName(locName),
-              position: position,
+              position: [mapLat, mapLng],
               desc: maskName(props.tags?.description) || `Status: ${props.status} / Publik`,
               statusColor: colorMap
             };
@@ -205,6 +216,19 @@ const App = () => {
             const props = feature.properties;
             const coords = feature.geometry.coordinates;
 
+            let mapLat = 0, mapLng = 0;
+            if (feature.geometry.type === 'Point') {
+               mapLat = coords[1];
+               mapLng = coords[0];
+            } else if (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') {
+               const flatten = (arr) => Array.isArray(arr[0]) ? flatten(arr[0]) : arr;
+               const pt = flatten(coords);
+               if (pt && pt.length >= 2) {
+                  mapLat = pt[1];
+                  mapLng = pt[0];
+               }
+            }
+
             let typeMap = props.eventtype || 'EVENT';
             if (props.eventtype === 'EQ') typeMap = 'Gempa Bumi';
             else if (props.eventtype === 'TC') typeMap = 'Siklon Tropis';
@@ -219,8 +243,8 @@ const App = () => {
             else if (props.alertlevel === 'Green') colorMap = 'bg-success';
 
             let rawLoc = props.eventname || props.country;
-            if (!rawLoc || rawLoc.trim().toLowerCase() === 'indonesia' || rawLoc.trim() === '') {
-              const geoLoc = await reverseGeocode(coords[1], coords[0]);
+            if ((!rawLoc || rawLoc.trim().toLowerCase() === 'indonesia' || rawLoc.trim() === '') && mapLat !== 0) {
+              const geoLoc = await reverseGeocode(mapLat, mapLng);
               if (geoLoc) rawLoc = geoLoc;
               else rawLoc = 'Wilayah Terdampak (GDACS)';
             }
@@ -229,7 +253,7 @@ const App = () => {
               source: 'GDACS',
               type: typeMap,
               loc: maskName(rawLoc),
-              position: [coords[1], coords[0]],
+              position: [mapLat, mapLng],
               desc: maskName(props.description) || `Alert Level: ${props.alertlevel}`,
               statusColor: colorMap
             };

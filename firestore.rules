@@ -56,6 +56,11 @@ service cloud.firestore {
     // 5. Data Kesehatan & Kelola Mood (Private Logs)
     // - Pengguna hanya bisa buat, baca, dan hapus data MILIK mereka sendiri
     // - Pencocokan dilakukan via request.auth.uid
+    match /safetana_health_users/{userId} {
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow read, update: if request.auth != null && request.auth.uid == userId;
+    }
+
     match /health_screenings/{docId} {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
       allow read, delete: if request.auth != null && request.auth.uid == resource.data.userId;
