@@ -62,7 +62,10 @@ const HealthAuth = () => {
         navigate('/health'); 
       }
     } catch (err) {
-      console.error("Auth Error:", err);
+      // Hanya log ke console jika error tidak ditangani secara spesifik
+      if (err.code !== 'auth/email-already-in-use' && err.code !== 'auth/invalid-credential') {
+        console.error("Auth Error:", err);
+      }
       
       // Check for domain authorization error code or generic failure on custom domain
       if (err.code === 'auth/unauthorized-domain' || window.location.hostname !== 'localhost') {
@@ -70,9 +73,10 @@ const HealthAuth = () => {
       }
 
       if (err.code === 'auth/email-already-in-use') {
-        setError('Email sudah terdaftar. Silakan login.');
+        setIsLogin(true);
+        setError('Email sudah terdaftar. Kami telah mengalihkan Anda ke menu Login. Silakan masukkan password Anda.');
       } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
-        setError('Email atau password salah.');
+        setError('Email atau password salah. Periksa kembali data Anda.');
       } else if (err.code === 'auth/weak-password') {
         setError('Password minimal 6 karakter.');
       } else if (err.code === 'auth/network-request-failed') {
