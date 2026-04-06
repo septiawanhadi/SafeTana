@@ -186,7 +186,11 @@ const HealthScreening = () => {
       setResult(assessment);
     } catch (err) {
       console.error("Gagal menyimpan skrining:", err);
-      alert('Gagal menyimpan catatan skrining.');
+      if (err.code === 'permission-denied') {
+        alert('Gagal menyimpan: Akses ditolak. Pastikan Anda sudah login dengan benar.');
+      } else {
+        alert('Gagal menyimpan catatan skrining. Silakan coba lagi nanti.');
+      }
     } finally {
       setSubmitting(false);
     }

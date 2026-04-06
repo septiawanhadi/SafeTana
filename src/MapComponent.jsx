@@ -39,13 +39,15 @@ const MapComponent = ({ reports = [], selectedReportPosition, showSafeZones = tr
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(true);
   const [isAllZonesOpen, setIsAllZonesOpen] = useState(false);
 
-  const createHazardIcon = (colorHex, pulseClass, type) => {
+  // --- Memoized Icon Generators (v3.1) ---
+  const createHazardIcon = useCallback((colorHex, type) => {
     let symbol = 'warning';
-    if (type?.toLowerCase().includes('gempa')) symbol = 'e-bike_class_speed_moped'; // Workaround for earthquake
-    else if (type?.toLowerCase().includes('banjir')) symbol = 'flood';
-    else if (type?.toLowerCase().includes('angin')) symbol = 'air';
-    else if (type?.toLowerCase().includes('kebakaran')) symbol = 'local_fire_department';
-    else if (type?.toLowerCase().includes('gunung')) symbol = 'volcano';
+    const lowerType = type?.toLowerCase() || '';
+    if (lowerType.includes('gempa')) symbol = 'e-bike_class_speed_moped';
+    else if (lowerType.includes('banjir')) symbol = 'flood';
+    else if (lowerType.includes('angin')) symbol = 'air';
+    else if (lowerType.includes('kebakaran')) symbol = 'local_fire_department';
+    else if (lowerType.includes('gunung')) symbol = 'volcano';
 
     return L.divIcon({
       html: `<div class="relative group flex items-center justify-center">
@@ -58,9 +60,9 @@ const MapComponent = ({ reports = [], selectedReportPosition, showSafeZones = tr
       iconSize: [32, 32],
       iconAnchor: [16, 16],
     });
-  };
+  }, []);
 
-  const createUserIcon = () => L.divIcon({
+  const userIcon = React.useMemo(() => L.divIcon({
     html: `<div class="relative flex items-center justify-center">
             <div class="w-8 h-8 bg-cyan-400 rounded-full border-4 border-white shadow-[0_0_20px_rgba(34,211,238,0.8)] z-10 flex items-center justify-center text-white">
               <span class="material-symbols-outlined" style="font-size: 14px; font-weight: bold;">accessibility_new</span>
@@ -70,7 +72,16 @@ const MapComponent = ({ reports = [], selectedReportPosition, showSafeZones = tr
     className: '',
     iconSize: [32, 32],
     iconAnchor: [16, 16],
-  });
+  }), []);
+
+  const safeZoneIcon = React.useMemo(() => L.divIcon({
+    html: `<div class="p-2 bg-[#00ff9d] text-slate-900 rounded-full border-[3px] border-white shadow-[0_0_25px_rgba(0,255,157,0.8)] flex items-center justify-center transform hover:scale-110 transition-transform">
+            <span class="material-symbols-outlined text-sm font-black" style="font-weight: 900;">gpp_good</span>
+          </div>`,
+    className: '',
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
+  }), []);
 
   return (
     <div className={`relative w-full h-full bg-surface-container-lowest ${isInteractive ? 'h-screen' : ''}`}>
@@ -111,7 +122,7 @@ const MapComponent = ({ reports = [], selectedReportPosition, showSafeZones = tr
 
         {/* User Location */}
         {userLocation && (
-          <Marker position={userLocation} icon={createUserIcon()} />
+          <Marker position={userLocation} icon={userIcon} />
         )}
 
         {/* BMKG Disaster Radius */}
@@ -124,13 +135,18 @@ const MapComponent = ({ reports = [], selectedReportPosition, showSafeZones = tr
           />
         ))}
 
-        {/* Hazards */}
-        {reports.map((r, i) =>
-          r.position && r.position.length === 2 && !isNaN(r.position[0]) && !isNaN(r.position[1]) ? (
+        {/* Hazards (Optimized Rendering) */}
+        {React.useMemo(() => reports.map((r, i) => {
+          if (!r.position || r.position.length !== 2 || isNaN(r.position[0]) || isNaN(r.position[1])) return null;
+          
+          const color = (r.statusColor || '').includes('red') || (r.statusColor || '').includes('error') ? '#DC2626' : 
+                        (r.statusColor || '').includes('tertiary') ? '#14b8a6' : '#F59E0B';
+          
+          return (
             <Marker 
               key={`hazard-${i}`} 
               position={r.position} 
-              icon={createHazardIcon((r.statusColor || '').includes('red') || (r.statusColor || '').includes('error') ? '#DC2626' : (r.statusColor || '').includes('tertiary') ? '#14b8a6' : '#F59E0B', r.statusColor || 'bg-error', r.type)}
+              icon={createHazardIcon(color, r.type)}
             >
               <Popup className="custom-popup">
                 <div className="p-2 font-headline">
@@ -139,23 +155,18 @@ const MapComponent = ({ reports = [], selectedReportPosition, showSafeZones = tr
                 </div>
               </Popup>
             </Marker>
-          ) : null
-        )}
+          );
+        }), [reports, createHazardIcon])}
 
-        {/* Safe Zones Markers */}
-        {showSafeZones && safeZones.map((zone, i) => 
-          zone.position && zone.position.length === 2 && !isNaN(zone.position[0]) && !isNaN(zone.position[1]) ? (
+        {/* Safe Zones Markers (Optimized Rendering) */}
+        {showSafeZones && React.useMemo(() => safeZones.map((zone, i) => {
+          if (!zone.position || zone.position.length !== 2 || isNaN(zone.position[0]) || isNaN(zone.position[1])) return null;
+          
+          return (
             <Marker 
               key={`zone-${i}`} 
               position={zone.position}
-              icon={L.divIcon({
-                html: `<div class="p-2 bg-[#00ff9d] text-slate-900 rounded-full border-[3px] border-white shadow-[0_0_25px_rgba(0,255,157,0.8)] flex items-center justify-center transform hover:scale-110 transition-transform">
-                        <span class="material-symbols-outlined text-sm font-black" style="font-weight: 900;">gpp_good</span>
-                      </div>`,
-                className: '',
-                iconSize: [36, 36],
-                iconAnchor: [18, 18],
-              })}
+              icon={safeZoneIcon}
             >
               <Popup>
                 <div className="p-2 font-headline">
@@ -164,8 +175,8 @@ const MapComponent = ({ reports = [], selectedReportPosition, showSafeZones = tr
                 </div>
               </Popup>
             </Marker>
-          ) : null
-        )}
+          );
+        }), [safeZones, showSafeZones, safeZoneIcon])}
       </MapContainer>
 
       {/* Bottom Sheet: Nearby Safe Zones (Only if interactive) */}
@@ -274,4 +285,4 @@ const MapComponent = ({ reports = [], selectedReportPosition, showSafeZones = tr
     </div>
   );
 };
-export default MapComponent;
+export default React.memo(MapComponent);
