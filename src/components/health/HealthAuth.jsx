@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, User, AlertCircle, ArrowLeft, ShieldCheck, HeartPulse } from 'lucide-react';
 import { auth, db } from '../../firebase';
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
-  updateProfile 
+  updateProfile,
+  onAuthStateChanged
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
@@ -14,22 +15,32 @@ const HealthAuth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showDomainHint, setShowDomainHint] = useState(false);
 
   // Form states
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  // Check if already logged in
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (user) navigate('/health');
+    });
+    return () => unsub();
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
+    setShowDomainHint(false);
 
     try {
       if (isLogin) {
         // LOGIN FLOW
         await signInWithEmailAndPassword(auth, email, password);
-        navigate('/health'); // Kembali ke dashboard
+        navigate('/health'); 
       } else {
         // REGISTER FLOW
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -51,15 +62,23 @@ const HealthAuth = () => {
         navigate('/health'); 
       }
     } catch (err) {
-      console.error(err);
+      console.error("Auth Error:", err);
+      
+      // Check for domain authorization error code or generic failure on custom domain
+      if (err.code === 'auth/unauthorized-domain' || window.location.hostname !== 'localhost') {
+        setShowDomainHint(true);
+      }
+
       if (err.code === 'auth/email-already-in-use') {
         setError('Email sudah terdaftar. Silakan login.');
-      } else if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+      } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
         setError('Email atau password salah.');
       } else if (err.code === 'auth/weak-password') {
         setError('Password minimal 6 karakter.');
+      } else if (err.code === 'auth/network-request-failed') {
+        setError('Masalah jaringan. Periksa koneksi internet atau ad-blocker Anda.');
       } else {
-        setError(`Terjadi kesalahan: ${err.message}`);
+        setError(`Kesalahan: ${err.message}`);
       }
     } finally {
       setLoading(false);
@@ -67,131 +86,148 @@ const HealthAuth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#020617] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
-      
-      <div className="absolute top-4 left-4 sm:top-8 sm:left-8">
+    <div className="min-h-screen bg-[#0a0f1e] text-slate-200 font-body selection:bg-primary/30 selection:text-white">
+      {/* Background Orbs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[120px] rounded-full animate-pulse"></div>
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 blur-[100px] rounded-full animate-float"></div>
+      </div>
+
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-12">
+        
+        {/* Back Link */}
         <button 
-           onClick={() => navigate('/health')}
-           className="flex items-center gap-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+          onClick={() => navigate('/')}
+          className="absolute top-6 left-6 flex items-center gap-2 text-slate-500 hover:text-white transition-all group"
         >
-          <ArrowLeft size={20} /> <span className="text-sm font-bold">Kembali ke Dashboard</span>
+          <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-primary/20 transition-all border border-white/10">
+            <ArrowLeft size={18} />
+          </div>
+          <span className="text-sm font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all">Home</span>
         </button>
-      </div>
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-            <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-xl p-3 mb-2">
-                <img src="/logo.png" alt="SafeTana AI Logo" className="w-full h-full object-contain" />
+        <div className="w-full max-w-[440px]">
+          {/* Header */}
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl mb-6 group transition-transform hover:scale-105">
+               <HeartPulse className="text-primary group-hover:animate-pulse" size={40} />
             </div>
-        </div>
-        <h2 className="mt-6 text-center text-3xl font-black tracking-tight text-slate-900 dark:text-white">
-          SafeTana AI Health
-        </h2>
-        <p className="mt-2 text-center text-sm text-slate-600 dark:text-slate-400">
-          {isLogin ? 'Masuk ke akun kesehatan Anda.' : 'Pendaftaran Pasien & Pengguna Baru.'}
-        </p>
-      </div>
+            <h1 className="text-3xl font-display font-black text-white tracking-tight mb-2">SafeTana <span className="text-primary italic">Health</span></h1>
+            <p className="text-slate-500 text-sm font-medium">Layanan Rekam Medis & Skrining Mandiri AI</p>
+          </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white dark:bg-slate-800 py-8 px-4 shadow-xl sm:rounded-[2.5rem] sm:px-10 border border-slate-200 dark:border-slate-700">
-          
-          {error && (
-            <div className="mb-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 p-4 rounded-2xl flex items-start gap-3">
-              <AlertCircle className="text-red-600 dark:text-red-400 shrink-0 mt-0.5" size={20} />
-              <p className="text-sm text-red-700 dark:text-red-300 font-medium">{error}</p>
+          {/* Form Card */}
+          <div className="bg-white/[0.03] backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+            
+            <div className="flex bg-white/5 rounded-2xl p-1.5 mb-8 border border-white/5">
+              <button 
+                onClick={() => { setIsLogin(true); setError(''); }}
+                className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${isLogin ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:text-slate-300'}`}
+              >
+                Login
+              </button>
+              <button 
+                onClick={() => { setIsLogin(false); setError(''); }}
+                className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${!isLogin ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:text-slate-300'}`}
+              >
+                Daftar
+              </button>
             </div>
-          )}
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            {!isLogin && (
-              <div>
-                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Nama Lengkap
-                </label>
-                <div className="mt-1 relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="text-slate-400" size={18} />
+            {error && (
+              <div className="mb-6 animate-in slide-in-from-top-4 duration-300">
+                <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-2xl flex items-start gap-4">
+                  <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={18} />
+                  <div>
+                    <p className="text-xs text-red-200 font-bold leading-relaxed">{error}</p>
+                    {showDomainHint && (
+                      <p className="text-[10px] text-red-400/80 font-medium mt-2 leading-relaxed">
+                        Tip: Jika ini domain baru, pastikan telah terdaftar di Authorized Domains Firebase Console.
+                      </p>
+                    )}
                   </div>
-                  <input
-                    type="text"
-                    required={!isLogin}
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="appearance-none block w-full pl-10 pr-3 py-3 border border-slate-300 dark:border-slate-600 rounded-2xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-transparent dark:text-white sm:text-sm transition-shadow"
-                    placeholder="Contoh: Budi Santoso"
-                  />
                 </div>
               </div>
             )}
 
-            <div>
-              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">
-                Alamat Email
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="text-slate-400" size={18} />
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {!isLogin && (
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Nama Lengkap</label>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition-colors group-focus-within:text-primary text-slate-500">
+                      <User size={18} />
+                    </div>
+                    <input
+                      type="text"
+                      required={!isLogin}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="w-full pl-14 pr-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:bg-white/10 transition-all placeholder:text-slate-600"
+                      placeholder="Contoh: Budi Santoso"
+                    />
+                  </div>
                 </div>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full pl-10 pr-3 py-3 border border-slate-300 dark:border-slate-600 rounded-2xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-transparent dark:text-white sm:text-sm transition-shadow"
-                  placeholder="anda@email.com"
-                />
-              </div>
-            </div>
+              )}
 
-            <div>
-              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">
-                Kata Sandi
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="text-slate-400" size={18} />
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Email</label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition-colors group-focus-within:text-primary text-slate-500">
+                    <Mail size={18} />
+                  </div>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-14 pr-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:bg-white/10 transition-all placeholder:text-slate-600"
+                    placeholder="anda@email.com"
+                  />
                 </div>
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full pl-10 pr-3 py-3 border border-slate-300 dark:border-slate-600 rounded-2xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-transparent dark:text-white sm:text-sm transition-shadow"
-                  placeholder="Minimal 6 karakter"
-                />
               </div>
-            </div>
 
-            <div className="pt-2">
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Password</label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition-colors group-focus-within:text-primary text-slate-500">
+                    <Lock size={18} />
+                  </div>
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-14 pr-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:bg-white/10 transition-all placeholder:text-slate-600"
+                    placeholder="••••••••"
+                  />
+                </div>
+              </div>
+
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-2xl shadow-sm text-sm font-black text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all disabled:opacity-70 disabled:cursor-not-allowed uppercase tracking-wider"
+                className="w-full bg-primary hover:bg-primary/90 text-white font-black py-5 rounded-2xl shadow-xl shadow-primary/20 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest text-xs mt-4 group"
               >
-                {loading ? 'Memproses...' : isLogin ? 'Masuk Sekarang' : 'Daftar Sekarang'}
+                {loading ? (
+                  <div className="flex items-center justify-center gap-3">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <span>Memproses...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2">
+                    <ShieldCheck size={18} className="group-hover:scale-110 transition-transform" />
+                    <span>{isLogin ? 'Masuk Sekarang' : 'Daftar Sekarang'}</span>
+                  </div>
+                )}
               </button>
-            </div>
-          </form>
-
-          <div className="mt-8 relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200 dark:border-slate-700" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white dark:bg-slate-800 text-slate-500">
-                {isLogin ? 'Belum punya akun?' : 'Sudah punya akun?'}
-              </span>
-            </div>
+            </form>
           </div>
 
-          <div className="mt-6">
-            <button
-              onClick={() => setIsLogin(!isLogin)}
-              className="w-full flex justify-center py-3 px-4 border-2 border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm text-sm font-bold text-slate-700 dark:text-slate-300 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-700/50 focus:outline-none transition-colors"
-            >
-              {isLogin ? 'Buat Akun Baru' : 'Masuk dengan Akun Lama'}
-            </button>
-          </div>
+          {/* Footer Info */}
+          <p className="mt-8 text-center text-[10px] text-slate-600 font-bold uppercase tracking-widest leading-loose">
+            Keamanan Data Anda Terjamin Dengan <span className="text-slate-400">End-to-End Encryption</span> & Firebase Secure Storage
+          </p>
         </div>
       </div>
     </div>
