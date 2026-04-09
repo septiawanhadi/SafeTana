@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo, memo, useRef } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { collection, onSnapshot, query, orderBy, limit, setDoc, doc, serverTimestamp } from 'firebase/firestore';
-import { db, requestForToken, onMessageListener } from './firebase';
+import { httpsCallable } from 'firebase/functions';
+import { db, requestForToken, onMessageListener, functions } from './firebase';
 import { calculateDistance, reverseGeocode } from './utils/geoUtils';
 import { maskName, maskPhone } from './securityUtils';
 import { playSiren, stopSiren } from './utils/audioUtils';
@@ -126,8 +127,14 @@ const App = () => {
           // Minta token setelah SW siap
           const token = await requestForToken();
           if (token) {
-            // Tips: Simpan token ke Firestore untuk user saat ini (jika ada sistem login)
-            console.log('Token FCM siap digunakan.');
+            // Subscribe to all_users topic
+            try {
+              const subscribe = httpsCallable(functions, 'subscribeToTopic');
+              await subscribe({ token, topic: 'all_users' });
+              console.log('✅ Berhasil subscribe ke topik all_users');
+            } catch (err) {
+              console.warn('❌ Gagal subscribe ke topik:', err);
+            }
           }
         } catch (err) {
           console.warn('❌ Gagal daftar Service Worker FCM / Ambil Token:', err);
@@ -376,10 +383,17 @@ const App = () => {
     setWeatherData({ precipitation: 0, aqi: '--' });
   }, []);
 
-  useEffect(() => {
+    useEffect(() => {
     const controller = new AbortController();
     
+    // Initial fetch
     fetchHazards(controller.signal);
+
+    // Set up polling interval every 3 minutes
+    const pollInterval = setInterval(() => {
+      console.log('⏳ Auto-polling BMKG data...');
+      fetchHazards(controller.signal);
+    }, 180000); // 3 minutes
 
     const q_broadcast = query(collection(db, 'broadcasts'), orderBy('timestamp', 'desc'), limit(1));
     const unsub_broadcast = onSnapshot(q_broadcast, (snap) => {
@@ -394,6 +408,7 @@ const App = () => {
 
     return () => {
       unsub_broadcast();
+      clearInterval(pollInterval);
       controller.abort();
     };
   }, [fetchHazards]);

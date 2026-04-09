@@ -258,7 +258,17 @@ const BmkgDashboard = () => {
   useEffect(() => {
     const controller = new AbortController();
     loadData(controller.signal);
-    return () => controller.abort();
+
+    // Auto-refresh logic (every 3 minutes)
+    const interval = setInterval(() => {
+      console.log('🔄 Dashboard Auto-refresh...');
+      loadData(controller.signal);
+    }, 180000);
+
+    return () => {
+      controller.abort();
+      clearInterval(interval);
+    };
   }, [loadData]);
 
   const currentForecast = bandungWeather?.forecasts?.[0];
