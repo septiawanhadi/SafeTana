@@ -38,6 +38,7 @@ import HealthAbout from './components/health/HealthAbout';
 import CommandCenter from './CommandCenter';
 import EducationDashboard from './EducationDashboard';
 import AdminLogin from './AdminLogin';
+import BmkgDashboard from './BmkgDashboard';
 
 // --- Memoized UI Components ---
 
@@ -483,7 +484,7 @@ const App = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
         <button onClick={() => navigate('/news')} className="glass-card p-4 md:p-6 rounded-lg flex flex-col md:flex-row items-center justify-center md:justify-start gap-2 md:gap-4 hover:bg-surface-container-low transition-all shadow-lg text-center md:text-left group">
            <span className="material-symbols-outlined text-secondary text-2xl group-hover:scale-125 transition-transform">newspaper</span>
            <span className="font-headline font-black text-[10px] md:text-xs uppercase tracking-widest leading-none">Berita</span>
@@ -492,7 +493,12 @@ const App = () => {
            <span className="material-symbols-outlined text-primary-fixed text-2xl group-hover:scale-125 transition-transform">school</span>
            <span className="font-headline font-black text-[10px] md:text-xs uppercase tracking-widest leading-none">Edukasi</span>
         </button>
-        <button onClick={handleSOSClick} className={`col-span-2 md:col-span-2 px-6 py-4 md:px-8 md:py-6 rounded-lg flex items-center justify-center gap-4 md:gap-6 font-headline font-black text-base md:text-lg uppercase tracking-[0.2em] md:tracking-[0.3em] shadow-2xl active:scale-95 transition-all ${isSOSActive ? 'bg-white text-error' : 'bg-error text-white pulse-red'}`}>
+        <button onClick={() => navigate('/cuaca')} className="glass-card p-4 md:p-6 rounded-lg flex flex-col md:flex-row items-center justify-center md:justify-start gap-2 md:gap-4 hover:bg-surface-container-low transition-all shadow-lg text-center md:text-left group relative overflow-hidden">
+           <div className="absolute inset-0 bg-gradient-to-br from-sky-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+           <span className="material-symbols-outlined text-sky-400 text-2xl group-hover:scale-125 transition-transform relative z-10">partly_cloudy_day</span>
+           <span className="font-headline font-black text-[10px] md:text-xs uppercase tracking-widest leading-none relative z-10">Cuaca</span>
+        </button>
+        <button onClick={handleSOSClick} className={`col-span-3 md:col-span-1 px-6 py-4 md:px-8 md:py-6 rounded-lg flex items-center justify-center gap-4 md:gap-6 font-headline font-black text-base md:text-lg uppercase tracking-[0.2em] md:tracking-[0.3em] shadow-2xl active:scale-95 transition-all ${isSOSActive ? 'bg-white text-error' : 'bg-error text-white pulse-red'}`}>
            <span className="material-symbols-outlined text-2xl md:text-3xl">sos</span>
            {isSOSActive ? 'NONAKTIFKAN SOS' : 'AKTIFKAN SOS'}
         </button>
@@ -543,6 +549,7 @@ const App = () => {
 
         {/* Other Modules */}
         <Route path="/education" element={<EducationDashboard />} />
+        <Route path="/cuaca" element={<BmkgDashboard />} />
         <Route path="/admin" element={
           isAdminAuthenticated ? (
             <div className="min-h-screen bg-[#020617] w-full relative z-10">

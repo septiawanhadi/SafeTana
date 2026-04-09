@@ -1,0 +1,483 @@
+import React, { useState, useEffect, useCallback, memo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  fetchLatestEarthquake,
+  fetchFeltEarthquakes,
+  fetchBandungWeather,
+  fetchBandungAqi,
+  deriveEarlyWarnings,
+  getWeatherInfo,
+  getAqiInfo,
+  windDirLabel,
+} from './services/bmkgService';
+
+// ─── Sub-components ────────────────────────────────────────────────────────────
+
+const SectionTitle = ({ icon, title, subtitle }) => (
+  <div className="flex items-center gap-4 mb-6">
+    <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center text-primary shadow-inner flex-shrink-0">
+      <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+    </div>
+    <div>
+      <h2 className="font-display text-xl font-black text-on-surface tracking-tight leading-none">{title}</h2>
+      {subtitle && <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-50 mt-0.5">{subtitle}</p>}
+    </div>
+  </div>
+);
+
+const SkeletonCard = () => (
+  <div className="glass-card rounded-2xl p-6 animate-pulse space-y-3">
+    <div className="h-4 bg-white/10 rounded-full w-1/2" />
+    <div className="h-8 bg-white/10 rounded-full w-3/4" />
+    <div className="h-4 bg-white/10 rounded-full w-full" />
+  </div>
+);
+
+// Early Warning Banner
+const EarlyWarningBanner = memo(({ warnings }) => {
+  if (!warnings || warnings.length === 0) return (
+    <div className="glass-card rounded-2xl p-4 flex items-center gap-4 border border-emerald-500/20">
+      <div className="w-10 h-10 rounded-full bg-emerald-500/15 flex items-center justify-center text-xl flex-shrink-0">✅</div>
+      <div>
+        <p className="font-black text-sm text-emerald-400 uppercase tracking-wider">Kondisi Normal</p>
+        <p className="text-xs text-on-surface-variant opacity-60 mt-0.5">Tidak ada peringatan cuaca aktif saat ini</p>
+      </div>
+    </div>
+  );
+
+  const levelColors = {
+    danger: { border: 'border-red-500/40', bg: 'bg-red-500/10', text: 'text-red-400', badge: 'bg-red-500/20 text-red-300', tagLabel: 'BAHAYA' },
+    warning: { border: 'border-orange-500/40', bg: 'bg-orange-500/10', text: 'text-orange-400', badge: 'bg-orange-500/20 text-orange-300', tagLabel: 'PERINGATAN' },
+    watch: { border: 'border-yellow-500/40', bg: 'bg-yellow-500/10', text: 'text-yellow-400', badge: 'bg-yellow-500/20 text-yellow-300', tagLabel: 'WASPADA' },
+  };
+
+  return (
+    <div className="space-y-3">
+      {warnings.map((w, i) => {
+        const c = levelColors[w.level] || levelColors.watch;
+        return (
+          <div key={i} className={`glass-card rounded-2xl p-5 border ${c.border} ${c.bg} relative overflow-hidden`}>
+            <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-10 -mt-10 blur-3xl ${c.bg} opacity-50`} />
+            <div className="relative z-10 flex items-start gap-4">
+              <div className="text-3xl mt-0.5 flex-shrink-0">{w.icon}</div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap mb-1">
+                  <span className={`font-black text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 rounded-full ${c.badge}`}>{c.tagLabel}</span>
+                  {w.time && <span className="text-[9px] font-bold text-on-surface-variant opacity-50 uppercase">Mulai ~{w.time}</span>}
+                </div>
+                <p className={`font-headline font-black text-base ${c.text} leading-tight mb-1`}>{w.title}</p>
+                <p className="text-xs text-on-surface-variant opacity-70 leading-relaxed">{w.description}</p>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+});
+
+// Latest Earthquake Hero Card
+const EarthquakeHeroCard = memo(({ quake }) => {
+  if (!quake) return <SkeletonCard />;
+  const mag = parseFloat(quake.Magnitude);
+  const isStrong = mag >= 5.0;
+  const coords = quake.Coordinates?.split(',').map(Number) || [0, 0];
+
+  return (
+    <div className={`glass-card rounded-2xl p-6 md:p-8 relative overflow-hidden ${isStrong ? 'border border-red-500/30' : 'border border-white/5'}`}>
+      <div className={`absolute top-0 right-0 w-64 h-64 rounded-full -mr-20 -mt-20 blur-3xl ${isStrong ? 'bg-red-500/10' : 'bg-primary/5'}`} />
+      <div className="relative z-10">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-2 h-2 rounded-full bg-error animate-pulse" />
+              <span className="text-[9px] font-black uppercase tracking-[0.3em] text-on-surface-variant opacity-60">Gempa Terbaru</span>
+            </div>
+            <div className={`font-display text-6xl md:text-8xl font-black leading-none tracking-tighter mb-2 ${isStrong ? 'text-red-400' : 'text-on-surface'}`}>
+              M{quake.Magnitude}
+            </div>
+            <p className="text-sm font-medium text-on-surface-variant opacity-80 max-w-md leading-relaxed">{quake.Wilayah}</p>
+          </div>
+          <div className="space-y-3">
+            <div className="glass-card rounded-xl p-3 min-w-[140px]">
+              <p className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant opacity-50 mb-1">Kedalaman</p>
+              <p className="font-display font-black text-lg text-on-surface">{quake.Kedalaman}</p>
+            </div>
+            <div className="glass-card rounded-xl p-3">
+              <p className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant opacity-50 mb-1">Koordinat</p>
+              <p className="font-mono font-bold text-sm text-on-surface">{coords[0].toFixed(2)}°, {coords[1].toFixed(2)}°</p>
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-3 mt-5 pt-5 border-t border-white/5">
+          <div>
+            <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-0.5">Tanggal</p>
+            <p className="font-bold text-sm text-on-surface">{quake.Tanggal} — {quake.Jam}</p>
+          </div>
+          {quake.Dirasakan && (
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-0.5">Dirasakan</p>
+              <p className="font-bold text-sm text-on-surface">{quake.Dirasakan}</p>
+            </div>
+          )}
+          {quake.Potensi && (
+            <div className="ml-auto">
+              <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-0.5">Potensi</p>
+              <p className="font-bold text-xs text-primary max-w-[200px] leading-tight">{quake.Potensi}</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+// Earthquake List Row
+const EarthquakeRow = memo(({ quake, index }) => {
+  const mag = parseFloat(quake.Magnitude);
+  const color = mag >= 6 ? 'text-red-400' : mag >= 5 ? 'text-orange-400' : mag >= 4 ? 'text-yellow-400' : 'text-emerald-400';
+  return (
+    <div className={`flex items-center gap-4 py-3 ${index !== 0 ? 'border-t border-white/5' : ''}`}>
+      <div className={`font-display font-black text-xl w-14 text-right flex-shrink-0 ${color}`}>M{quake.Magnitude}</div>
+      <div className="flex-1 min-w-0">
+        <p className="font-bold text-sm text-on-surface truncate">{quake.Wilayah?.replace('Pusat gempa berada di ', '')}</p>
+        <p className="text-[10px] text-on-surface-variant opacity-50 font-medium">{quake.Tanggal} · {quake.Jam} · {quake.Kedalaman}</p>
+      </div>
+      {quake.Dirasakan && (
+        <div className="flex-shrink-0">
+          <span className="text-[9px] font-black bg-primary/10 text-primary px-2 py-1 rounded-full uppercase tracking-wide">{quake.Dirasakan}</span>
+        </div>
+      )}
+    </div>
+  );
+});
+
+// AQI Widget
+const AqiWidget = memo(({ aqi, pm25, pm10 }) => {
+  const info = getAqiInfo(aqi);
+  const aqiNum = Number(aqi);
+  const pct = Math.min(aqiNum / 300, 1) * 100;
+
+  return (
+    <div className="glass-card rounded-2xl p-6 h-full">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <p className="text-[9px] font-black uppercase tracking-[0.3em] opacity-50 mb-1">Indeks Polusi Udara</p>
+          <p className={`text-4xl font-display font-black ${info.color}`}>{aqi === '--' ? '--' : aqiNum}</p>
+          <p className={`text-xs font-bold uppercase tracking-wider mt-1 ${info.color}`}>{info.label}</p>
+        </div>
+        <div className={`w-16 h-16 rounded-2xl ${info.bg} flex items-center justify-center text-3xl shadow-inner`}>💨</div>
+      </div>
+      {aqi !== '--' && (
+        <div className="space-y-2 mb-4">
+          <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-1000"
+              style={{ width: `${pct}%`, background: `hsl(${120 - aqiNum / 2.5}, 80%, 55%)` }}
+            />
+          </div>
+          <p className="text-[10px] text-on-surface-variant opacity-60">{info.desc}</p>
+        </div>
+      )}
+      <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-white/5">
+        <div>
+          <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-1">PM2.5</p>
+          <p className="font-display font-black text-base text-on-surface">{pm25 === '--' ? '--' : `${Number(pm25).toFixed(1)} µg`}</p>
+        </div>
+        <div>
+          <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-1">PM10</p>
+          <p className="font-display font-black text-base text-on-surface">{pm10 === '--' ? '--' : `${Number(pm10).toFixed(1)} µg`}</p>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+// Weather Forecast Card (hourly)
+const ForecastCard = memo(({ f, isFirst }) => {
+  const localDate = new Date(f.local_datetime || f.datetime);
+  const hour = localDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  const weatherInfo = getWeatherInfo(f.weather);
+
+  return (
+    <div className={`flex-shrink-0 glass-card rounded-2xl p-4 flex flex-col items-center gap-2 min-w-[100px] transition-all ${isFirst ? 'border border-primary/30 bg-primary/5' : ''}`}>
+      <p className="text-[9px] font-black uppercase tracking-widest opacity-50">{hour}</p>
+      <div className="text-3xl">{weatherInfo.emoji}</div>
+      <p className="font-display font-black text-2xl text-on-surface">{f.t}°</p>
+      <p className="text-[9px] text-on-surface-variant text-center opacity-60 leading-tight font-medium">{weatherInfo.label}</p>
+      <div className="flex items-center gap-1 mt-1">
+        <span className="text-[9px] opacity-40">💧</span>
+        <span className="text-[9px] font-bold opacity-50">{f.hu}%</span>
+      </div>
+    </div>
+  );
+});
+
+// ─── Main Component ─────────────────────────────────────────────────────────────
+
+const BmkgDashboard = () => {
+  const navigate = useNavigate();
+
+  const [latestQuake, setLatestQuake] = useState(null);
+  const [feltQuakes, setFeltQuakes] = useState([]);
+  const [bandungWeather, setBandungWeather] = useState(null);
+  const [aqi, setAqi] = useState({ aqi: '--', pm25: '--', pm10: '--' });
+  const [warnings, setWarnings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
+
+  const loadData = useCallback(async (signal) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [quake, quakes, bandung, aqiData] = await Promise.allSettled([
+        fetchLatestEarthquake(signal),
+        fetchFeltEarthquakes(signal),
+        fetchBandungWeather(signal),
+        fetchBandungAqi(signal),
+      ]);
+
+      if (quake.status === 'fulfilled') setLatestQuake(quake.value);
+      if (quakes.status === 'fulfilled') setFeltQuakes(quakes.value);
+      if (bandung.status === 'fulfilled') {
+        setBandungWeather(bandung.value);
+        const warns = deriveEarlyWarnings(bandung.value.forecasts || []);
+        setWarnings(warns);
+      }
+      if (aqiData.status === 'fulfilled') setAqi(aqiData.value);
+
+      setLastUpdated(new Date());
+    } catch (e) {
+      if (e.name !== 'AbortError') setError('Gagal memuat sebagian data. Menampilkan data yang tersedia.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    loadData(controller.signal);
+    return () => controller.abort();
+  }, [loadData]);
+
+  const currentForecast = bandungWeather?.forecasts?.[0];
+  const currentWeather = currentForecast ? getWeatherInfo(currentForecast.weather) : null;
+  const next12Hours = bandungWeather?.forecasts?.slice(0, 8) || [];
+
+  return (
+    <div className="min-h-screen bg-background pb-32 pt-20">
+      {/* Background deco */}
+      <div className="fixed inset-0 pointer-events-none opacity-20 z-0">
+        <div className="absolute top-0 left-0 w-[60%] h-[60%] bg-sky-500/10 blur-[150px] rounded-full" />
+        <div className="absolute bottom-0 right-0 w-[50%] h-[50%] bg-indigo-500/10 blur-[120px] rounded-full" />
+      </div>
+
+      <div className="relative z-10 max-w-5xl mx-auto px-4 md:px-6 space-y-8">
+
+        {/* Page Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-2 text-on-surface-variant opacity-60 hover:opacity-100 mb-3 transition-opacity text-sm"
+            >
+              <span className="material-symbols-outlined text-lg">arrow_back</span>
+              <span className="font-bold">Kembali</span>
+            </button>
+            <h1 className="font-display text-3xl md:text-4xl font-black text-on-surface tracking-tighter">
+              Cuaca &amp; Bencana
+            </h1>
+            <p className="text-sm text-on-surface-variant opacity-60 mt-1 font-medium">
+              Informasi meteorologi &amp; geofisika real-time
+            </p>
+          </div>
+          <button
+            onClick={() => { const c = new AbortController(); loadData(c.signal); }}
+            disabled={loading}
+            className="glass-card p-3 rounded-xl text-primary hover:bg-primary/10 transition-all active:scale-95 disabled:opacity-40"
+            title="Perbarui data"
+          >
+            <span className={`material-symbols-outlined text-xl ${loading ? 'animate-spin' : ''}`}>refresh</span>
+          </button>
+        </div>
+
+        {/* Last updated */}
+        {lastUpdated && (
+          <p className="text-[10px] text-on-surface-variant opacity-40 font-medium -mt-4">
+            Diperbarui: {lastUpdated.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })} WIB
+          </p>
+        )}
+
+        {error && (
+          <div className="glass-card border border-yellow-500/20 bg-yellow-500/5 rounded-2xl px-5 py-4 flex items-center gap-3">
+            <span className="material-symbols-outlined text-yellow-400">warning</span>
+            <p className="text-sm text-yellow-400 font-medium">{error}</p>
+          </div>
+        )}
+
+        {/* ── SECTION 1: Peringatan Dini Cuaca ─────────────────────── */}
+        <section>
+          <SectionTitle icon="warning_amber" title="Peringatan Dini Cuaca" subtitle="Berdasarkan prakiraan terkini" />
+          {loading ? <SkeletonCard /> : <EarlyWarningBanner warnings={warnings} />}
+        </section>
+
+        {/* ── SECTION 2: Gempa Bumi Terkini ───────────────────────── */}
+        <section>
+          <SectionTitle icon="earthquake" title="Gempa Bumi Terkini" subtitle="Data seismik terbaru" />
+          {loading ? <SkeletonCard /> : <EarthquakeHeroCard quake={latestQuake} />}
+        </section>
+
+        {/* ── SECTION 3: Kualitas Udara + Daftar Gempa ─────────────── */}
+        <section className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          <div className="md:col-span-5">
+            <SectionTitle icon="air" title="Kualitas Udara" subtitle="AQI & PM2.5 Regional" />
+            {loading ? <SkeletonCard /> : <AqiWidget {...aqi} />}
+          </div>
+          <div className="md:col-span-7">
+            <SectionTitle icon="format_list_bulleted" title="Daftar Gempa Dirasakan" subtitle="15 hari terakhir" />
+            {loading ? (
+              <div className="space-y-2">{[1,2,3].map(i => <SkeletonCard key={i} />)}</div>
+            ) : (
+              <div className="glass-card rounded-2xl p-5 divide-y divide-white/5">
+                {feltQuakes.length === 0 ? (
+                  <p className="text-sm text-on-surface-variant opacity-50 text-center py-6">Tidak ada data gempa</p>
+                ) : feltQuakes.map((q, i) => <EarthquakeRow key={i} quake={q} index={i} />)}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ── SECTION 4: Regional Bandung ──────────────────────────── */}
+        <section>
+          {/* Section header with badge */}
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-sky-500/15 flex items-center justify-center text-sky-400 shadow-inner flex-shrink-0">
+              <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>location_city</span>
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="font-display text-xl font-black text-on-surface tracking-tight leading-none">Regional Bandung</h2>
+                <span className="text-[9px] font-black uppercase tracking-widest bg-sky-500/15 text-sky-400 px-2 py-0.5 rounded-full">📍 Kota Bandung</span>
+              </div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-50 mt-0.5">Informasi cuaca khusus wilayah Bandung Raya</p>
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="space-y-4"><SkeletonCard /><SkeletonCard /></div>
+          ) : (
+            <div className="space-y-5">
+              {/* Current conditions hero */}
+              {currentForecast && (
+                <div className="glass-card rounded-2xl p-6 md:p-8 border border-sky-500/15 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-64 h-64 rounded-full -mr-20 -mt-20 blur-3xl bg-sky-500/10" />
+                  <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-6">
+                    {/* Main temp */}
+                    <div className="flex items-center gap-6">
+                      <div className="text-7xl md:text-8xl">{currentWeather?.emoji}</div>
+                      <div>
+                        <div className="font-display text-7xl md:text-8xl font-black text-on-surface leading-none tracking-tighter">
+                          {currentForecast.t}°
+                        </div>
+                        <div className="text-sm font-bold text-on-surface-variant opacity-70 mt-1">{currentWeather?.label}</div>
+                      </div>
+                    </div>
+
+                    {/* Detail grid */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-4 gap-4 flex-1">
+                      {[
+                        { icon: 'water_drop', label: 'Kelembaban', val: `${currentForecast.hu}%` },
+                        { icon: 'air', label: 'Angin', val: `${currentForecast.ws} m/s ${windDirLabel(currentForecast.wd_deg)}` },
+                        { icon: 'visibility', label: 'Visibilitas', val: currentForecast.vs_text },
+                        { icon: 'umbrella', label: 'Curah Hujan', val: `${currentForecast.tp} mm` },
+                      ].map(item => (
+                        <div key={item.label} className="glass-card rounded-xl p-3">
+                          <span className="material-symbols-outlined text-sm text-primary opacity-70">{item.icon}</span>
+                          <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mt-1">{item.label}</p>
+                          <p className="font-display font-black text-sm text-on-surface mt-0.5">{item.val}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Bandung info strip */}
+                  <div className="relative z-10 mt-5 pt-5 border-t border-white/5 flex flex-wrap gap-4 text-[10px] text-on-surface-variant opacity-50 font-bold uppercase tracking-wider">
+                    <span>📍 Kota Bandung, Jawa Barat</span>
+                    <span>🏔️ Elevasi ±768 m dpl</span>
+                    <span>🌡️ Rerata Tahunan 20–23°C</span>
+                    {bandungWeather?.lokasi?.kecamatan && <span>📌 {bandungWeather.lokasi.kecamatan}</span>}
+                  </div>
+                </div>
+              )}
+
+              {/* 8-Hour Forecast Scroller */}
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-on-surface-variant opacity-40 mb-3">Prakiraan Per Jam</p>
+                <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-thin" style={{ scrollbarWidth: 'thin' }}>
+                  {next12Hours.map((f, i) => (
+                    <ForecastCard key={i} f={f} isFirst={i === 0} />
+                  ))}
+                </div>
+              </div>
+
+              {/* 3-day summary */}
+              {bandungWeather?.forecasts && (() => {
+                // Group by day
+                const byDay = {};
+                bandungWeather.forecasts.forEach(f => {
+                  const localDate = new Date(f.local_datetime || f.datetime);
+                  const dayKey = localDate.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' });
+                  if (!byDay[dayKey]) byDay[dayKey] = [];
+                  byDay[dayKey].push(f);
+                });
+                const days = Object.entries(byDay).slice(0, 4);
+                return (
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-[0.3em] text-on-surface-variant opacity-40 mb-3">Prakiraan Harian</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {days.map(([day, hours]) => {
+                        const temps = hours.map(h => h.t);
+                        const minT = Math.min(...temps);
+                        const maxT = Math.max(...temps);
+                        const dominantWeather = hours.reduce((acc, h) => {
+                          const info = getWeatherInfo(h.weather);
+                          if (!acc || (info.severity === 'danger' || info.severity === 'warning')) return info;
+                          return acc;
+                        }, null);
+                        return (
+                          <div key={day} className="glass-card rounded-2xl p-4 flex flex-col items-center gap-2">
+                            <p className="text-[9px] font-black uppercase tracking-widest opacity-50 text-center leading-tight">{day}</p>
+                            <div className="text-3xl">{dominantWeather?.emoji}</div>
+                            <p className="text-[10px] text-on-surface-variant opacity-60 text-center">{dominantWeather?.label}</p>
+                            <div className="flex items-center gap-2 font-display font-black text-sm">
+                              <span className="text-red-400">{maxT}°</span>
+                              <span className="opacity-30">/</span>
+                              <span className="text-sky-400">{minT}°</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+        </section>
+
+        {/* ── Informational Footer ──────────────────────────────────── */}
+        <div className="glass-card rounded-2xl p-5 flex items-start gap-4 border border-white/5">
+          <span className="material-symbols-outlined text-on-surface-variant opacity-40 mt-0.5">info</span>
+          <div className="text-[10px] text-on-surface-variant opacity-50 leading-relaxed font-medium">
+            Data cuaca dan seismik diperbarui secara otomatis dari sumber resmi. Interval pembaruan: gempa (real-time), cuaca (3 jam), kualitas udara (1 jam).
+            Peringatan dini dianalisis berdasarkan prakiraan cuaca terkini untuk wilayah Bandung Raya.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+export default BmkgDashboard;

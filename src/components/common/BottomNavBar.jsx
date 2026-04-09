@@ -9,8 +9,8 @@ const BottomNavBar = ({ onSOSClick, isSOS = false }) => {
     { id: 'home', label: 'Beranda', icon: 'grid_view', path: '/' },
     { id: 'map', label: 'Peta', icon: 'explore', path: '/map' },
     { id: 'sos', label: 'SOS', icon: 'emergency', action: onSOSClick, isSpecial: true },
+    { id: 'cuaca', label: 'Cuaca', icon: 'partly_cloudy_day', path: '/cuaca' },
     { id: 'health', label: 'Klinik', icon: 'medical_services', path: '/health' },
-    { id: 'profile', label: 'Profil', icon: 'person', path: '/admin' }, // Pointing to admin/login as placeholder for profile
   ];
 
   const isActive = (path) => location.pathname === path;
