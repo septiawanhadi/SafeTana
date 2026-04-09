@@ -24,14 +24,21 @@ export const db = initializeFirestore(app, {
 export const functions = getFunctions(app, 'us-central1'); // Ganti us-central1 dengan region fungsi Anda jika perlu
 
 export const requestForToken = () => {
-  return getToken(messaging, { vapidKey: 'YOUR_PUBLIC_VAPID_KEY' })
+  const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY || 'BF_PLACEHOLDER_VAPID_KEY_PLEASE_UPDATE_IN_ENV';
+  
+  return getToken(messaging, { vapidKey })
     .then((currentToken) => {
       if (currentToken) {
-        console.log('Token Perangkat:', currentToken);
-        // Di Laravel, simpan token ini ke database user
+        console.log('✅ FCM Token Perangkat:', currentToken);
+        // Tips: Simpan token ini ke Firestore untuk kirim notifikasi ke user spesifik
+        return currentToken;
+      } else {
+        console.warn('⚠️ Tidak ada token FCM. Minta izin notifikasi dulu.');
       }
     })
-    .catch((err) => console.log('Gagal ambil token', err));
+    .catch((err) => {
+      console.error('❌ Gagal ambil token FCM:', err);
+    });
 };
 
 export const onMessageListener = () =>

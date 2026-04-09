@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, memo, useRef } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { collection, onSnapshot, query, orderBy, limit, setDoc, doc, serverTimestamp } from 'firebase/firestore';
-import { db } from './firebase';
+import { db, requestForToken, onMessageListener } from './firebase';
 import { calculateDistance, reverseGeocode } from './utils/geoUtils';
 import { maskName, maskPhone } from './securityUtils';
 import { playSiren, stopSiren } from './utils/audioUtils';
@@ -114,7 +114,44 @@ const App = () => {
     if (hasSeenOnboarding) {
       setShowSplash(false); // Skip splash if already seen in session
     }
-  }, []);
+
+    // --- Pendaftaran Notifikasi Background (FCM) ---
+    const setupFcm = async () => {
+      // Registrasi Service Worker khusus untuk Firebase
+      if ('serviceWorker' in navigator) {
+        try {
+          const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+          console.log('✅ Service Worker FCM terdaftar sukses dengan scope:', registration.scope);
+          
+          // Minta token setelah SW siap
+          const token = await requestForToken();
+          if (token) {
+            // Tips: Simpan token ke Firestore untuk user saat ini (jika ada sistem login)
+            console.log('Token FCM siap digunakan.');
+          }
+        } catch (err) {
+          console.warn('❌ Gagal daftar Service Worker FCM / Ambil Token:', err);
+        }
+      }
+    };
+
+    setupFcm();
+  }, [showNotification]); // Ditambahkan showNotification ke dep agar listener bisa pakai
+
+  // Foreground Message Listener
+  useEffect(() => {
+    onMessageListener()
+      .then((payload) => {
+        console.log('📬 Pesan foreground diterima:', payload);
+        showNotification({
+          title: payload.notification.title || 'Informasi Baru',
+          description: payload.notification.body || 'Ada pesan masuk untuk Anda.',
+          icon: 'notifications_active',
+          action: () => navigate('/') 
+        });
+      })
+      .catch((err) => console.log('Gagal dengar pesan foreground:', err));
+  }, [showNotification, navigate]);
 
   // --- Optimized Data Fetching (v2.1) ---
   const fetchHazards = useCallback(async (signal) => {
