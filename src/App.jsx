@@ -184,21 +184,43 @@ const App = () => {
     }
 
     try {
-      // 1. Fetch BMKG Earthquake Data
-      const resBMKG = await fetch('https://data.bmkg.go.id/DataMKG/TEWS/gempadirasakan.json', { signal });
-      const dataBMKG = await resBMKG.json();
+      // 1. Fetch BMKG Earthquake Data (All sources)
+      const bmkgEndpoints = [
+        'https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json',      // Latest
+        'https://data.bmkg.go.id/DataMKG/TEWS/gempaterkini.json',  // M 5.0+
+        'https://data.bmkg.go.id/DataMKG/TEWS/gempadirasakan.json' // Felt
+      ];
 
-      const bmkg = dataBMKG.Infogempa.gempa.slice(0, 5).map(item => ({
-        source: 'BMKG',
-        type: `Gempa M ${item.Magnitude}`,
-        loc: item.Wilayah,
-        position: item.Coordinates.split(',').map(Number),
-        desc: `Skala MMI: ${item.Dirasakan || 'Belum diketahui'}${item.Potensi ? ' · ' + item.Potensi : ''}`,
-        depth: item.Kedalaman,
-        time: `${item.Tanggal} ${item.Jam}`,
-        shakemap: item.Shakemap || null,
-        statusColor: 'bg-error'
-      }));
+      const bmkgResults = await Promise.allSettled(
+        bmkgEndpoints.map(url => fetch(url, { signal }).then(r => r.json()))
+      );
+
+      const quakeMap = new Map();
+      bmkgResults.forEach(res => {
+        if (res.status === 'fulfilled' && res.value?.Infogempa?.gempa) {
+          const raw = res.value.Infogempa.gempa;
+          const quakes = Array.isArray(raw) ? raw : [raw];
+          
+          quakes.forEach(item => {
+            // Unique key: Date + Time + Coordinates
+            const key = `${item.Tanggal}-${item.Jam}-${item.Coordinates}`;
+            if (!quakeMap.has(key)) {
+              quakeMap.set(key, {
+                source: 'BMKG',
+                type: `Gempa M ${item.Magnitude}`,
+                loc: item.Wilayah,
+                position: item.Coordinates.split(',').map(Number),
+                desc: `Skala MMI: ${item.Dirasakan || '—'} · Kedalaman: ${item.Kedalaman}${item.Potensi ? ' · ' + item.Potensi : ''}`,
+                depth: item.Kedalaman,
+                time: `${item.Tanggal} ${item.Jam}`,
+                shakemap: item.Shakemap || null,
+                statusColor: 'bg-error'
+              });
+            }
+          });
+        }
+      });
+      const bmkg = Array.from(quakeMap.values());
 
       // 2. Fetch PetaBencana API
       let petabencana = [];
