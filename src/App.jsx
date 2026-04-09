@@ -149,7 +149,10 @@ const App = () => {
         type: `Gempa M ${item.Magnitude}`,
         loc: item.Wilayah,
         position: item.Coordinates.split(',').map(Number),
-        desc: `Skala MMI: ${item.Dirasakan || 'Belum diketahui'}`,
+        desc: `Skala MMI: ${item.Dirasakan || 'Belum diketahui'}${item.Potensi ? ' · ' + item.Potensi : ''}`,
+        depth: item.Kedalaman,
+        time: `${item.Tanggal} ${item.Jam}`,
+        shakemap: item.Shakemap || null,
         statusColor: 'bg-error'
       }));
 
