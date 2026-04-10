@@ -199,56 +199,196 @@ const HealthScreening = () => {
   if (loading) return null;
 
   if (result) {
+    const getRiskColors = (level) => {
+      switch (level) {
+        case 'Tinggi': return { bg: 'bg-error/10', text: 'text-error', border: 'border-error/20', aura: 'pulse-red' };
+        case 'Sedang': return { bg: 'bg-amber-500/10', text: 'text-amber-500', border: 'border-amber-500/20', aura: 'pulse-amber' };
+        default: return { bg: 'bg-success/10', text: 'text-success', border: 'border-success/20', aura: 'breathing-aura' };
+      }
+    };
+
+    const colors = getRiskColors(result.riskLevel);
+    const bmi = result.imt;
+    
+    // BMI Category for the meter
+    const getBmiCategory = (val) => {
+      if (val < 18.5) return { label: 'Kurus', pos: '15%', color: 'text-blue-400' };
+      if (val < 25) return { label: 'Normal', pos: '40%', color: 'text-success' };
+      if (val < 30) return { label: 'Overweight', pos: '65%', color: 'text-amber-500' };
+      return { label: 'Obesitas', pos: '85%', color: 'text-error' };
+    };
+    const bmiInfo = getBmiCategory(bmi);
+
     return (
-      <div className="min-h-screen bg-background font-body text-on-background flex flex-col items-center justify-center p-4">
-        <div className="glass-card p-6 md:p-8 rounded-[2rem] shadow-2xl max-w-lg w-full border border-outline-variant/20 animate-in fade-in duration-500">
-          
-          <div className="flex items-center gap-4 mb-6 pb-6 border-b border-outline-variant/20">
-            <div className={`w-16 h-16 rounded-[1.2rem] flex items-center justify-center shrink-0 border ${
-                result.riskLevel === 'Tinggi' ? 'bg-error/10 text-error border-error/20' : 
-                result.riskLevel === 'Sedang' ? 'bg-tertiary/10 text-tertiary border-tertiary/20' : 'bg-success/10 text-success border-success/20'
-            }`}>
-              <span className="material-symbols-outlined text-3xl">{result.riskLevel === 'Tinggi' ? 'warning' : 'check_circle'}</span>
-            </div>
-            <div>
-              <h2 className="text-xl font-headline font-black text-on-surface uppercase tracking-tight">Hasil Screening</h2>
-              <p className="text-xs font-bold mt-1 text-on-surface-variant uppercase tracking-widest">Risiko Bawaan: <span className={`ml-1 ${
-                 result.riskLevel === 'Tinggi' ? 'text-error' : result.riskLevel === 'Sedang' ? 'text-tertiary' : 'text-success'
-              }`}>{result.riskLevel}</span></p>
-            </div>
-          </div>
-
-          <div className="mb-6 space-y-4">
-            <h3 className="font-headline font-black text-xs text-on-surface-variant uppercase tracking-widest">Temuan Kondisi:</h3>
-            <ul className="space-y-3">
-              {result.findings.map((item, idx) => (
-                <li key={idx} className="bg-surface-container-lowest/50 p-4 rounded-xl border border-outline-variant/10">
-                  <span className="font-bold text-on-surface block text-sm mb-1">{item.title}</span>
-                  <span className="text-xs text-on-surface-variant font-medium">{item.desc}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="mb-8 space-y-4">
-            <h3 className="font-headline font-black text-xs text-on-surface-variant uppercase tracking-widest">Saran Khusus:</h3>
-            <ul className="space-y-3">
-              {result.recommendations.map((rec, idx) => (
-                <li key={idx} className="flex gap-3 text-sm font-medium text-on-surface-variant">
-                  <span className="material-symbols-outlined text-primary text-lg shrink-0">check_circle</span>
-                  <span className="pt-0.5">{rec}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <button 
-            onClick={() => navigate('/health')}
-            className="w-full bg-primary hover:bg-primary/90 text-on-primary font-black py-4 rounded-2xl transition-all shadow-xl active:scale-95 uppercase tracking-widest text-sm"
-          >
-            Selesai & Kembali ke Beranda
-          </button>
+      <div className="min-h-screen bg-background font-body text-on-background pb-20 overflow-x-hidden">
+        {/* Decorative Background Elements */}
+        <div className="fixed inset-0 pointer-events-none overflow-hidden">
+          <div className={`absolute -top-24 -right-24 w-96 h-96 rounded-full blur-[120px] opacity-20 ${colors.bg}`} />
+          <div className={`absolute top-1/2 -left-24 w-80 h-80 rounded-full blur-[100px] opacity-10 bg-primary/20`} />
         </div>
+
+        <header className="glass-card sticky top-0 z-50 border-b border-outline-variant/10 backdrop-blur-xl">
+          <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
+            <button onClick={() => navigate('/health')} className="w-10 h-10 flex items-center justify-center hover:bg-surface-container-high rounded-full transition-colors">
+              <span className="material-symbols-outlined">arrow_back</span>
+            </button>
+            <h1 className="font-headline font-black text-lg tracking-tight">Laporan Kesehatan</h1>
+            <div className="w-10"></div>
+          </div>
+        </header>
+
+        <main className="max-w-3xl mx-auto px-4 pt-10 pb-32 space-y-8 relative z-10">
+          
+          {/* Main Risk Card */}
+          <div className="glass-card rounded-[2.5rem] p-8 md:p-10 border border-outline-variant/20 shadow-2xl relative overflow-hidden group">
+            <div className={`absolute top-0 right-0 w-32 h-32 -mr-8 -mt-8 blur-3xl opacity-20 ${colors.bg}`} />
+            
+            <div className="flex flex-col items-center text-center space-y-6">
+              <div className={`w-32 h-32 rounded-full flex items-center justify-center relative ${colors.aura}`}>
+                 <div className={`absolute inset-0 rounded-full border-4 border-dashed border-current opacity-20 animate-[spin_10s_linear_infinite] ${colors.text}`} />
+                 <div className={`w-24 h-24 rounded-full ${colors.bg} ${colors.border} border-2 flex items-center justify-center shadow-inner`}>
+                    <span className={`material-symbols-outlined text-5xl ${colors.text}`}>{result.riskLevel === 'Tinggi' ? 'warning' : result.riskLevel === 'Sedang' ? 'error' : 'verified'}</span>
+                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <span className={`text-[10px] font-black uppercase tracking-[0.3em] ${colors.text}`}>Risiko Kesehatan Keseluruhan</span>
+                <h2 className="text-5xl font-headline font-black tracking-tighter leading-none">{result.riskLevel}</h2>
+                <p className="text-on-surface-variant text-sm max-w-xs mx-auto opacity-80 leading-relaxed">
+                  Berdasarkan algoritma analisis medis SafeTana, kondisi kesehatan Anda saat ini berada pada tingkat risiko {result.riskLevel.toLowerCase()}.
+                </p>
+              </div>
+            </div>
+
+            {/* BMI Meter */}
+            <div className="mt-12 bg-surface-container-lowest/30 rounded-3xl p-6 border border-outline-variant/10">
+               <div className="flex justify-between items-center mb-4">
+                 <h3 className="text-xs font-black uppercase tracking-widest text-on-surface-variant">BMI (Indeks Massa Tubuh)</h3>
+                 <span className={`text-xl font-headline font-black ${bmiInfo.color}`}>{bmi.toFixed(1)}</span>
+               </div>
+               
+               <div className="relative h-3 bg-surface-container-high rounded-full overflow-hidden mb-2">
+                 {/* Color Zones */}
+                 <div className="absolute inset-0 flex">
+                   <div className="h-full w-[18.5%] bg-blue-400/30 border-r border-background/20" />
+                   <div className="h-full w-[6.5%] bg-success/30 border-r border-background/20" />
+                   <div className="h-full w-[5%] bg-amber-500/30 border-r border-background/20" />
+                   <div className="h-full flex-1 bg-error/30" />
+                 </div>
+                 {/* Indicator Pin */}
+                 <div 
+                   className="absolute top-0 bottom-0 w-1.5 bg-white shadow-lg z-10 transition-all duration-1000 ease-out rounded-full ring-2 ring-primary/20" 
+                   style={{ left: `calc(${bmiInfo.pos} - 0.75px)` }} 
+                 />
+               </div>
+               
+               <div className="flex justify-between text-[8px] font-black uppercase tracking-widest text-on-surface-variant/40">
+                 <span>Underweight</span>
+                 <span>Ideal</span>
+                 <span>Overweight</span>
+                 <span>Obese</span>
+               </div>
+               
+               <div className="mt-4 flex items-center gap-2">
+                 <div className={`w-2 h-2 rounded-full ${bmiInfo.color.replace('text-', 'bg-')}`} />
+                 <p className="text-[10px] font-bold text-on-surface-variant">Status Anda: <span className={bmiInfo.color}>{bmiInfo.label}</span></p>
+               </div>
+            </div>
+          </div>
+
+          {/* Vitals Grid */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="glass-card rounded-3xl p-6 border border-outline-variant/10 shadow-lg">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                  <span className="material-symbols-outlined">vital_signs</span>
+                </div>
+                <h4 className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Tekanan Darah</h4>
+              </div>
+              <div className="flex items-baseline gap-1">
+                <span className="text-3xl font-headline font-black">{formData.sistolik || '--'}/{formData.diastolik || '--'}</span>
+                <span className="text-[10px] font-bold text-on-surface-variant opacity-40 uppercase">mmHg</span>
+              </div>
+            </div>
+
+            <div className="glass-card rounded-3xl p-6 border border-outline-variant/10 shadow-lg">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-error/10 flex items-center justify-center text-error">
+                  <span className="material-symbols-outlined">favorite</span>
+                </div>
+                <h4 className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Detak Jantung</h4>
+              </div>
+              <div className="flex items-baseline gap-1">
+                <span className="text-3xl font-headline font-black">{formData.denyutJantung || '--'}</span>
+                <span className="text-[10px] font-bold text-on-surface-variant opacity-40 uppercase">BPM</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Findings & Recommendations */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+               <span className="material-symbols-outlined text-primary">analytics</span>
+               <h3 className="font-headline font-black text-sm uppercase tracking-widest">Analisis Detail</h3>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              {result.findings.map((item, idx) => (
+                <div key={idx} className="glass-card p-5 rounded-2xl border-l-4 border-l-primary/50 shadow-sm flex gap-4 items-start">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0 mt-0.5">
+                    <span className="material-symbols-outlined text-lg">info</span>
+                  </div>
+                  <div>
+                    <h5 className="font-bold text-on-surface text-sm">{item.title}</h5>
+                    <p className="text-xs text-on-surface-variant opacity-80 mt-1 leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-surface-container-low rounded-[2rem] p-8 border border-outline-variant/10 shadow-sm">
+               <h4 className="text-xs font-black uppercase tracking-widest text-primary mb-6 flex items-center gap-2">
+                 <span className="material-symbols-outlined text-base">task_alt</span>
+                 Langkah Perbaikan (Saran)
+               </h4>
+               <ul className="space-y-4">
+                 {result.recommendations.map((rec, idx) => (
+                   <li key={idx} className="flex gap-4 items-start group">
+                     <div className="w-6 h-6 rounded-full bg-success/10 flex items-center justify-center text-success shrink-0 mt-0.5 group-hover:scale-110 transition-transform">
+                       <span className="material-symbols-outlined text-sm">check</span>
+                     </div>
+                     <p className="text-sm font-medium text-on-surface-variant leading-relaxed">{rec}</p>
+                   </li>
+                 ))}
+               </ul>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col gap-3">
+             <button 
+               onClick={() => navigate('/health')}
+               className="w-full bg-primary hover:bg-primary/90 text-on-primary font-black py-5 rounded-3xl transition-all shadow-xl active:scale-95 uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3 group"
+             >
+               Simpan & Selesai
+               <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+             </button>
+             
+             <button 
+               onClick={() => setResult(null)}
+               className="w-full bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-bold py-4 rounded-3xl transition-all active:scale-95 uppercase tracking-widest text-[10px]"
+             >
+               Skrining Ulang
+             </button>
+          </div>
+
+          <div className="flex justify-center pt-8">
+            <div className="flex items-center gap-2 px-4 py-2 bg-on-surface/5 rounded-full">
+              <span className="material-symbols-outlined text-xs text-on-surface-variant">verified_user</span>
+              <span className="text-[8px] font-black text-on-surface-variant uppercase tracking-widest">Medical analysis verified by SafeTana AI Engine</span>
+            </div>
+          </div>
+        </main>
       </div>
     );
   }

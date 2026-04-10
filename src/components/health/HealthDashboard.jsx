@@ -7,14 +7,34 @@ const HealthDashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [latestScreening, setLatestScreening] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        try {
+          // Integration: Fetch latest screening
+          const latest = await dataService.healthScreenings.fetchLatest(currentUser.uid);
+          setLatestScreening(latest);
+        } catch (err) {
+          console.error("Gagal mengambil data skrining terbaru:", err);
+        }
+      }
       setLoading(false);
     });
     return () => unsubscribe();
   }, []);
+
+  const formatDate = (timestamp) => {
+    if (!timestamp) return 'Baru Saja';
+    const date = timestamp.toDate();
+    return new Intl.DateTimeFormat('id-ID', { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    }).format(date);
+  };
 
   const handleLogout = async () => {
     try {
@@ -71,6 +91,52 @@ const HealthDashboard = () => {
             )}
           </div>
         </section>
+
+        {/* Latest Health Status Card */}
+        {latestScreening && (
+           <section 
+             onClick={() => navigate('/health/screening')}
+             className="glass-card rounded-[2.5rem] p-7 border border-outline-variant/10 shadow-lg relative overflow-hidden group cursor-pointer active:scale-[0.99] transition-all bg-surface-container-low/30"
+           >
+              <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-30 transition-opacity">
+                <span className="material-symbols-outlined text-4xl">arrow_right_alt</span>
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                <div className="flex items-center gap-5">
+                  <div className={`w-16 h-16 rounded-[1.2rem] flex items-center justify-center shrink-0 border-2 shadow-inner ${
+                    latestScreening.assessment?.riskLevel === 'Tinggi' ? 'bg-error/10 text-error border-error/10' : 
+                    latestScreening.assessment?.riskLevel === 'Sedang' ? 'bg-amber-500/10 text-amber-500 border-amber-500/10' : 'bg-success/10 text-success border-success/10'
+                  }`}>
+                    <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                      {latestScreening.assessment?.riskLevel === 'Tinggi' ? 'warning' : 'verified_user'}
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-on-surface-variant opacity-50 mb-1">Status Kesehatan Terkini</h3>
+                    <div className="flex items-center gap-3">
+                       <p className="text-2xl font-headline font-black text-on-surface tracking-tight">Risiko {latestScreening.assessment?.riskLevel}</p>
+                       <span className="w-1.5 h-1.5 rounded-full bg-on-surface/10" />
+                       <p className="text-xs font-bold text-on-surface-variant opacity-70 italic">{formatDate(latestScreening.timestamp)}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-8 sm:pr-6 border-t sm:border-t-0 sm:border-l border-outline-variant/10 pt-4 sm:pt-0 sm:pl-8">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest opacity-40 mb-1">BMI Score</span>
+                    <span className="text-2xl font-headline font-black text-on-surface">{latestScreening.assessment?.imt?.toFixed(1) || '--'}</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest opacity-40 mb-1">Tekanan Darah</span>
+                    <span className="text-2xl font-headline font-black text-on-surface">
+                      {latestScreening.inputData?.sistolik || '--'}/{latestScreening.inputData?.diastolik || '--'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+           </section>
+        )}
 
         {/* Hero Banner Bento */}
         <section className="relative glass-card rounded-lg p-8 overflow-hidden group min-h-[220px] flex flex-col justify-center border-l-4 border-primary shadow-xl">
