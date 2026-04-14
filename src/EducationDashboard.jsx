@@ -1,184 +1,243 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  BookOpen, ShieldCheck, Zap, Info, PhoneCall, X, 
-  FileText, Rocket, Brain, HelpCircle, ChevronRight,
-  Globe, Radio 
-} from 'lucide-react';
 
-const EducationDashboard = ({ onClose }) => {
+// --- Sub-components ────────────────────────────────────────────────────────────
+
+const SectionTitle = ({ icon, title, subtitle }) => (
+  <div className="flex items-center gap-4 mb-6">
+    <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center text-primary shadow-inner flex-shrink-0">
+      <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+    </div>
+    <div>
+      <h2 className="font-display text-xl font-black text-on-surface tracking-tight leading-none">{title}</h2>
+      {subtitle && <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-50 mt-0.5">{subtitle}</p>}
+    </div>
+  </div>
+);
+
+const FeatureCard = memo(({ icon, title, desc, colorClass }) => (
+  <div className="glass-card p-6 md:p-8 rounded-[2rem] border border-white/5 relative overflow-hidden group hover:border-primary/30 transition-all duration-500">
+    <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-10 -mt-10 blur-3xl opacity-10 transition-opacity group-hover:opacity-20 ${colorClass}`} />
+    <div className="relative z-10">
+      <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 shadow-inner ${colorClass.replace('bg-', 'text-').replace('-500', '-400')} ${colorClass}/10`}>
+        <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+      </div>
+      <h4 className="font-display text-lg font-black text-on-surface uppercase tracking-tight mb-3 transition-colors group-hover:text-primary">{title}</h4>
+      <p className="text-xs text-on-surface-variant font-medium leading-relaxed opacity-70">
+        {desc}
+      </p>
+    </div>
+  </div>
+));
+
+const SopCard = memo(({ icon, title, steps, colorHex }) => (
+  <div className="glass-card p-6 md:p-8 rounded-[2.5rem] border border-white/5 hover:border-white/10 transition-all duration-300">
+    <div className="flex items-center gap-4 mb-8">
+      <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-2xl border border-white/10 shadow-inner" style={{ color: colorHex }}>
+        <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+      </div>
+      <h4 className="font-display text-sm font-black text-on-surface uppercase tracking-tighter leading-tight">{title}</h4>
+    </div>
+    <ul className="space-y-4">
+      {steps.map((step, i) => (
+        <li key={i} className="flex items-start gap-4">
+          <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ backgroundColor: colorHex }} />
+          <p className="text-[11px] text-on-surface-variant font-bold leading-relaxed opacity-80">{step}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
+
+const EducationDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('intro');
 
-  const handleClose = () => {
-    if (onClose) {
-      onClose();
-    } else {
-      navigate('/');
-    }
-  };
-
   const sopBencana = [
-// ... (rest of the component)
     {
       title: "Gempa Bumi (Siaga & Evakuasi)",
+      icon: "earthquake",
+      colorHex: "#fb923c", // orange-400
       steps: [
         "Tetap tenang. Merunduk, lindungi kepala dan leher (Drop, Cover, Hold on).",
-        "Berlindung di bawah meja yang kokoh atau merapat ke struktur sisi dinding bagian dalam.",
+        "Berlindung di bawah meja yang kokoh atau merapat ke dinding bagian dalam.",
         "Jauhi kaca, jendela, lemari, dan benda-benda berat yang berpotensi jatuh.",
-        "Jika berada di dalam gedung bertingkat, jangan gunakan lift; evakuasi lewat tangga darurat."
-      ],
-      icon: <Zap className="text-orange-500" />
+        "Gunakan tangga darurat, jangan lift. Evakuasi ke titik kumpul terbuka."
+      ]
     },
     {
       title: "Banjir & Luapan Air",
+      icon: "flood",
+      colorHex: "#38bdf8", // sky-400
       steps: [
-        "Pindahkan barang berharga, dokumen penting, dan peralatan elektronik ke tempat tinggi.",
-        "Segera matikan aliran listrik dari meteran utama dan cabut semua kabel dari stopkontak.",
-        "Evakuasi segera ke titik aman (Safe Zone) atau posko darurat jika air terus meninggi.",
-        "Jangan memaksakan diri berjalan atau mengemudi melintasi genangan air yang mengalir deras."
-      ],
-      icon: <FileText className="text-blue-500" />
+        "Pindahkan barang berharga dan dokumen penting ke tempat yang lebih tinggi.",
+        "Matikan aliran listrik utama dan cabut semua peralatan dari stopkontak.",
+        "Segera menuju Safe Zone terdekat jika air terus meninggi.",
+        "Jangan menerjang arus air yang deras, sekecil apapun kedalamannya."
+      ]
     },
     {
       title: "Tanah Longsor",
+      icon: "landscape",
+      colorHex: "#10b981", // emerald-500
       steps: [
-        "Waspadai curah hujan tinggi yang berdurasi lama, terutama jika tinggal di dekat lereng.",
-        "Perhatikan tanda-tanda bahaya seperti pepohonan miring, retakan tanah, atau gemuruh dari bukit.",
-        "Jangan tunda, segera tinggalkan rumah dan pindah ke wilayah yang stabil dan aman.",
-        "Hindari lembah dan jalur aliran sungai karena material longsoran mengikuti jalur terendah."
-      ],
-      icon: <ShieldCheck className="text-emerald-500" />
+        "Waspadai curah hujan tinggi yang berdurasi lama di area lereng.",
+        "Perhatikan tanda retakan tanah atau gemuruh dari perbukitan.",
+        "Segera tinggalkan area rumah menuju titik aman yang stabil.",
+        "Hindari lembah dan jalur sungai selama terjadi ancaman longsor."
+      ]
     },
     {
-      title: "Kebakaran Area Permukiman",
+      title: "Kebakaran Permukiman",
+      icon: "local_fire_department",
+      colorHex: "#ef4444", // red-500
       steps: [
-        "Segera bunyikan alarm darurat atau beritahu penghuni/tetangga dengan berteriak 'Kebakaran!'.",
-        "Jika asap tebal, merangkaklah di lantai karena udara yang lebih bersih berada di bawah.",
-        "Raba pintu sebelum dibuka. Jika pintu terasa panas, gunakan jalur evakuasi alternatif.",
-        "Jangan mencoba memadamkan api yang sudah membesar mandiri, prioritaskan keselamatan nyawa."
-      ],
-      icon: <Rocket className="text-red-500" />
+        "Segera bunyikan alarm atau berteriak 'Kebakaran!' untuk memperingatkan warga.",
+        "Gunakan kain basah untuk menutup hidung/mulut saat melewati asap.",
+        "Merangkaklah di lantai karena udara bersih berada di lapisan bawah.",
+        "Prioritaskan evakuasi nyawa di atas harta benda saat api membesar."
+      ]
     }
   ];
 
   return (
-    <div className="fixed inset-0 z-[4000] bg-[#020617] text-slate-200 overflow-y-auto animate-in slide-in-from-bottom duration-500">
-      {/* HEADER */}
-      <header className="sticky top-0 bg-[#020617]/90 backdrop-blur-md p-6 border-b border-slate-800 flex flex-col md:flex-row justify-between items-center z-10 gap-4">
-        <div className="flex items-center gap-3">
-          <div className="bg-blue-600/20 p-2 rounded-xl border border-blue-500/30">
-            <BookOpen className="text-blue-500" size={24} />
-          </div>
-          <div>
-            <h2 className="text-xl font-black uppercase tracking-tighter text-white">Pusat Literasi <span className="text-blue-500">SafeTana</span></h2>
-            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1 italic">Mitigasi & Pengenalan Sistem</p>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-2 bg-slate-900 p-1 rounded-2xl border border-slate-800">
-          <button 
-            onClick={() => setActiveTab('intro')}
-            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${activeTab === 'intro' ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-slate-300'}`}
-          >
-            Pengenalan
-          </button>
-          <button 
-            onClick={() => setActiveTab('mitigasi')}
-            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${activeTab === 'mitigasi' ? 'bg-orange-600 text-white' : 'text-slate-500 hover:text-slate-300'}`}
-          >
-            Panduan Mitigasi
-          </button>
-          <button onClick={handleClose} className="p-2 bg-slate-800 rounded-xl hover:bg-red-600 transition-all ml-2 text-white">
-            <X size={18} />
-          </button>
-        </div>
-      </header>
+    <div className="min-h-screen bg-background pb-32 pt-20 relative overflow-x-hidden">
+      {/* Background Deco */}
+      <div className="fixed inset-0 pointer-events-none opacity-20 z-0">
+        <div className="absolute top-0 left-0 w-[60%] h-[60%] bg-blue-500/10 blur-[150px] rounded-full" />
+        <div className="absolute bottom-0 right-0 w-[50%] h-[50%] bg-indigo-500/10 blur-[120px] rounded-full" />
+      </div>
 
-      <div className="max-w-5xl mx-auto p-6 lg:p-12 space-y-12">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 md:px-6 space-y-10">
+        
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-2 text-on-surface-variant opacity-60 hover:opacity-100 mb-4 transition-opacity text-sm group"
+            >
+              <span className="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform">arrow_back</span>
+              <span className="font-bold">Kembali ke Dashboard</span>
+            </button>
+            <h1 className="font-display text-3xl md:text-5xl font-black text-on-surface tracking-tighter leading-none mb-2">
+              Pusat Literasi <span className="text-primary italic">SafeTana</span>
+            </h1>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-on-surface-variant opacity-40">
+              Mitigasi Bencana & Pengenalan Sistem Keamanan
+            </p>
+          </div>
+
+          {/* Premium Segmented Control */}
+          <div className="glass-card p-1.5 rounded-[1.5rem] flex items-center bg-white/5 border border-white/5 shadow-inner">
+            <button 
+              onClick={() => setActiveTab('intro')}
+              className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 ${activeTab === 'intro' ? 'bg-primary text-white shadow-lg' : 'text-on-surface-variant opacity-50 hover:opacity-100'}`}
+            >
+              Pengenalan
+            </button>
+            <button 
+              onClick={() => setActiveTab('mitigasi')}
+              className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 ${activeTab === 'mitigasi' ? 'bg-primary text-white shadow-lg' : 'text-on-surface-variant opacity-50 hover:opacity-100'}`}
+            >
+              Mitigasi
+            </button>
+          </div>
+        </div>
+
+        {/* --- Content Area --- */}
         
         {activeTab === 'intro' ? (
-          /* SECTION 1: HALAMAN PENGENALAN */
-          <div className="space-y-10 animate-in fade-in slide-in-from-right duration-500">
-            <section className="text-center space-y-4 max-w-2xl mx-auto">
-              <h3 className="text-3xl font-black text-white uppercase tracking-tighter italic">Waspada & Tangguh Bersama SafeTana</h3>
-              <p className="text-sm text-slate-400 font-medium leading-relaxed italic">
-                Indonesia merupakan wilayah rawan bencana dengan posisi strategis di sepanjang jalur "Ring of Fire". SafeTana hadir sebagai pusat literasi mitigasi dan jembatan informasi kritis yang membekali Anda dengan pengetahuan esensial agar memiliki respon cepat dalam menyelamatkan diri dan orang-orang tercinta pada saat darurat.
-              </p>
+          <div className="space-y-12 animate-in fade-in slide-in-from-right duration-700">
+            {/* Hero Quote */}
+            <section className="glass-card p-8 md:p-12 rounded-[3rem] border-t border-white/10 text-center relative overflow-hidden">
+               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
+               <div className="relative z-10 max-w-3xl mx-auto space-y-6">
+                 <span className="material-symbols-outlined text-4xl text-primary opacity-30">format_quote</span>
+                 <h3 className="font-display text-2xl md:text-3xl font-black text-on-surface tracking-tight leading-relaxed italic">
+                   "Ketangguhan bukan sekadar bertahan, tapi bagaimana kita siap menghadapi dan pulih dari tantangan."
+                 </h3>
+                 <p className="text-sm font-medium text-on-surface-variant opacity-70 leading-relaxed max-w-2xl mx-auto">
+                   SafeTana hadir sebagai jembatan informasi kritis yang membekali Anda dengan pengetahuan esensial. Kami mengintegrasikan teknologi pemantauan real-time dengan panduan protokol resmi untuk meminimalisir risiko bagi Anda dan keluarga.
+                 </p>
+               </div>
             </section>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2.5rem] shadow-xl group hover:border-red-500/50 transition-all">
-                <ShieldCheck className="text-red-500 mb-6" size={32} />
-                <h4 className="font-black text-lg text-white mb-4 uppercase tracking-tighter">Membangun Kesiapsiagaan</h4>
-                <p className="text-xs text-slate-400 leading-relaxed font-bold">
-                  Bencana alam terjadi tanpa peringatan meluas, dan kewaspadaan adalah pertahanan utama kita. Pahami langkah mitigasi komprehensif, kenali rute evakuasi di sekitar Anda, dan persiapkan Tas Siaga Bencana sedini mungkin.
-                </p>
-              </div>
-
-              <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2.5rem] shadow-xl group hover:border-blue-500/50 transition-all">
-                <Globe className="text-blue-500 mb-6" size={32} />
-                <h4 className="font-black text-lg text-white mb-4 uppercase tracking-tighter">Literasi Risiko Berbasis Data</h4>
-                <p className="text-xs text-slate-400 leading-relaxed font-bold">
-                  Bukan sekadar edukasi, kami mengintegrasikan pemahaman bahaya lokal dengan memetakan aktivitas seismik serta potensi cuaca ekstrem di sekitar wilayah Anda untuk meningkatkan kewaspadaan spasial.
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-r from-red-900/20 to-slate-900 border border-red-800/30 p-8 rounded-[3rem]">
-              <div className="flex items-start gap-4">
-                <Radio className="text-red-400 shrink-0" size={24} />
-                <div>
-                  <h4 className="font-black text-white uppercase tracking-tighter mb-2 italic">Protokol Resmi & Terpadu</h4>
-                  <p className="text-xs text-slate-400 leading-relaxed font-bold">
-                    Seluruh panduan keselamatan, peringatan dini, dan prosedur mitigasi di platform ini dirancang agar sejalan dengan standar pencegahan dan operasi darurat dari petugas otoritas terkait (BPBD/BNPB).
-                  </p>
-                </div>
-              </div>
+              <FeatureCard 
+                icon="verified_user" 
+                title="Kesiapsiagaan Dini" 
+                desc="Bencana seringkali datang tanpa peringatan. Memahami langkah mitigasi dan mengenali rute evakuasi (Safe Zone) adalah pertahanan pertama yang paling efektif."
+                colorClass="bg-emerald-500"
+              />
+              <FeatureCard 
+                icon="analytics" 
+                title="Akurasi Data Lokal" 
+                desc="Sistem kami memetakan aktivitas seismik, prakiraan cuaca regional, dan kualitas udara secara spesifik untuk meningkatkan kewaspadaan spasial warga."
+                colorClass="bg-primary"
+              />
+              <FeatureCard 
+                icon="hub" 
+                title="Protokol Terpadu" 
+                desc="Seluruh prosedur keselamatan yang kami sajikan diselaraskan dengan standar operasional dari otoritas penanggulangan bencana (BPBD/BNPB)."
+                colorClass="bg-amber-500"
+              />
+              <FeatureCard 
+                icon="psychology" 
+                title="Dukungan Mental" 
+                desc="Klinik AI kami menyediakan bantuan psikologis dasar untuk membantu warga mengelola stres dan trauma pasca-bencana secara privat."
+                colorClass="bg-indigo-500"
+              />
             </div>
           </div>
         ) : (
-          /* SECTION 2: PANDUAN MITIGASI */
-          <div className="space-y-10 animate-in fade-in slide-in-from-left duration-500">
-            <h3 className="text-xs font-black text-orange-500 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
-              <ShieldCheck size={14} /> Prosedur Operasi Standar (SOP)
-            </h3>
+          <div className="space-y-12 animate-in fade-in slide-in-from-left duration-700">
+            <SectionTitle icon="clinical_notes" title="Prosedur Operasi Standar" subtitle="Langkah Penyelamatan Diri & Mitigasi" />
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {sopBencana.map((item, idx) => (
-                <div key={idx} className="bg-slate-900/30 border border-slate-800 p-8 rounded-[3rem] hover:border-orange-500/30 transition-all shadow-inner">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="p-3 bg-slate-800 rounded-2xl">{item.icon}</div>
-                    <h4 className="font-black text-sm text-white uppercase tracking-tighter">{item.title}</h4>
-                  </div>
-                  <ul className="space-y-4">
-                    {item.steps.map((step, sIdx) => (
-                      <li key={sIdx} className="flex items-start gap-3 text-[11px] text-slate-400 font-bold leading-relaxed">
-                        <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-1.5 shrink-0" />
-                        {step}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+              {sopBencana.map((sop, i) => (
+                <SopCard key={i} {...sop} />
               ))}
             </div>
 
-            <section className="bg-blue-600 rounded-[3rem] p-10 flex flex-wrap justify-between items-center gap-8 shadow-2xl shadow-blue-600/20">
-              <div className="max-w-md">
-                <h4 className="text-2xl font-black text-white uppercase tracking-tighter mb-2 italic">Siaga 24 Jam</h4>
-                <p className="text-[10px] text-blue-100 font-bold leading-relaxed uppercase tracking-widest italic">
-                  Jika Anda berada dalam situasi kritis, hubungi pusat komando darurat sekarang juga.
-                </p>
-              </div>
-              <div className="flex flex-col gap-3">
-                <a href="tel:112" className="bg-white text-blue-600 px-8 py-4 rounded-2xl font-black flex items-center gap-3 hover:scale-105 transition-all uppercase tracking-widest text-[10px]">
-                  <PhoneCall size={18} /> Call Center 112
-                </a>
-                <p className="text-[8px] text-center text-blue-200 font-black uppercase tracking-widest italic">Layanan Bebas Pulsa</p>
-              </div>
+            {/* Emergency CTA Banner */}
+            <section className="relative overflow-hidden group">
+               <div className="absolute inset-0 bg-primary/90 group-hover:bg-primary transition-colors duration-500 rounded-[3rem] shadow-2xl shadow-primary/20" />
+               <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/10 blur-3xl rounded-full" />
+               
+               <div className="relative z-10 p-10 md:p-14 flex flex-col md:flex-row items-center justify-between gap-10">
+                 <div className="max-w-md text-center md:text-left">
+                   <h4 className="font-display text-3xl font-black text-white uppercase tracking-tighter leading-none mb-4 italic">Garis Depan Keselamatan</h4>
+                   <p className="text-sm font-bold text-white/70 uppercase tracking-widest leading-relaxed">
+                     Layanan darurat terpadu tersedia 24/7. Segera hubungi petugas untuk bantuan evakuasi atau laporan kritis.
+                   </p>
+                 </div>
+                 
+                 <div className="flex flex-col items-center gap-3">
+                   <a 
+                     href="tel:112" 
+                     className="bg-white text-primary px-10 py-5 rounded-3xl font-display font-black text-lg flex items-center gap-4 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-black/10"
+                   >
+                     <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>phone_in_talk</span>
+                     CALL CENTER 112
+                   </a>
+                   <div className="flex items-center gap-2">
+                     <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                     <span className="text-[10px] font-black text-white/60 tracking-widest uppercase">Layanan Bebas Pulsa</span>
+                   </div>
+                 </div>
+               </div>
             </section>
           </div>
         )}
+
+        {/* Footer info */}
+        <div className="glass-card rounded-2xl p-6 flex items-start gap-4 border border-white/5 opacity-50">
+          <span className="material-symbols-outlined text-on-surface-variant opacity-60 mt-0.5">verified</span>
+          <p className="text-[10px] text-on-surface-variant font-bold leading-relaxed uppercase tracking-wider">
+            Materi edukasi disusun oleh tim SafeTana berdasarkan referensi teknis otoritas kebencanaan. Konten ini bertujuan sebagai referensi literasi umum dan tidak menggantikan instruksi langsung dari komandan lapangan saat terjadi bencana.
+          </p>
+        </div>
       </div>
     </div>
   );
