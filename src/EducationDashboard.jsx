@@ -47,7 +47,7 @@ const SopCard = memo(({ icon, title, steps, colorHex }) => (
       ))}
     </ul>
   </div>
-);
+));
 
 const EducationDashboard = () => {
   const navigate = useNavigate();
