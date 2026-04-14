@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { sanitizeInput } from './securityUtils';
 import { calculateDistance } from './utils/geoUtils';
+import { disasterAiService } from './services/disasterAiService';
 
 const AiChatbot = ({ onClose, isSOS, userLocation, reports }) => {
   const [messages, setMessages] = useState([
@@ -17,9 +17,6 @@ const AiChatbot = ({ onClose, isSOS, userLocation, reports }) => {
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
-
-  const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-  const genAI = new GoogleGenerativeAI(API_KEY);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -45,10 +42,8 @@ const AiChatbot = ({ onClose, isSOS, userLocation, reports }) => {
     setIsTyping(true);
 
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-      const prompt = `Anda adalah SafeTana AI, asisten tanggap bencana. Koordinat pengguna: ${userLocation}. Konteks: Protokol darurat dan keselamatan regional. Jawab dengan ringkas menggunakan bahasa Indonesia. Pertanyaan: ${cleanInput}`;
-      const result = await model.generateContent(prompt);
-      setMessages(prev => [...prev, { role: 'bot', text: result.response.text().replace(/[#*`]/g, '') }]);
+      const responseText = await disasterAiService.getAssistantResponse(cleanInput, userLocation);
+      setMessages(prev => [...prev, { role: 'bot', text: responseText }]);
     } catch (error) {
       // Offline fallback dictionary
       const text = cleanInput.toLowerCase();

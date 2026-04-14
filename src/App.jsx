@@ -22,6 +22,8 @@ import DynamicIsland from './components/common/DynamicIsland';
 // Integration: Service Pattern
 import { aiService } from './services/health/aiService';
 import { dataService } from './services/health/dataService';
+import { hazardService } from './services/hazardService';
+import { envService } from './services/envService';
 import { useDynamicIsland } from './contexts/DynamicIslandContext';
 
 // Health Module Components
@@ -162,247 +164,25 @@ const App = () => {
 
   // --- Optimized Data Fetching (v2.1) ---
   const fetchHazards = useCallback(async (signal) => {
-    const cachedReports = localStorage.getItem('safetana_reports_cache');
-    const lastFetchTime = localStorage.getItem('safetana_last_fetch_time');
-    const now = new Date().getTime();
-
-    if (cachedReports && lastFetchTime && (now - parseInt(lastFetchTime, 10)) < 300000) {
-      try {
-        const parsed = JSON.parse(cachedReports).filter(r => r.source !== 'Dummy System');
-        setReports(parsed);
-        return;
-      } catch (e) {
-        console.error("Gagal membaca cache:", e);
-      }
-    } else if (cachedReports) {
-      try {
-        const parsed = JSON.parse(cachedReports).filter(r => r.source !== 'Dummy System');
-        setReports(parsed);
-      } catch (e) {
-        console.error("Gagal membaca cache lama:", e);
-      }
-    }
-
     try {
-      // 1. Fetch BMKG Earthquake Data (All sources)
-      const bmkgEndpoints = [
-        'https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json',      // Latest
-        'https://data.bmkg.go.id/DataMKG/TEWS/gempaterkini.json',  // M 5.0+
-        'https://data.bmkg.go.id/DataMKG/TEWS/gempadirasakan.json' // Felt
-      ];
-
-      const bmkgResults = await Promise.allSettled(
-        bmkgEndpoints.map(url => fetch(url, { signal }).then(r => r.json()))
-      );
-
-      const quakeMap = new Map();
-      bmkgResults.forEach(res => {
-        if (res.status === 'fulfilled' && res.value?.Infogempa?.gempa) {
-          const raw = res.value.Infogempa.gempa;
-          const quakes = Array.isArray(raw) ? raw : [raw];
-          
-          quakes.forEach(item => {
-            // Unique key: Date + Time + Coordinates
-            const key = `${item.Tanggal}-${item.Jam}-${item.Coordinates}`;
-            if (!quakeMap.has(key)) {
-              quakeMap.set(key, {
-                source: 'BMKG',
-                type: `Gempa M ${item.Magnitude}`,
-                loc: item.Wilayah,
-                position: item.Coordinates.split(',').map(Number),
-                desc: `Skala MMI: ${item.Dirasakan || '—'} · Kedalaman: ${item.Kedalaman}${item.Potensi ? ' · ' + item.Potensi : ''}`,
-                depth: item.Kedalaman,
-                time: `${item.Tanggal} ${item.Jam}`,
-                shakemap: item.Shakemap || null,
-                statusColor: 'bg-error'
-              });
-            }
-          });
-        }
-      });
-      const bmkg = Array.from(quakeMap.values());
-
-      // 2. Fetch PetaBencana API
-      let petabencana = [];
-      try {
-        const resPB = await fetch('https://data.petabencana.id/reports?timeperiod=604800', { signal });
-        const dataPB = await resPB.json();
-
-        if (dataPB && dataPB.result && dataPB.result.features) {
-          petabencana = dataPB.result.features.slice(0, 15).map(feature => {
-            const props = feature.properties;
-            const typeRaw = props.hazard_type || 'unknown';
-
-            let typeMap = 'Bencana Bantuan';
-            let colorMap = 'bg-tertiary';
-
-            if (typeRaw === 'flood') { typeMap = 'Banjir'; colorMap = 'bg-primary'; }
-            else if (typeRaw === 'earthquake') { typeMap = 'Gempa Bumi'; colorMap = 'bg-error'; }
-            else if (typeRaw === 'wind') { typeMap = 'Angin Kencang'; colorMap = 'bg-surface-variant'; }
-            else if (typeRaw === 'volcano') { typeMap = 'Gunung Api'; colorMap = 'bg-error-container'; }
-            else if (typeRaw === 'fire') { typeMap = 'Kebakaran'; colorMap = 'bg-error'; }
-            else if (typeRaw === 'haze') { typeMap = 'Kabut Asap'; colorMap = 'bg-outline'; }
-
-            let locName = props.tags?.district || props.tags?.local_area || 'Wilayah Terdampak';
-            const coords = feature.geometry.coordinates;
-            let mapLat = 0, mapLng = 0;
-            if (feature.geometry.type === 'Point') {
-               mapLat = coords[1];
-               mapLng = coords[0];
-            } else if (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') {
-               const flatten = (arr) => Array.isArray(arr[0]) ? flatten(arr[0]) : arr;
-               const pt = flatten(coords);
-               if (pt && pt.length >= 2) {
-                  mapLat = pt[1];
-                  mapLng = pt[0];
-               }
-            }
-
-            return {
-              source: 'PetaBencana',
-              type: typeMap,
-              loc: maskName(locName),
-              position: [mapLat, mapLng],
-              desc: maskName(props.tags?.description) || `Status: ${props.status} / Publik`,
-              statusColor: colorMap
-            };
-          });
-        }
-      } catch (pbError) {
-        if (pbError.name !== 'AbortError') console.warn("Gagal mengambil data PetaBencana:", pbError);
-      }
-
-      // 3. Fetch GDACS API
-      let gdacsData = [];
-      try {
-        const resGDACS = await fetch('https://www.gdacs.org/gdacsapi/api/events/geteventlist/MAP', { signal });
-        const dataGDACS = await resGDACS.json();
-        if (dataGDACS && dataGDACS.features) {
-          const idnEvents = dataGDACS.features.filter(f =>
-            f.properties && f.properties.country && f.properties.country.toLowerCase().includes('indonesia')
-          );
-
-          gdacsData = await Promise.all(idnEvents.map(async feature => {
-            const props = feature.properties;
-            const coords = feature.geometry.coordinates;
-
-            let mapLat = 0, mapLng = 0;
-            if (feature.geometry.type === 'Point') {
-               mapLat = coords[1];
-               mapLng = coords[0];
-            } else if (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') {
-               const flatten = (arr) => Array.isArray(arr[0]) ? flatten(arr[0]) : arr;
-               const pt = flatten(coords);
-               if (pt && pt.length >= 2) {
-                  mapLat = pt[1];
-                  mapLng = pt[0];
-               }
-            }
-
-            let typeMap = props.eventtype || 'EVENT';
-            if (props.eventtype === 'EQ') typeMap = 'Gempa Bumi';
-            else if (props.eventtype === 'TC') typeMap = 'Siklon Tropis';
-            else if (props.eventtype === 'FL') typeMap = 'Banjir';
-            else if (props.eventtype === 'VO') typeMap = 'Gunung Api';
-            else if (props.eventtype === 'DR') typeMap = 'Kekeringan';
-            else if (props.eventtype === 'WF') typeMap = 'Kebakaran Hutan';
-
-            let colorMap = 'bg-surface-variant';
-            if (props.alertlevel === 'Red') colorMap = 'bg-error';
-            else if (props.alertlevel === 'Orange') colorMap = 'bg-error-container';
-            else if (props.alertlevel === 'Green') colorMap = 'bg-success';
-
-            let rawLoc = props.eventname || props.country;
-            if ((!rawLoc || rawLoc.trim().toLowerCase() === 'indonesia' || rawLoc.trim() === '') && mapLat !== 0) {
-              const geoLoc = await reverseGeocode(mapLat, mapLng);
-              if (geoLoc) rawLoc = geoLoc;
-              else rawLoc = 'Wilayah Terdampak (GDACS)';
-            }
-
-            return {
-              source: 'GDACS',
-              type: typeMap,
-              loc: maskName(rawLoc),
-              position: [mapLat, mapLng],
-              desc: maskName(props.description) || `Alert Level: ${props.alertlevel}`,
-              statusColor: colorMap
-            };
-          }));
-        }
-      } catch (gdacsError) {
-        if (gdacsError.name !== 'AbortError') console.warn("Gagal mengambil data GDACS:", gdacsError);
-      }
-
-      const combinedReports = [...bmkg, ...petabencana, ...gdacsData].filter(r => r.source !== 'Dummy System');
+      const combinedReports = await hazardService.fetchAllHazards(signal);
       setReports(combinedReports);
-
-      localStorage.setItem('safetana_reports_cache', JSON.stringify(combinedReports));
-      localStorage.setItem('safetana_last_fetch_time', new Date().getTime().toString());
-
     } catch (e) {
       if (e.name !== 'AbortError') {
-        console.error("API Global Error", e);
-        if (!cachedReports) {
-          setReports([
-            {
-              source: 'BPBD Jabar', type: 'Tanah Longsor', loc: 'Kec. Cililin, Kabupaten Bandung Barat',
-              position: [-6.95, 107.46], desc: 'Jalan terputus, 15 KK dievakuasi',
-              statusColor: 'bg-emerald-500'
-            },
-            {
-               source: 'BMKG', type: 'Gempa M 5.2', loc: 'Kabupaten Bandung',
-               position: [-7.16, 107.45], desc: 'Skala MMI: III',
-               statusColor: 'bg-error'
-            }
-          ]);
-        }
+        console.error("fetchHazards Error", e);
       }
     }
   }, []);
 
   const fetchRealtimeEnv = useCallback(async (lat, lon, signal) => {
-    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=precipitation`;
-    const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi`;
-
-    const PROXIES = [
-      '', 
-      'https://api.allorigins.win/raw?url=',
-      'https://thingproxy.freeboard.io/fetch/',
-      'https://api.codetabs.com/v1/proxy?quest=',
-      'https://corsproxy.io/?'
-    ];
-
-    for (const proxy of PROXIES) {
-      if (signal?.aborted) return;
-      try {
-        const fetchTarget = async (url) => {
-          const finalUrl = proxy 
-            ? proxy.includes('allorigins') ? `${proxy}${encodeURIComponent(url)}` : `${proxy}${url}`
-            : url;
-
-          const res = await fetch(finalUrl, { signal });
-          if (!res.ok) throw new Error('Fetch failed');
-          return await res.json();
-        };
-
-        const [wData, aData] = await Promise.all([
-          fetchTarget(weatherUrl),
-          fetchTarget(aqiUrl)
-        ]);
-
-        setWeatherData({
-          precipitation: wData.current?.precipitation ?? 0,
-          aqi: aData.current?.us_aqi ?? '--'
-        });
-        
-        return; // Success!
-      } catch (err) {
-        if (err.name === 'AbortError') return;
-        console.warn(`Weather fetch failed via ${proxy || 'direct'}, trying next...`);
+    try {
+      const weatherData = await envService.fetchRealtimeEnv(lat, lon, signal);
+      setWeatherData(weatherData);
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error('fetchRealtimeEnv Error', err);
       }
     }
-
-    setWeatherData({ precipitation: 0, aqi: '--' });
   }, []);
 
     useEffect(() => {
