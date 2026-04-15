@@ -308,7 +308,13 @@ const App = () => {
              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant opacity-60">Pemetaan Area Terdampak</p>
           </div>
           <div className="w-full h-full grayscale brightness-[0.4] group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-1000">
-             <MapComponent reports={reports} userLocation={userLocation} safeZones={safeZones} showSafeZones={true} />
+             <MapComponent 
+                reports={reports} 
+                userLocation={userLocation} 
+                safeZones={safeZones} 
+                showSafeZones={true} 
+                selectedReportPosition={focusCoords}
+             />
           </div>
           <div className="absolute bottom-8 right-8">
             <div className="w-16 h-16 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center group-hover:scale-110 active:scale-95 transition-all">
@@ -390,7 +396,7 @@ const App = () => {
       
       <Routes>
         <Route path="/" element={DashboardContent} />
-        <Route path="/map" element={<div className="pt-20 pb-28 h-[100dvh]"><MapComponent reports={reports} userLocation={userLocation} safeZones={safeZones} showSafeZones={true} isInteractive={true} /></div>} />
+        <Route path="/map" element={<div className="pt-20 pb-28 h-[100dvh]"><MapComponent reports={reports} userLocation={userLocation} safeZones={safeZones} showSafeZones={true} isInteractive={true} selectedReportPosition={focusCoords} /></div>} />
         <Route path="/news" element={<NewsDashboard />} />
         
         {/* Health Module Cluster */}

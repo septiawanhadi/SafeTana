@@ -214,23 +214,68 @@ const ForecastCard = memo(({ f, isFirst }) => {
   );
 });
 
-// Bandung Flood Local Report Card
-const FloodCard = memo(({ report }) => {
+// Bandung Flood Local Report Card - Redesigned for PREMIUM feel
+const FloodCard = memo(({ report, onViewOnMap }) => {
   const isDanger = report.severity === 'danger' || report.severity === 'evacuation';
+  const isWarning = report.severity === 'warning' || report.severity === 'alert';
+  
+  let statusLabel = 'Terdata';
+  let statusColor = 'text-sky-400 bg-sky-500/10 border-sky-500/20';
+  let glowColor = 'shadow-sky-500/5';
+
+  if (isDanger) {
+    statusLabel = 'BAHAYA';
+    statusColor = 'text-rose-400 bg-rose-500/10 border-rose-500/20';
+    glowColor = 'shadow-rose-500/20';
+  } else if (isWarning) {
+    statusLabel = 'WASPADA';
+    statusColor = 'text-amber-400 bg-amber-500/10 border-amber-500/20';
+    glowColor = 'shadow-amber-500/10';
+  }
+
   return (
-    <div className={`glass-card rounded-2xl p-5 border ${isDanger ? 'border-primary/40 bg-primary/5' : 'border-white/5'} flex flex-col h-full`}>
-      <div className="flex items-center justify-between mb-3">
-        <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${report.statusColor} bg-opacity-20`}>
-          {report.type}
-        </span>
-        <span className="text-[9px] font-bold text-on-surface-variant opacity-40 uppercase tracking-tighter">{report.time}</span>
+    <div className={`glass-card rounded-[24px] p-6 border border-white/5 flex flex-col h-full relative overflow-hidden group transition-all duration-300 hover:border-white/20 ${glowColor} hover:shadow-2xl`}>
+      {/* Background Decorative Element */}
+      <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full blur-[60px] opacity-20 transition-opacity group-hover:opacity-40 ${isDanger ? 'bg-rose-500' : isWarning ? 'bg-amber-500' : 'bg-primary'}`} />
+      
+      <div className="relative z-10 flex-1">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <span className={`text-[10px] font-black tracking-widest px-2.5 py-1 rounded-lg border ${statusColor}`}>
+              {statusLabel}
+            </span>
+          </div>
+          <p className="text-[10px] font-bold text-on-surface-variant opacity-40 uppercase tracking-tight">{report.time}</p>
+        </div>
+
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-1">
+             <span className="material-symbols-outlined text-primary text-base" style={{ fontVariationSettings: "'FILL' 1" }}>water_damage</span>
+             <h4 className="font-headline font-black text-base text-on-surface tracking-tight truncate">{report.type}</h4>
+          </div>
+          <p className="text-xs font-bold text-on-surface-variant opacity-80 leading-snug line-clamp-1">{report.loc}</p>
+        </div>
+
+        <p className="text-[11px] text-on-surface-variant opacity-60 leading-relaxed line-clamp-2 italic mb-6">
+          "{report.desc}"
+        </p>
       </div>
-      <h4 className="font-headline font-black text-sm text-on-surface leading-tight mb-2 line-clamp-2">{report.loc}</h4>
-      <p className="text-[10px] text-on-surface-variant opacity-60 leading-relaxed line-clamp-2 flex-1">{report.desc}</p>
-      <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
-        <span className="text-[9px] font-black text-primary opacity-60 tracking-widest uppercase">PetaBencana.id</span>
-        <a href={report.url} target="_blank" rel="noreferrer" className="text-[9px] font-black text-on-surface hover:text-primary transition-colors flex items-center gap-1">
-          DETAIL <span className="material-symbols-outlined text-[10px]">open_in_new</span>
+
+      <div className="relative z-10 flex gap-2">
+        <button 
+          onClick={() => onViewOnMap(report.position)}
+          className="flex-1 bg-white/5 hover:bg-white/10 text-white font-black py-3 rounded-2xl text-[10px] uppercase tracking-widest transition-all active:scale-95 border border-white/5 flex items-center justify-center gap-2"
+        >
+          <span className="material-symbols-outlined text-sm">map</span>
+          Peta
+        </button>
+        <a 
+          href={report.url} 
+          target="_blank" 
+          rel="noreferrer"
+          className="w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center transition-all hover:brightness-110 active:scale-90 shadow-lg shadow-primary/20"
+        >
+          <span className="material-symbols-outlined">open_in_new</span>
         </a>
       </div>
     </div>
@@ -386,36 +431,63 @@ const BmkgDashboard = () => {
         </section>
 
         {/* ── SECTION 4: Pantauan Banjir Bandung ───────────────────── */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <SectionTitle icon="flood" title="Pantauan Banjir Bandung" subtitle="Laporan Real-time PetaBencana" />
-            <div className="flex gap-2">
-              <div className="glass-card px-3 py-1.5 rounded-full flex items-center gap-2 border border-primary/20 bg-primary/5">
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                <span className="text-[10px] font-black text-primary">{bandungFloods.filter(f => f.loc.toLowerCase().includes('kota bandung')).length} Kota</span>
+        <section className="relative">
+          {/* Animated Background Deco */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] rounded-full pointer-events-none -mr-32 -mt-32" />
+          
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-rose-500/10 border border-rose-500/20">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
+                  <span className="text-[9px] font-black text-rose-400 tracking-widest uppercase">LIVE REPORTS</span>
+                </div>
               </div>
-              <div className="glass-card px-3 py-1.5 rounded-full flex items-center gap-2 border border-orange-500/20 bg-orange-500/5">
-                <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-                <span className="text-[10px] font-black text-orange-400">{bandungFloods.filter(f => f.loc.toLowerCase().includes('kabupaten bandung')).length} Kab.</span>
+              <SectionTitle icon="flood" title="Pantauan Banjir Bandung" subtitle="Integrasi Real-time PetaBencana.id" />
+            </div>
+            
+            <div className="flex gap-2">
+              <div className="glass-card px-4 py-2.5 rounded-2xl flex flex-col border border-white/5 min-w-[100px]">
+                <p className="text-[8px] font-black text-on-surface-variant opacity-40 uppercase tracking-[0.2em] mb-1">Kota Bandung</p>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="font-display font-black text-xl text-primary">{bandungFloods.filter(f => f.loc.toLowerCase().includes('kota bandung')).length}</span>
+                  <span className="material-symbols-outlined text-primary/30 text-lg">location_on</span>
+                </div>
+              </div>
+              <div className="glass-card px-4 py-2.5 rounded-2xl flex flex-col border border-white/5 min-w-[100px]">
+                <p className="text-[8px] font-black text-on-surface-variant opacity-40 uppercase tracking-[0.2em] mb-1">Kab. Bandung</p>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="font-display font-black text-xl text-orange-400">{bandungFloods.filter(f => f.loc.toLowerCase().includes('kabupaten bandung')).length}</span>
+                  <span className="material-symbols-outlined text-orange-400/30 text-lg">home_pin</span>
+                </div>
               </div>
             </div>
           </div>
           
           {loading ? (
-            <div className="flex gap-4 overflow-hidden"><SkeletonCard /><SkeletonCard /></div>
+            <div className="flex gap-4 overflow-hidden -mx-4 px-4 sm:mx-0 sm:px-0">
+               <div className="min-w-[280px]"><SkeletonCard /></div>
+               <div className="min-w-[280px]"><SkeletonCard /></div>
+            </div>
           ) : bandungFloods.length === 0 ? (
-            <div className="glass-card rounded-2xl p-8 border border-white/5 text-center">
-              <div className="w-16 h-16 rounded-full bg-white/5 mx-auto mb-4 flex items-center justify-center text-3xl opacity-20">🌊</div>
-              <p className="font-bold text-on-surface text-sm">Tidak Ada Laporan Banjir Aktif</p>
-              <p className="text-xs text-on-surface-variant opacity-50 mt-1 max-w-xs mx-auto">
-                Saat ini tidak terdeteksi laporan banjir di wilayah Bandung Kota maupun Kabupaten.
-              </p>
+            <div className="glass-card rounded-[32px] p-12 border border-white/5 text-center bg-white/[0.02] backdrop-blur-3xl overflow-hidden relative">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-primary/10 blur-[80px] rounded-full -mt-24" />
+              <div className="relative z-10">
+                <div className="w-20 h-20 rounded-3xl bg-white/5 mx-auto mb-6 flex items-center justify-center text-4xl shadow-inner border border-white/5">🌊</div>
+                <h3 className="font-display font-black text-xl text-on-surface tracking-tight mb-2">Kondisi Bandung Aman</h3>
+                <p className="text-sm text-on-surface-variant opacity-50 max-w-sm mx-auto leading-relaxed">
+                  Tidak ditemukan laporan banjir aktif di wilayah Bandung Raya untuk saat ini. Tetap waspada terhadap perubahan cuaca.
+                </p>
+              </div>
             </div>
           ) : (
-            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin" style={{ scrollbarWidth: 'thin' }}>
+            <div className="flex gap-5 overflow-x-auto pb-6 no-scrollbar -mx-4 px-4 sm:-mx-6 sm:px-6">
               {bandungFloods.map((r, i) => (
-                <div key={r.id || i} className="min-w-[280px] max-w-[320px] flex-shrink-0">
-                  <FloodCard report={r} />
+                <div key={r.id || i} className="min-w-[280px] max-w-[320px] flex-shrink-0 first:ml-4 last:mr-4 sm:first:ml-0 sm:last:mr-0">
+                  <FloodCard 
+                    report={r} 
+                    onViewOnMap={(pos) => navigate('/', { state: { focusCoords: pos } })}
+                  />
                 </div>
               ))}
             </div>
