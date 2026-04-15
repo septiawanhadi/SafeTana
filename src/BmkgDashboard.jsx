@@ -10,6 +10,7 @@ import {
   getAqiInfo,
   windDirLabel,
 } from './services/bmkgService';
+import { hazardService } from './services/hazardService';
 
 // ─── Sub-components ────────────────────────────────────────────────────────────
 
@@ -213,6 +214,29 @@ const ForecastCard = memo(({ f, isFirst }) => {
   );
 });
 
+// Bandung Flood Local Report Card
+const FloodCard = memo(({ report }) => {
+  const isDanger = report.severity === 'danger' || report.severity === 'evacuation';
+  return (
+    <div className={`glass-card rounded-2xl p-5 border ${isDanger ? 'border-primary/40 bg-primary/5' : 'border-white/5'} flex flex-col h-full`}>
+      <div className="flex items-center justify-between mb-3">
+        <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${report.statusColor} bg-opacity-20`}>
+          {report.type}
+        </span>
+        <span className="text-[9px] font-bold text-on-surface-variant opacity-40 uppercase tracking-tighter">{report.time}</span>
+      </div>
+      <h4 className="font-headline font-black text-sm text-on-surface leading-tight mb-2 line-clamp-2">{report.loc}</h4>
+      <p className="text-[10px] text-on-surface-variant opacity-60 leading-relaxed line-clamp-2 flex-1">{report.desc}</p>
+      <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
+        <span className="text-[9px] font-black text-primary opacity-60 tracking-widest uppercase">PetaBencana.id</span>
+        <a href={report.url} target="_blank" rel="noreferrer" className="text-[9px] font-black text-on-surface hover:text-primary transition-colors flex items-center gap-1">
+          DETAIL <span className="material-symbols-outlined text-[10px]">open_in_new</span>
+        </a>
+      </div>
+    </div>
+  );
+});
+
 // ─── Main Component ─────────────────────────────────────────────────────────────
 
 const BmkgDashboard = () => {
@@ -222,6 +246,7 @@ const BmkgDashboard = () => {
   const [feltQuakes, setFeltQuakes] = useState([]);
   const [bandungWeather, setBandungWeather] = useState(null);
   const [aqi, setAqi] = useState({ aqi: '--', pm25: '--', pm10: '--' });
+  const [bandungFloods, setBandungFloods] = useState([]);
   const [warnings, setWarnings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -231,11 +256,12 @@ const BmkgDashboard = () => {
     setLoading(true);
     setError(null);
     try {
-      const [quake, quakes, bandung, aqiData] = await Promise.allSettled([
+      const [quake, quakes, bandung, aqiData, floods] = await Promise.allSettled([
         fetchLatestEarthquake(signal),
         fetchFeltEarthquakes(signal),
         fetchBandungWeather(signal),
         fetchBandungAqi(signal),
+        hazardService.fetchBandungFloods(signal),
       ]);
 
       if (quake.status === 'fulfilled') setLatestQuake(quake.value);
@@ -246,6 +272,7 @@ const BmkgDashboard = () => {
         setWarnings(warns);
       }
       if (aqiData.status === 'fulfilled') setAqi(aqiData.value);
+      if (floods.status === 'fulfilled') setBandungFloods(floods.value);
 
       setLastUpdated(new Date());
     } catch (e) {
@@ -358,7 +385,44 @@ const BmkgDashboard = () => {
           </div>
         </section>
 
-        {/* ── SECTION 4: Regional Bandung ──────────────────────────── */}
+        {/* ── SECTION 4: Pantauan Banjir Bandung ───────────────────── */}
+        <section>
+          <div className="flex items-center justify-between mb-6">
+            <SectionTitle icon="flood" title="Pantauan Banjir Bandung" subtitle="Laporan Real-time PetaBencana" />
+            <div className="flex gap-2">
+              <div className="glass-card px-3 py-1.5 rounded-full flex items-center gap-2 border border-primary/20 bg-primary/5">
+                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                <span className="text-[10px] font-black text-primary">{bandungFloods.filter(f => f.loc.toLowerCase().includes('kota bandung')).length} Kota</span>
+              </div>
+              <div className="glass-card px-3 py-1.5 rounded-full flex items-center gap-2 border border-orange-500/20 bg-orange-500/5">
+                <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+                <span className="text-[10px] font-black text-orange-400">{bandungFloods.filter(f => f.loc.toLowerCase().includes('kabupaten bandung')).length} Kab.</span>
+              </div>
+            </div>
+          </div>
+          
+          {loading ? (
+            <div className="flex gap-4 overflow-hidden"><SkeletonCard /><SkeletonCard /></div>
+          ) : bandungFloods.length === 0 ? (
+            <div className="glass-card rounded-2xl p-8 border border-white/5 text-center">
+              <div className="w-16 h-16 rounded-full bg-white/5 mx-auto mb-4 flex items-center justify-center text-3xl opacity-20">🌊</div>
+              <p className="font-bold text-on-surface text-sm">Tidak Ada Laporan Banjir Aktif</p>
+              <p className="text-xs text-on-surface-variant opacity-50 mt-1 max-w-xs mx-auto">
+                Saat ini tidak terdeteksi laporan banjir di wilayah Bandung Kota maupun Kabupaten.
+              </p>
+            </div>
+          ) : (
+            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin" style={{ scrollbarWidth: 'thin' }}>
+              {bandungFloods.map((r, i) => (
+                <div key={r.id || i} className="min-w-[280px] max-w-[320px] flex-shrink-0">
+                  <FloodCard report={r} />
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* ── SECTION 5: Regional Bandung ──────────────────────────── */}
         <section>
           {/* Section header with badge */}
           <div className="flex items-center gap-4 mb-6">

@@ -1,6 +1,8 @@
 import { reverseGeocode } from '../utils/geoUtils';
 import { maskName } from '../securityUtils';
 
+const BANDUNG_COORDS = { lat: -6.9147, lon: 107.6098, radius: 30000 };
+
 /**
  * Service to handle fetching and processing hazard data from multiple sources
  */
@@ -188,6 +190,47 @@ export const hazardService = {
         ];
       }
       return JSON.parse(cachedReports);
+    }
+  },
+
+  /**
+   * Fetch specific flood reports for Bandung area from PetaBencana
+   */
+  async fetchBandungFloods(signal) {
+    try {
+      const url = `https://data.petabencana.id/reports?lat=${BANDUNG_COORDS.lat}&lon=${BANDUNG_COORDS.lon}&radius=${BANDUNG_COORDS.radius}`;
+      const res = await fetch(url, { signal });
+      if (!res.ok) throw new Error('Failed to fetch local Bandung disasters');
+      
+      const data = await res.json();
+      if (!data?.result?.features) return [];
+
+      return data.result.features.map(f => {
+        const p = f.properties;
+        const coords = f.geometry.coordinates;
+        
+        let typeMap = 'Bencana Lain', colorMap = 'bg-tertiary';
+        if (p.hazard_type === 'flood') { typeMap = 'Banjir'; colorMap = 'bg-primary'; }
+        else if (p.hazard_type === 'wind') { typeMap = 'Angin Kencang'; colorMap = 'bg-surface-variant'; }
+        else if (p.hazard_type === 'earthquake') { typeMap = 'Gempa Bumi'; colorMap = 'bg-error'; }
+        
+        return {
+          id: p.report_id,
+          source: 'PetaBencana.id',
+          type: typeMap,
+          title: p.title || `Laporan ${typeMap}`,
+          loc: p.tags?.district || p.tags?.local_area || 'Wilayah Terdampak',
+          position: f.geometry.type === 'Point' ? [coords[1], coords[0]] : [coords[0][1], coords[0][0]],
+          desc: p.tags?.description || `Status: ${p.status}`,
+          severity: p.tags?.instance_status || 'normal',
+          time: new Date(p.created_at).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }),
+          statusColor: colorMap,
+          url: `https://petabencana.id/report/${p.report_id}`
+        };
+      });
+    } catch (err) {
+      if (err.name !== 'AbortError') console.error('Error fetching Bandung floods:', err);
+      return [];
     }
   }
 };
