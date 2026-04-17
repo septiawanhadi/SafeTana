@@ -433,34 +433,36 @@ const BmkgDashboard = () => {
         {/* ── SECTION 4: Pantauan Banjir Bandung ───────────────────── */}
         <section className="relative">
           {/* Animated Background Deco */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] rounded-full pointer-events-none -mr-32 -mt-32" />
+          <div className="absolute top-0 right-0 w-80 h-80 bg-primary/10 blur-[120px] rounded-full pointer-events-none -mr-40 -mt-40 animate-pulse" />
           
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-rose-500/10 border border-rose-500/20">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 shadow-[0_0_15px_rgba(244,63,94,0.1)]">
                   <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
-                  <span className="text-[9px] font-black text-rose-400 tracking-widest uppercase">LIVE REPORTS</span>
+                  <span className="text-[10px] font-black text-rose-400 tracking-[0.2em] uppercase">LIVE REPORTS</span>
                 </div>
+                <div className="h-px w-12 bg-white/10 hidden sm:block" />
               </div>
               <SectionTitle icon="flood" title="Pantauan Banjir Bandung" subtitle="Integrasi Real-time PetaBencana.id" />
             </div>
             
-            <div className="flex gap-2">
-              <div className="glass-card px-4 py-2.5 rounded-2xl flex flex-col border border-white/5 min-w-[100px]">
-                <p className="text-[8px] font-black text-on-surface-variant opacity-40 uppercase tracking-[0.2em] mb-1">Kota Bandung</p>
-                <div className="flex items-center justify-between gap-4">
-                  <span className="font-display font-black text-xl text-primary">{bandungFloods.filter(f => f.loc.toLowerCase().includes('kota bandung')).length}</span>
-                  <span className="material-symbols-outlined text-primary/30 text-lg">location_on</span>
+            <div className="flex items-center gap-3">
+              {[
+                { label: 'Kota Bandung', count: bandungFloods.filter(f => f.loc.toLowerCase().includes('kota bandung')).length, icon: 'location_on', color: 'text-primary' },
+                { label: 'Kab. Bandung', count: bandungFloods.filter(f => f.loc.toLowerCase().includes('kabupaten bandung')).length, icon: 'home_pin', color: 'text-orange-400' }
+              ].map((stat, i) => (
+                <div key={i} className="glass-card px-5 py-3 rounded-[20px] flex items-center gap-4 border border-white/5 hover:border-white/10 transition-all group overflow-hidden relative">
+                  <div className={`absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity`} />
+                  <div className="relative z-10">
+                    <p className="text-[8px] font-black text-on-surface-variant opacity-40 uppercase tracking-[0.15em] mb-1">{stat.label}</p>
+                    <div className="flex items-center gap-3">
+                      <span className={`font-display font-black text-2xl ${stat.color}`}>{stat.count}</span>
+                      <span className={`material-symbols-outlined ${stat.color} opacity-20 text-xl group-hover:opacity-50 transition-opacity`}>{stat.icon}</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="glass-card px-4 py-2.5 rounded-2xl flex flex-col border border-white/5 min-w-[100px]">
-                <p className="text-[8px] font-black text-on-surface-variant opacity-40 uppercase tracking-[0.2em] mb-1">Kab. Bandung</p>
-                <div className="flex items-center justify-between gap-4">
-                  <span className="font-display font-black text-xl text-orange-400">{bandungFloods.filter(f => f.loc.toLowerCase().includes('kabupaten bandung')).length}</span>
-                  <span className="material-symbols-outlined text-orange-400/30 text-lg">home_pin</span>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
           
@@ -470,14 +472,19 @@ const BmkgDashboard = () => {
                <div className="min-w-[280px]"><SkeletonCard /></div>
             </div>
           ) : bandungFloods.length === 0 ? (
-            <div className="glass-card rounded-[32px] p-12 border border-white/5 text-center bg-white/[0.02] backdrop-blur-3xl overflow-hidden relative">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-primary/10 blur-[80px] rounded-full -mt-24" />
-              <div className="relative z-10">
-                <div className="w-20 h-20 rounded-3xl bg-white/5 mx-auto mb-6 flex items-center justify-center text-4xl shadow-inner border border-white/5">🌊</div>
-                <h3 className="font-display font-black text-xl text-on-surface tracking-tight mb-2">Kondisi Bandung Aman</h3>
-                <p className="text-sm text-on-surface-variant opacity-50 max-w-sm mx-auto leading-relaxed">
-                  Tidak ditemukan laporan banjir aktif di wilayah Bandung Raya untuk saat ini. Tetap waspada terhadap perubahan cuaca.
-                </p>
+            <div className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-tertiary/5 rounded-[40px] blur-2xl opacity-50 group-hover:opacity-80 transition-opacity" />
+              <div className="glass-card rounded-[40px] p-16 border border-white/10 text-center bg-white/[0.01] backdrop-blur-[40px] overflow-hidden relative shadow-2xl">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-primary/10 blur-[100px] rounded-full -mt-32 animate-pulse" />
+                <div className="relative z-10">
+                  <div className="w-24 h-24 rounded-[32px] bg-gradient-to-br from-white/10 to-white/5 mx-auto mb-8 flex items-center justify-center text-5xl shadow-[inset_0_2px_10px_rgba(255,255,255,0.1)] border border-white/10 group-hover:scale-110 transition-transform duration-700">
+                    <span className="drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">🌊</span>
+                  </div>
+                  <h3 className="font-display font-black text-3xl text-on-surface tracking-tight mb-4 capitalize">Kondisi Bandung Aman</h3>
+                  <p className="text-sm md:text-base text-on-surface-variant opacity-50 max-w-md mx-auto leading-relaxed font-medium">
+                    Tidak ditemukan laporan banjir aktif di wilayah Bandung Raya untuk saat ini. Tetap waspada terhadap perubahan cuaca.
+                  </p>
+                </div>
               </div>
             </div>
           ) : (
