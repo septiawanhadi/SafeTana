@@ -12,7 +12,9 @@ export const calculateDistance = (lat1, lon1, lat2, lon2) => {
 
 export const reverseGeocode = async (lat, lon) => {
     try {
-        const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=id`);
+        const cleanLat = Number(lat).toFixed(6);
+        const cleanLon = Number(lon).toFixed(6);
+        const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${cleanLat}&longitude=${cleanLon}&localityLanguage=en`);
         if (!res.ok) return null;
         const data = await res.json();
         // Priority: locality (e.g., district/village), then city/regency, then subdivision (province)

@@ -24,8 +24,13 @@ export const db = initializeFirestore(app, {
 export const functions = getFunctions(app, 'us-central1'); // Ganti us-central1 dengan region fungsi Anda jika perlu
 
 export const requestForToken = () => {
-  const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY || 'BF_PLACEHOLDER_VAPID_KEY_PLEASE_UPDATE_IN_ENV';
+  const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY || import.meta.env.VITE_FIREBASE_VAPID_API_KEY;
   
+  if (!vapidKey || vapidKey.includes('PLACEHOLDER')) {
+    console.warn('⚠️ FCM VAPID Key tidak valid atau belum dikonfigurasi.');
+    return Promise.resolve(null);
+  }
+
   return getToken(messaging, { vapidKey })
     .then((currentToken) => {
       if (currentToken) {
