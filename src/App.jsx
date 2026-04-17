@@ -106,6 +106,9 @@ const App = () => {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [weatherData, setWeatherData] = useState({ aqi: '--', precipitation: '--' });
   
+  const location = useLocation();
+  const focusCoords = location.state?.focusCoords || null;
+  
   const { showNotification, showReminder } = useDynamicIsland();
 
   // Splash & Onboarding Logic
