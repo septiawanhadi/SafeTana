@@ -16,6 +16,7 @@ const HealthChatbot = () => {
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isPrivacyMode, setIsPrivacyMode] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -45,8 +46,8 @@ const HealthChatbot = () => {
           parts: [{ text: m.text }]
         }));
 
-      // Call the centralized aiService
-      const responseText = await aiService.getHealthChatResponse(history, userInputText);
+      // Call the centralized aiService with privacy mode support
+      const responseText = await aiService.getHealthChatResponse(history, userInputText, isPrivacyMode);
       
       const botResponse = { id: Date.now() + 1, sender: 'bot', text: responseText };
       setMessages(prev => [...prev, botResponse]);
@@ -96,9 +97,19 @@ const HealthChatbot = () => {
              </div>
           </div>
           
-          <button onClick={handleReset} className="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-full transition" title="Mulai ulang chat">
-             <span className="material-symbols-outlined text-xl">autorenew</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setIsPrivacyMode(!isPrivacyMode)} 
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition-all ${isPrivacyMode ? 'bg-tertiary/10 border-tertiary text-tertiary' : 'bg-surface-container-high border-outline-variant/30 text-on-surface-variant opacity-60'}`}
+              title={isPrivacyMode ? 'Mode Privasi (Null Claw) Aktif' : 'Gunakan Cloud AI (Gemini)'}
+            >
+               <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: isPrivacyMode ? "'FILL' 1" : "" }}>{isPrivacyMode ? 'security' : 'cloud'}</span>
+               <span className="text-[10px] font-black uppercase tracking-widest">{isPrivacyMode ? 'Local' : 'Cloud'}</span>
+            </button>
+            <button onClick={handleReset} className="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-full transition" title="Mulai ulang chat">
+               <span className="material-symbols-outlined text-xl">autorenew</span>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -131,11 +142,17 @@ const HealthChatbot = () => {
                     </div>
 
                     {/* BUBBLE */}
-                    <div className={`p-4 shadow-sm ${
+                    <div className={`p-4 shadow-sm relative ${
                        msg.sender === 'user'
                         ? 'bg-primary text-on-primary rounded-[1.5rem] rounded-br-none' 
                         : 'glass-card border border-outline-variant/20 rounded-[1.5rem] rounded-bl-none'
                     }`}>
+                       {msg.sender === 'bot' && msg.text.includes('NullClaw') && (
+                         <div className="absolute -top-2 -right-2 bg-tertiary text-white text-[8px] font-black px-1.5 py-0.5 rounded-full shadow-lg flex items-center gap-1">
+                           <span className="material-symbols-outlined text-[10px]">bolt</span>
+                           NULLCLAW
+                         </div>
+                       )}
                        <p className={`text-sm leading-relaxed ${msg.sender === 'user' ? 'font-medium' : 'text-on-surface'}`}>
                          {msg.text}
                        </p>

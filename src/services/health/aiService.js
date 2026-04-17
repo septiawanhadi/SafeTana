@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { NullClawBridge } from "./NullClawBridge";
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
@@ -10,7 +11,11 @@ export const aiService = {
   /**
    * Get a chat response for the Health Clinic
    */
-  async getHealthChatResponse(history, userInput) {
+  async getHealthChatResponse(history, userInput, useLocalAgent = false) {
+    if (useLocalAgent) {
+      return await NullClawBridge.process(userInput);
+    }
+
     try {
       const systemPrompt = `
         Anda adalah "SafeTana AI", asisten kesehatan dan konseling mental spesialis pasca bencana.
