@@ -237,11 +237,17 @@ const MapComponent = ({
       <MapContainer
         center={[-6.9147, 107.6098]}
         zoom={12}
+        minZoom={2}
+        maxBounds={[[-90, -180], [90, 180]]}
+        maxBoundsViscosity={1.0}
         zoomControl={false}
         ref={setMapInstance}
         className="h-full w-full z-0 grayscale-[0.6] brightness-[0.5] contrast-[1.1]"
       >
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <TileLayer 
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
+          noWrap={true}
+        />
         <MapController center={selectedReportPosition} />
         <MapScopeController mapScope={mapScope} />
 
