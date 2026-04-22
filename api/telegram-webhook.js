@@ -23,7 +23,10 @@ const SYSTEM_INSTRUCTION = `
  * Helper to get response from Groq (Backup AI)
  */
 async function getGroqResponse(userInput) {
-    if (!GROQ_API_KEY) throw new Error("Groq API Key missing");
+    if (!GROQ_API_KEY) {
+        console.error("GROQ_API_KEY is undefined in environment variables!");
+        throw new Error("Groq API Key missing");
+    }
     
     const url = "https://api.groq.com/openai/v1/chat/completions";
     try {
@@ -34,7 +37,7 @@ async function getGroqResponse(userInput) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: "llama3-70b-8192",
+                model: "llama-3.3-70b-versatile",
                 messages: [
                     { role: "system", content: SYSTEM_INSTRUCTION },
                     { role: "user", content: userInput }
@@ -44,7 +47,12 @@ async function getGroqResponse(userInput) {
             })
         });
         
-        if (!res.ok) throw new Error(`Groq API error: ${res.status}`);
+        if (!res.ok) {
+            const errorBody = await res.json().catch(() => ({}));
+            console.error("Groq API error response:", JSON.stringify(errorBody));
+            throw new Error(`Groq API error: ${res.status}`);
+        }
+        
         const data = await res.json();
         return data.choices?.[0]?.message?.content || "Maaf, Groq gagal memberikan respon.";
     } catch (e) {
@@ -147,6 +155,11 @@ export default async function handler(request, response) {
         }
         else {
             try {
+                console.log("Checking environment variables...");
+                if (!BOT_TOKEN) console.error("BOT_TOKEN is MISSING");
+                if (!GEMINI_API_KEY) console.error("GEMINI_API_KEY is MISSING");
+                if (!GROQ_API_KEY) console.error("GROQ_API_KEY is MISSING");
+
                 console.log("Attempting Gemini response...");
                 const model = genAI.getGenerativeModel({ 
                     model: "gemini-1.5-flash",
@@ -157,12 +170,14 @@ export default async function handler(request, response) {
                 const aiResponse = result.response.text().replace(/[#*`]/g, ''); 
                 await sendTelegramMessage(chatId, aiResponse);
             } catch (geminiError) {
-                console.warn("Gemini failing, falling back to Groq:", geminiError.message);
+                console.warn("Gemini failure caught:", geminiError.message);
+                console.log("Attempting Groq fallback...");
                 try {
                     const groqResponse = await getGroqResponse(message.text);
                     await sendTelegramMessage(chatId, groqResponse.replace(/[#*`]/g, ''));
                 } catch (groqError) {
-                    console.error("Both AI providers failed:", groqError.message);
+                    console.error("Critical failure: Both Gemini and Groq FAILED.");
+                    console.error("Final Error Details:", groqError.message);
                     await sendTelegramMessage(chatId, "Maaf, seluruh sistem AI kami sedang mencapai batas kuota gratis. Mohon tunggu beberapa menit lagi.");
                 }
             }
