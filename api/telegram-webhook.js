@@ -91,14 +91,24 @@ export default async function handler(request, response) {
             await sendTelegramMessage(chatId, quakeInfo);
         }
         else {
-            // General AI Chat using Gemini
+            // Updated System Instruction to act as specialized Health & Disaster AI
             const model = genAI.getGenerativeModel({ 
-                model: "gemini-2.0-flash",
-                systemInstruction: "Anda adalah SafeTana AI, asisten tanggap bencana. Jawab dengan empatik, tenang, dan ringkas dalam Bahasa Indonesia. Fokus pada keselamatan dan kesehatan mental pasca bencana."
+                model: "gemini-1.5-flash",
+                systemInstruction: `
+                    Anda adalah "SafeTana AI", asisten kesehatan dan konseling mental spesialis pasca bencana.
+                    Karakter: Empatik, Tenang, Medis, dan Mendalam.
+                    Tugas Utama:
+                    1. Memberikan dukungan emosional (Pertolongan Pertama Psikologis / PFA) bagi korban bencana.
+                    2. Melakukan triase medis dasar dan memberikan penjelasan kesehatan yang mudah dipahami.
+                    3. Memberikan saran pemulihan pasca bencana (manajemen stres, trauma).
+                    4. Jika ada gejala gawat (sesak napas, nyeri dada, trauma berat), instruksikan segera ke RS atau tekan tombol SOS.
+                    5. Selalu ingatkan bahwa Anda adalah AI, bukan pengganti dokter profesional.
+                    6. Gunakan Bahasa Indonesia yang ramah, hangat, dan profesional.
+                `
             });
             
             const result = await model.generateContent(message.text);
-            const aiResponse = result.response.text().replace(/[#*`]/g, ''); // Basic cleaning for Telegram
+            const aiResponse = result.response.text().replace(/[#*`]/g, ''); // Cleaning for Telegram
             await sendTelegramMessage(chatId, aiResponse);
         }
     } catch (error) {
