@@ -64,21 +64,31 @@ async function getLatestQuake() {
 }
 
 export default async function handler(request, response) {
+    console.log("--- New Webhook Update ---");
+    
     if (request.method !== 'POST') {
+        console.log("Non-POST request received. Skipping.");
         return response.status(200).send('OK');
     }
 
+    if (!BOT_TOKEN) console.error("ERROR: TELEGRAM_BOT_TOKEN is missing from Environment Variables!");
+    if (!GEMINI_API_KEY) console.error("ERROR: VITE_GEMINI_API_KEY is missing from Environment Variables!");
+
     const { message } = request.body;
     if (!message || !message.text) {
+        console.log("No message text found in body:", JSON.stringify(request.body));
         return response.status(200).send('OK');
     }
 
     const chatId = message.chat.id;
     const text = message.text.toLowerCase().trim();
     const username = message.chat.first_name;
+    
+    console.log(`From: ${username} (${chatId}) | Text: ${text}`);
 
     try {
         if (text === '/start' || text === '/subscribe') {
+            console.log("Handling /start or /subscribe");
             await manageSubscription(chatId, username, 'subscribe');
             await sendTelegramMessage(chatId, `Halo ${username}! 👋 Selamat datang di *SafeTana Bot*. \n\nSaya telah mendaftarkan Anda untuk menerima notifikasi otomatis mengenai:\n- 🔔 Gempa Bumi (Semua Magnitudo)\n- 🔔 Banjir & Bencana Alam Lainnya\n\nKirim pesan apa saja untuk mengobrol dengan asisten AI kami atau gunakan /gempa untuk info terkini.`);
         } 
@@ -91,25 +101,30 @@ export default async function handler(request, response) {
             await sendTelegramMessage(chatId, quakeInfo);
         }
         else {
-            // Updated System Instruction to act as specialized Health & Disaster AI
-            const model = genAI.getGenerativeModel({ 
-                model: "gemini-1.5-flash",
-                systemInstruction: `
-                    Anda adalah "SafeTana AI", asisten kesehatan dan konseling mental spesialis pasca bencana.
-                    Karakter: Empatik, Tenang, Medis, dan Mendalam.
-                    Tugas Utama:
-                    1. Memberikan dukungan emosional (Pertolongan Pertama Psikologis / PFA) bagi korban bencana.
-                    2. Melakukan triase medis dasar dan memberikan penjelasan kesehatan yang mudah dipahami.
-                    3. Memberikan saran pemulihan pasca bencana (manajemen stres, trauma).
-                    4. Jika ada gejala gawat (sesak napas, nyeri dada, trauma berat), instruksikan segera ke RS atau tekan tombol SOS.
-                    5. Selalu ingatkan bahwa Anda adalah AI, bukan pengganti dokter profesional.
-                    6. Gunakan Bahasa Indonesia yang ramah, hangat, dan profesional.
-                `
-            });
-            
-            const result = await model.generateContent(message.text);
-            const aiResponse = result.response.text().replace(/[#*`]/g, ''); // Cleaning for Telegram
-            await sendTelegramMessage(chatId, aiResponse);
+            try {
+                // Using the most stable model name for free tier
+                const model = genAI.getGenerativeModel({ 
+                    model: "gemini-1.5-flash",
+                    systemInstruction: `
+                        Anda adalah "SafeTana AI", asisten kesehatan dan konseling mental spesialis pasca bencana.
+                        Karakter: Empatik, Tenang, Medis, dan Mendalam.
+                        Tugas Utama:
+                        1. Memberikan dukungan emosional (Pertolongan Pertama Psikologis / PFA) bagi korban bencana.
+                        2. Melakukan triase medis dasar dan memberikan penjelasan kesehatan yang mudah dipahami.
+                        3. Memberikan saran pemulihan pasca bencana (manajemen stres, trauma).
+                        4. Jika ada gejala gawat (sesak napas, nyeri dada, trauma berat), instruksikan segera ke RS atau tekan tombol SOS.
+                        5. Selalu ingatkan bahwa Anda adalah AI, bukan pengganti dokter profesional.
+                        6. Gunakan Bahasa Indonesia yang ramah, hangat, dan profesional.
+                    `
+                });
+                
+                const result = await model.generateContent(message.text);
+                const aiResponse = result.response.text().replace(/[#*`]/g, ''); 
+                await sendTelegramMessage(chatId, aiResponse);
+            } catch (aiError) {
+                console.error("AI Generation Error:", aiError);
+                await sendTelegramMessage(chatId, "Maaf, 'otak' AI saya sedang beristirahat sejenak karena batas kuota gratis telah tercapai. Silakan coba lagi dalam beberapa menit atau tanyakan hal lain.");
+            }
         }
     } catch (error) {
         console.error("Webhook Handler Error:", error);
