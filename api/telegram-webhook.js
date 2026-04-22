@@ -2,9 +2,56 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const GEMINI_API_KEY = process.env.VITE_GEMINI_API_KEY;
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const PROJECT_ID = process.env.VITE_FIREBASE_PROJECT_ID;
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+
+const SYSTEM_INSTRUCTION = `
+    Anda adalah "SafeTana AI", asisten kesehatan dan konseling mental spesialis pasca bencana.
+    Karakter: Empatik, Tenang, Medis, dan Mendalam.
+    Tugas Utama:
+    1. Memberikan dukungan emosional (Pertolongan Pertama Psikologis / PFA) bagi korban bencana.
+    2. Melakukan triase medis dasar dan memberikan penjelasan kesehatan yang mudah dipahami.
+    3. Memberikan saran pemulihan pasca bencana (manajemen stres, trauma).
+    4. Jika ada gejala gawat (sesak napas, nyeri dada, trauma berat), instruksikan segera ke RS atau tekan tombol SOS.
+    5. Selalu ingatkan bahwa Anda adalah AI, bukan pengganti dokter profesional.
+    6. Gunakan Bahasa Indonesia yang ramah, hangat, dan profesional.
+`;
+
+/**
+ * Helper to get response from Groq (Backup AI)
+ */
+async function getGroqResponse(userInput) {
+    if (!GROQ_API_KEY) throw new Error("Groq API Key missing");
+    
+    const url = "https://api.groq.com/openai/v1/chat/completions";
+    try {
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${GROQ_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: "llama3-70b-8192",
+                messages: [
+                    { role: "system", content: SYSTEM_INSTRUCTION },
+                    { role: "user", content: userInput }
+                ],
+                temperature: 0.7,
+                max_tokens: 800
+            })
+        });
+        
+        if (!res.ok) throw new Error(`Groq API error: ${res.status}`);
+        const data = await res.json();
+        return data.choices?.[0]?.message?.content || "Maaf, Groq gagal memberikan respon.";
+    } catch (e) {
+        console.error("Groq Fetch Error:", e);
+        throw e;
+    }
+}
 
 /**
  * Helper to send a message to Telegram
@@ -32,20 +79,24 @@ async function sendTelegramMessage(chatId, text) {
 async function manageSubscription(chatId, username, action = 'subscribe') {
     const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/telegram_subscribers/${chatId}`;
     
-    if (action === 'subscribe') {
-        const payload = {
-            fields: {
-                chat_id: { integerValue: chatId },
-                username: { stringValue: username || 'Unknown' },
-                registered_at: { timestampValue: new Date().toISOString() }
-            }
-        };
-        await fetch(firestoreUrl, {
-            method: 'PATCH', // PATCH with updateMask creates or updates
-            body: JSON.stringify(payload)
-        });
-    } else {
-        await fetch(firestoreUrl, { method: 'DELETE' });
+    try {
+        if (action === 'subscribe') {
+            const payload = {
+                fields: {
+                    chat_id: { integerValue: chatId },
+                    username: { stringValue: username || 'Unknown' },
+                    registered_at: { timestampValue: new Date().toISOString() }
+                }
+            };
+            await fetch(firestoreUrl, {
+                method: 'PATCH',
+                body: JSON.stringify(payload)
+            });
+        } else {
+            await fetch(firestoreUrl, { method: 'DELETE' });
+        }
+    } catch (e) {
+        console.error("Firestore Error:", e);
     }
 }
 
@@ -67,16 +118,11 @@ export default async function handler(request, response) {
     console.log("--- New Webhook Update ---");
     
     if (request.method !== 'POST') {
-        console.log("Non-POST request received. Skipping.");
         return response.status(200).send('OK');
     }
 
-    if (!BOT_TOKEN) console.error("ERROR: TELEGRAM_BOT_TOKEN is missing from Environment Variables!");
-    if (!GEMINI_API_KEY) console.error("ERROR: VITE_GEMINI_API_KEY is missing from Environment Variables!");
-
     const { message } = request.body;
     if (!message || !message.text) {
-        console.log("No message text found in body:", JSON.stringify(request.body));
         return response.status(200).send('OK');
     }
 
@@ -88,7 +134,6 @@ export default async function handler(request, response) {
 
     try {
         if (text === '/start' || text === '/subscribe') {
-            console.log("Handling /start or /subscribe");
             await manageSubscription(chatId, username, 'subscribe');
             await sendTelegramMessage(chatId, `Halo ${username}! 👋 Selamat datang di *SafeTana Bot*. \n\nSaya telah mendaftarkan Anda untuk menerima notifikasi otomatis mengenai:\n- 🔔 Gempa Bumi (Semua Magnitudo)\n- 🔔 Banjir & Bencana Alam Lainnya\n\nKirim pesan apa saja untuk mengobrol dengan asisten AI kami atau gunakan /gempa untuk info terkini.`);
         } 
@@ -102,33 +147,28 @@ export default async function handler(request, response) {
         }
         else {
             try {
-                // Using the most stable model name for free tier
+                console.log("Attempting Gemini response...");
                 const model = genAI.getGenerativeModel({ 
                     model: "gemini-1.5-flash",
-                    systemInstruction: `
-                        Anda adalah "SafeTana AI", asisten kesehatan dan konseling mental spesialis pasca bencana.
-                        Karakter: Empatik, Tenang, Medis, dan Mendalam.
-                        Tugas Utama:
-                        1. Memberikan dukungan emosional (Pertolongan Pertama Psikologis / PFA) bagi korban bencana.
-                        2. Melakukan triase medis dasar dan memberikan penjelasan kesehatan yang mudah dipahami.
-                        3. Memberikan saran pemulihan pasca bencana (manajemen stres, trauma).
-                        4. Jika ada gejala gawat (sesak napas, nyeri dada, trauma berat), instruksikan segera ke RS atau tekan tombol SOS.
-                        5. Selalu ingatkan bahwa Anda adalah AI, bukan pengganti dokter profesional.
-                        6. Gunakan Bahasa Indonesia yang ramah, hangat, dan profesional.
-                    `
+                    systemInstruction: SYSTEM_INSTRUCTION
                 });
                 
                 const result = await model.generateContent(message.text);
                 const aiResponse = result.response.text().replace(/[#*`]/g, ''); 
                 await sendTelegramMessage(chatId, aiResponse);
-            } catch (aiError) {
-                console.error("AI Generation Error:", aiError);
-                await sendTelegramMessage(chatId, "Maaf, 'otak' AI saya sedang beristirahat sejenak karena batas kuota gratis telah tercapai. Silakan coba lagi dalam beberapa menit atau tanyakan hal lain.");
+            } catch (geminiError) {
+                console.warn("Gemini failing, falling back to Groq:", geminiError.message);
+                try {
+                    const groqResponse = await getGroqResponse(message.text);
+                    await sendTelegramMessage(chatId, groqResponse.replace(/[#*`]/g, ''));
+                } catch (groqError) {
+                    console.error("Both AI providers failed:", groqError.message);
+                    await sendTelegramMessage(chatId, "Maaf, seluruh sistem AI kami sedang mencapai batas kuota gratis. Mohon tunggu beberapa menit lagi.");
+                }
             }
         }
     } catch (error) {
-        console.error("Webhook Handler Error:", error);
-        await sendTelegramMessage(chatId, "Maaf, sistem sedang mengalami gangguan teknis. Mohon coba beberapa saat lagi.");
+        console.error("Webhook Handler General Error:", error);
     }
 
     return response.status(200).json({ success: true });
