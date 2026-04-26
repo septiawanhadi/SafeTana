@@ -1,102 +1,171 @@
-# SKPL - Spesifikasi Kebutuhan Perangkat Lunak
-## Proyek: SafeTana - Solusi Digital Mitigasi & Monitoring Bencana Terpadu
+# Spesifikasi Kebutuhan Perangkat Lunak (SKPL) - SafeTana
 
----
-
-| Identifikasi | Informasi |
-| :--- | :--- |
-| **Versi Dokumen** | 1.0.0 |
-| **Tanggal** | 17 April 2026 |
-| **Status** | Draft Final |
-| **Penyusun** | Antigravity AI Engine (Google Deepmind) |
-
----
-
-## DAFTAR ISI
+## Daftar Isi
 1. [Pendahuluan](#1-pendahuluan)
-2. [Deskripsi Umum](#2-deskripsi-umum)
-3. [Kebutuhan Antarmuka Eksternal](#3-kebutuhan-antarmuka-eksternal)
-4. [Kebutuhan Fungsional](#4-kebutuhan-fungsional)
-5. [Kebutuhan Non-Fungsional](#5-kebutuhan-non-fungsional)
+2. [Deskripsi Umum Perangkat Lunak](#2-deskripsi-umum-perangkat-lunak)
+3. [Deskripsi Umum Kebutuhan](#3-deskripsi-umum-kebutuhan)
+4. [Proses Bisnis Overview](#4-proses-bisnis-overview)
 
 ---
 
-## 1. PENDAHULUAN
+## 1. Pendahuluan
 
-### 1.1 Tujuan
-Dokumen ini bertujuan untuk merincikan spesifikasi kebutuhan aplikasi **SafeTana**, sebuah platform web progresif yang berfokus pada mitigasi bencana, edukasi keselamatan, dan dukungan kesehatan mental pasca bencana bagi masyarakat Indonesia.
+### 1.1 Tujuan Penulisan Dokumen
+Dokumen SKPL ini dibuat untuk merinci spesifikasi kebutuhan teknis dan fungsional dari aplikasi **SafeTana**. Dokumen ini digunakan oleh tim pengembang sebagai panduan implementasi, tim QA untuk pengujian, serta pemangku kepentingan untuk memvalidasi fitur yang dibangun.
 
-### 1.2 Ruang Lingkup
-SafeTana mencakup sistem monitoring gempa real-time (BMKG), pemantauan banjir lokal (Bandung via PetaBencana), sistem edukasi kesiap-siagaan, navigasi zona aman, serta klinik kesehatan berbasis AI (Null Claw & Gemini).
+### 1.2 Lingkup Masalah
+**SafeTana** adalah platform mitigasi bencana terintegrasi berbasis AI dan layanan kesehatan mandiri yang dirancang untuk meningkatkan resiliensi masyarakat melalui monitoring bencana real-time (BMKG/GDACS) dan asisten cerdas untuk bantuan kesehatan darurat.
 
-### 1.3 Definisi dan Istilah
-- **FCM**: Firebase Cloud Messaging, layanan pengiriman notifikasi.
-- **Null Claw**: Framework AI Agen lokal berbasis Zig/Wasm untuk privasi data kesehatan.
-- **PetaBencana**: Sumber data laporan banjir berbasis komunitas.
-- **SKPL**: Spesifikasi Kebutuhan Perangkat Lunak.
+### 1.3 Definisi, Istilah dan Singkatan
+*   **SafeTana**: Sistem Mitigasi Bencana Terintegrasi.
+*   **Klinik AI**: Modul layanan kesehatan mandiri berbasis AI (Gemini & Null Claw).
+*   **PWA (Progressive Web App)**: Aplikasi web yang dapat diinstal dan berfungsi seperti aplikasi mobile dengan dukungan offline.
+*   **Null Claw Agent**: Mesin AI lokal berbasis WebAssembly (Wasm) untuk pemrosesan data sensitif tanpa koneksi internet.
+*   **N.O.M.A.D.**: Infrastruktur offline-first untuk distribusi pengetahuan bencana.
+*   **GDACS**: Global Disaster Alert and Coordination System.
+*   **BMKG**: Badan Meteorologi, Klimatologi, dan Geofisika.
+*   **PII Masking**: Teknik menyembunyikan informasi identitas pribadi (Nama, No HP) untuk keamanan data.
+*   **Service Pattern**: Pola arsitektur yang memisahkan logika bisnis (AI, Geospasial) dari komponen UI.
 
----
+### 1.4 Aturan Penomoran
+*   **SKPL-F-XXX**: Untuk Kebutuhan Fungsional.
+*   **SKPL-NF-XXX**: Untuk Kebutuhan Non-Fungsional.
+*   **SKPL-D-XXX**: Untuk Kebutuhan Data.
 
-## 2. DESKRIPSI UMUM
+### 1.5 Referensi
+*   Dokumen Business Requirement Document (BRD) SafeTana.
+*   Dokumentasi API Google Gemini & Groq AI.
+*   Standar Penanggulangan Bencana UU No. 24 Tahun 2007.
 
-### 2.1 Perspektif Produk
-SafeTana adalah aplikasi *Independent Web App* yang mengintegrasikan berbagai API data pemerintah dan komunitas ke dalam satu antarmuka yang modern (Bento UI & Glassmorphism).
-
-### 2.2 Fungsi Produk
-1. Monitoring gempa bumi dan peringatan tsunami.
-2. Monitoring titik banjir real-time di wilayah Bandung Raya.
-3. Manajemen titik zona aman (Safe Zones).
-4. Konseling kesehatan dan diagnosa awal via AI.
-5. Tracker jurnal emosi (Mood Tracker) untuk pemulihan psikologis.
-
-### 2.3 Karakteristik Pengguna
-- **Masyarakat Umum (User)**: Akses monitoring, edukasi, dan layanan kesehatan.
-- **Admin/Petugas**: Manajemen data zona aman dan monitoring pusat komando.
-
----
-
-## 3. KEBUTUHAN ANTARMUKA EKSTERNAL
-
-### 3.1 Antarmuka Pengguna (UI)
-- Menggunakan pendekatan **True Black Dark Mode** untuk efisiensi daya pada perangkat OLED.
-- Antarmuka responsif (Mobile-First) dengan navigasi bawah (Bottom Navigation).
-
-### 3.2 Antarmuka Perangkat Lunak (API)
-| Nama API | Fungsi |
-| :--- | :--- |
-| **BMKG API** | Data gempa bumi terkini dan M0-5. |
-| **PetaBencana.id** | Data titik banjir wilayah Bandung. |
-| **Firebase SDK** | Autentikasi, Firestore DB, dan Cloud Messaging. |
-| **Google Gemini API** | Otak AI untuk chatbot kesehatan mode Cloud. |
-| **Null Claw (Wasm)** | Engine AI lokal untuk privasi medis. |
+### 1.6 Deskripsi umum Dokumen (Ikhtisar)
+Dokumen ini membahas landasan teknis SafeTana, spesifikasi platform, rincian kebutuhan antarmuka, hingga analisis proses bisnis dari kondisi saat ini menuju sistem yang diusulkan.
 
 ---
 
-## 4. KEBUTUHAN FUNGSIONAL
+## 2. Deskripsi Umum Perangkat Lunak
 
-### 4.1 Dashboard Bencana (Monitoring)
-- **F-01**: Sistem harus dapat menampilkan gempa terbaru beserta parameter kekuatan (M) dan kedalaman.
-- **F-02**: Sistem harus memvisualisasikan titik banjir Bandung dengan indikator status (Kuning/Merah).
+### 2.1. Deskripsi Umum Sistem 
+SafeTana menghubungkan data bencana dari otoritas resmi (BMKG, GDACS) ke pengguna akhir melalui antarmuka peta interaktif. Selain informasi bencana, sistem menyediakan modul "Klinik AI" untuk bantuan kesehatan mandiri saat akses medis terbatas selama bencana.
 
-### 4.2 Klinik Kesehatan AI
-- **F-03**: Chatbot harus mendukung mode **Private (Local)** menggunakan Null Claw Bridge.
-- **F-04**: Sistem harus mampu menganalisis tren Mood Jurnal selama 30 hari terakhir.
+### 2.2. Platform Teknologi
+*   **a. Spesifikasi Server**: 
+    *   **Hosting**: Firebase Hosting & Vercel.
+    *   **Backend**: Firebase Cloud Functions (Node.js 20).
+    *   **Database**: Firestore (NoSQL) & Firebase Realtime DB untuk alerts.
+*   **b. Spesifikasi Client**: 
+    *   **Engine**: Modern Web Browser dengan dukungan PWA & WebAssembly (Wasm).
+    *   **Storage**: IndexedDB & Cache Storage untuk data offline N.O.M.A.D.
+*   **c. Development Tools**: 
+    *   **Core**: Vite, React 19.
+    *   **Styling**: Tailwind CSS 4.
+    *   **AI Models**: Google Gemini 1.5/2.0 Flash (Cloud), Null Claw Agent (Wasm/Local).
+    *   **Maps**: Leaflet.js dengan Tile Layer OpenStreetMap/Custom.
+    *   **Security**: Crypto-JS untuk enkripsi koordinat.
 
-### 4.3 Peta & Navigasi
-- **F-05**: Sistem harus dapat menampilkan lokasi pengguna dan rute menuju Safe Zone terdekat.
-- **F-06**: Tombol SOS untuk akses cepat ke nomor darurat.
+### 2.3. Karakteristik Pengguna
+| No | Kategori Pengguna | Tugas |
+| :--- | :--- | :--- |
+| 1 | Super User (Admin) | Mengelola data titik aman, memonitor log sistem, dan manajemen konten edukasi. |
+| 2 | Masyarakat Umum | Memantau peta bencana, menerima notifikasi, mencari titik evakuasi, dan menggunakan Klinik AI. |
+| 3 | Operator Lapangan | Melakukan update status titik aman/shelter secara real-time. |
+
+### 2.4. Hak Akses Pengguna
+| No | Pengguna | Kategori Pengguna | Hak Akses |
+| :--- | :--- | :--- | :--- |
+| 1 | Administrator | Super Administrator | Full akses (CRUD data bencana, user, dan konfigurasi sistem). |
+| 2 | Petugas/Relawan | Administrator | Menambah dan mengubah data titik aman dan log kejadian. |
+| 3 | Warga | User | Melihat data bencana, akses Klinik AI, dan melapor status SOS. |
+
+### 2.5. Batasan
+*   Aplikasi memerlukan akses internet untuk sinkronisasi data bencana terbaru (kecuali modul offline tertentu).
+*   Akurasi lokasi bergantung pada sensor GPS perangkat pengguna.
+*   Data bencana bersumber dari pihak ketiga (BMKG/GDACS), sehingga ketersediaan data bergantung pada layanan tersebut.
+
+### 2.6. Fitur Aplikasi
+| No | Fitur | Uraian |
+| :--- | :--- | :--- |
+| 1 | Login | Pengguna harus masuk menggunakan akun Google atau Email via Firebase Auth untuk sinkronisasi data profil. |
+| 2 | Dashboard Peta | Visualisasi real-time titik bencana menggunakan Leaflet Map API. |
+| 3 | Notifikasi Dini | Push notification otomatis saat ada bencana dalam radius lokasi pengguna. |
+| 4 | Klinik AI | Chatbot kesehatan untuk bantuan medis pertama dan skrining kesehatan mandiri. |
+| 5 | Manajemen Shelter | Database titik evakuasi dengan navigasi rute terdekat. |
 
 ---
 
-## 5. KEBUTUHAN NON-FUNGSIONAL
+## 3. Deskripsi umum kebutuhan 
 
-### 5.1 Keamanan (Security)
-- Semua kunci API harus disimpan dalam variabel lingkungan (`.env`).
-- Data medis harus dapat diproses secara lokal (Edge AI) untuk meminimalisir kebocoran data.
+### 3.1. Kebutuhan antarmuka eksternal
+#### 3.1.1. Antarmuka pemakai
+Antarmuka berbasis Web Responsif (PWA) dengan desain modern, mendukung Dark Mode (True Black), dan navigasi yang mudah digunakan dalam kondisi darurat.
+#### 3.1.2. Antarmuka perangkat keras
+Smartphone atau PC yang memiliki koneksi internet dan sensor lokasi (GPS).
+#### 3.1.3. Antarmuka perangkat lunak
+*   **Firebase SDK**: Autentikasi, Firestore, dan Messaging.
+*   **Gemini API SDK**: Integrasi asisten kesehatan cerdas.
+*   **Null Claw Bridge**: Modul penghubung antara JavaScript dan WebAssembly untuk AI lokal.
+*   **Geolocation API**: Browser-native API untuk mendapatkan koordinat (WGS84).
+*   **Security Utils**: Modul internal untuk `encryptLocation` (XOR-Base64/AES) dan `maskPII` (Name/Phone).
 
-### 5.2 Performa
-- Kecepatan muat halaman utama kurang dari 3 detik pada koneksi 4G.
-- Respons AI lokal (Null Claw) harus di bawah 200ms untuk triase awal.
+#### 3.1.4. Antarmuka komunikasi
+*   **HTTPS/TLS 1.3**: Protokol wajib untuk seluruh komunikasi client-server.
+*   **WSS (Secure WebSocket)**: Untuk update real-time peringatan dini.
+*   **REST API**: Integrasi dengan endpoint BMKG (XML/JSON) dan GDACS.
 
-### 5.3 Ketersediaan (Availability)
-- Aplikasi harus tetap menyediakan fungsi dasar (seperti peta zona aman dan instruksi medis darurat) meskipun dalam keadaan offline (pWA).
+### 3.2. Kebutuhan Fungsional
+#### 3.2.1. Spesifikasi Kebutuhan Umum
+| No | Kode SKPL | Parameter | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| 1 | SKPL-F-001 | Real-time Sync | Aplikasi harus mampu menarik data dari BMKG/GDACS setiap 5 menit. |
+| 2 | SKPL-F-002 | Geolocation | Aplikasi harus dapat menentukan lokasi pengguna untuk memberikan radius bahaya. |
+
+#### 3.2.2. Spesifikasi Kebutuhan Fungsional
+| No | Kode SKPL | Deskripsi |
+| :--- | :--- | :--- |
+| **A** | **Modul Mitigasi & Peta** | |
+| 1 | SKPL-F-101 | Menampilkan titik gempa bumi terbaru di peta dengan parameter Magnitude, Kedalaman, dan Potensi Tsunami. |
+| 2 | SKPL-F-102 | Visualisasi Heatmap area rawan bencana berdasarkan histori data BMKG. |
+| 3 | SKPL-F-103 | Fitur "Safe Zone Finder" untuk menghitung rute terpendek ke shelter menggunakan algoritma Haversine. |
+| **B** | **Modul Klinik AI** | |
+| 4 | SKPL-F-201 | Chatbot Cloud: Menggunakan Gemini 1.5 Flash untuk analisis mood dan konseling mendalam. |
+| 5 | SKPL-F-202 | Chatbot Local (Offline): Menggunakan Null Claw Wasm untuk triase medis darurat saat offline. |
+| 6 | SKPL-F-203 | Analitik Kesehatan: Memberikan skor resiliensi psikologis berdasarkan jurnal harian pengguna. |
+| **C** | **Keamanan & Privasi** | |
+| 7 | SKPL-F-301 | Enkripsi lokasi pengguna sebelum disimpan ke database (Database Encryption at Rest). |
+| 8 | SKPL-F-302 | Otomatisasi masking PII pada dashboard admin untuk menjaga privasi warga. |
+
+### 3.3. Kebutuhan Non Fungsional
+| No | Parameter | Deskripsi |
+| :--- | :--- | :--- |
+| 1 | **Keamanan** | Enkripsi lokasi menggunakan standar AES/Base64, proteksi XSS pada input, dan penggunaan SSL/TLS 1.3. |
+| 2 | **Kinerja** | Respon AI (Gemini Flash) < 2 detik dan loading peta awal < 3 detik pada koneksi 4G. |
+| 3 | **Ketersediaan** | Uptime sistem minimal 99.9% menggunakan infrastruktur multi-region Firebase/Vercel. |
+| 4 | **Skalabilitas** | Mampu menangani hingga 10,000+ request per menit saat terjadi lonjakan trafik bencana. |
+| 5 | **Privasi** | Implementasi PII Masking untuk data sensitif di level Dashboard Admin dan Log Sistem. |
+| 6 | **Portabilitas** | Aplikasi berbasis PWA yang kompatibel dengan Android, iOS, dan Desktop (Cross-Platform). |
+
+### 3.4. Kebutuhan Data
+| No | Nama Data | Sumber/Tujuan | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| 1 | **Data Bencana** | BMKG API / GDACS | Informasi gempa, banjir, dan peringatan cuaca ekstrim (Real-time). |
+| 2 | **Data Titik Aman** | GeoJSON (Internal) | Koordinat, kapasitas, dan fasilitas 61+ titik evakuasi/shelter. |
+| 3 | **Profil Pengguna** | Firebase Auth | Nama (Masked), Email, dan preferensi notifikasi lokasi. |
+| 4 | **Jurnal Kesehatan** | Firestore | Catatan mood dan hasil skrining kesehatan mandiri pengguna (Encrypted). |
+| 5 | **Kamus Medis** | kamusData.json | Dataset lokal untuk bantuan medis mandiri saat offline (Null Claw). |
+| 6 | **Log Aktivitas** | Firestore | Riwayat laporan SOS dan status keamanan pengguna saat krisis. |
+
+### 3.5. Batasan Rancangan
+*   Build menggunakan Vite untuk loading yang cepat.
+*   Desain responsif untuk berbagai ukuran layar (Mobile-First).
+
+---
+
+## 4. Proses Bisnis Overview
+
+### 4.1. Proses Bisnis As-Is
+Masyarakat mendapatkan informasi bencana secara pasif melalui berita atau pengumuman umum yang seringkali terlambat dan tidak memberikan panduan langkah demi langkah berdasarkan lokasi spesifik mereka.
+
+### 4.2. Analisis Proses Bisnis
+Pemisahan data bencana dan kurangnya panduan medis mandiri saat krisis meningkatkan risiko korban jiwa. Diperlukan integrasi data real-time dengan bantuan cerdas (AI) untuk mempercepat respon individu.
+
+### 4.3. Proses Bisnis To-Be
+Data Bencana Masuk -> Analisis Lokasi User -> Notifikasi Bahaya & Rute Evakuasi -> Bantuan Medis via Klinik AI -> Status Keamanan User Terlapor.

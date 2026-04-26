@@ -4,6 +4,8 @@ import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-le
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
+import { BNPB_LAYERS } from './services/bnpbService';
+
 // Perbaikan Default Icon
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -81,6 +83,10 @@ const LAYERS = [
   { id: 'PetaBencana', label: 'Bencana Lokal', icon: 'flood', color: '#3B82F6' },
   { id: 'GDACS', label: 'GDACS Global', icon: 'public', color: '#F97316' },
   { id: 'safe', label: 'Titik Aman', icon: 'gpp_good', color: '#22C55E' },
+  { id: 'InaRiskFlood', label: 'Risiko Banjir (inaRISK)', icon: 'water_damage', color: '#38BDF8' },
+  { id: 'InaRiskEq', label: 'Risiko Gempa (inaRISK)', icon: 'broken_image', color: '#FB7185' },
+  { id: 'InaRiskLandslide', label: 'Risiko Longsor (inaRISK)', icon: 'landslide', color: '#D97706' },
+  { id: 'InaWareRisk', label: 'Survei Bencana (InAWARE)', icon: 'query_stats', color: '#A855F7' },
 ];
 
 // ── MapComponent ───────────────────────────────────────────────────────────────
@@ -98,7 +104,10 @@ const MapComponent = ({
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(true);
   const [isAllZonesOpen, setIsAllZonesOpen] = useState(false);
   const [isLayerPanelOpen, setIsLayerPanelOpen] = useState(false);
-  const [activeLayers, setActiveLayers] = useState({ BMKG: true, PetaBencana: true, GDACS: true, safe: true });
+  const [activeLayers, setActiveLayers] = useState({ 
+    BMKG: true, PetaBencana: true, GDACS: true, safe: true, 
+    InaRiskFlood: false, InaRiskEq: false, InaRiskLandslide: false, InaWareRisk: false 
+  });
 
   const toggleLayer = useCallback((id) => {
     setActiveLayers(prev => ({ ...prev, [id]: !prev[id] }));
@@ -248,6 +257,21 @@ const MapComponent = ({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
           noWrap={true}
         />
+        
+        {/* Layer BNPB (TileLayer Services) */}
+        {activeLayers.InaRiskFlood && (
+          <TileLayer url={BNPB_LAYERS.INARISK_FLOOD} opacity={0.6} zIndex={10} />
+        )}
+        {activeLayers.InaRiskEq && (
+          <TileLayer url={BNPB_LAYERS.INARISK_EQ} opacity={0.6} zIndex={10} />
+        )}
+        {activeLayers.InaRiskLandslide && (
+          <TileLayer url={BNPB_LAYERS.INARISK_LANDSLIDE} opacity={0.6} zIndex={10} />
+        )}
+        {activeLayers.InaWareRisk && (
+          <TileLayer url={BNPB_LAYERS.INAWARE_RISK} opacity={0.6} zIndex={10} />
+        )}
+
         <MapController center={selectedReportPosition} />
         <MapScopeController mapScope={mapScope} />
 
