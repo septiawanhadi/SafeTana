@@ -3,14 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import {
   fetchLatestEarthquake,
   fetchFeltEarthquakes,
-  fetchBandungWeather,
-  fetchBandungAqi,
+  fetchLocalWeather,
+  fetchLocalAqi,
   deriveEarlyWarnings,
   getWeatherInfo,
   getAqiInfo,
   windDirLabel,
+  BANDUNG_LAT,
+  BANDUNG_LON
 } from './services/bmkgService';
 import { hazardService } from './services/hazardService';
+import { reverseGeocode } from './utils/geoUtils';
 
 // ─── Sub-components ────────────────────────────────────────────────────────────
 
@@ -99,12 +102,12 @@ const EarthquakeHeroCard = memo(({ quake }) => {
             </div>
             <p className="text-sm font-medium text-on-surface-variant opacity-80 max-w-md leading-relaxed">{quake.Wilayah}</p>
           </div>
-          <div className="space-y-3">
-            <div className="glass-card rounded-xl p-3 min-w-[140px]">
+          <div className="flex flex-row md:flex-col gap-3 w-full md:w-auto mt-2 md:mt-0">
+            <div className="glass-card rounded-xl p-3 flex-1 md:flex-none md:min-w-[140px]">
               <p className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant opacity-50 mb-1">Kedalaman</p>
               <p className="font-display font-black text-lg text-on-surface">{quake.Kedalaman}</p>
             </div>
-            <div className="glass-card rounded-xl p-3">
+            <div className="glass-card rounded-xl p-3 flex-1 md:flex-none">
               <p className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant opacity-50 mb-1">Koordinat</p>
               <p className="font-mono font-bold text-sm text-on-surface">{coords[0].toFixed(2)}°, {coords[1].toFixed(2)}°</p>
             </div>
@@ -296,24 +299,26 @@ const BmkgDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [userLoc, setUserLoc] = useState({ lat: BANDUNG_LAT, lon: BANDUNG_LON, name: 'Bandung' });
 
-  const loadData = useCallback(async (signal) => {
+  const loadData = useCallback(async (signal, coords) => {
     setLoading(true);
     setError(null);
     try {
-      const [quake, quakes, bandung, aqiData, floods] = await Promise.allSettled([
+      const { lat, lon } = coords;
+      const [quake, quakes, weather, aqiData, floods] = await Promise.allSettled([
         fetchLatestEarthquake(signal),
         fetchFeltEarthquakes(signal),
-        fetchBandungWeather(signal),
-        fetchBandungAqi(signal),
-        hazardService.fetchBandungFloods(signal),
+        fetchLocalWeather(lat, lon, signal),
+        fetchLocalAqi(lat, lon, signal),
+        hazardService.fetchLocalFloods(lat, lon, signal),
       ]);
 
       if (quake.status === 'fulfilled') setLatestQuake(quake.value);
       if (quakes.status === 'fulfilled') setFeltQuakes(quakes.value);
-      if (bandung.status === 'fulfilled') {
-        setBandungWeather(bandung.value);
-        const warns = deriveEarlyWarnings(bandung.value.forecasts || []);
+      if (weather.status === 'fulfilled') {
+        setBandungWeather(weather.value);
+        const warns = deriveEarlyWarnings(weather.value.forecasts || []);
         setWarnings(warns);
       }
       if (aqiData.status === 'fulfilled') setAqi(aqiData.value);
@@ -329,12 +334,30 @@ const BmkgDashboard = () => {
 
   useEffect(() => {
     const controller = new AbortController();
-    loadData(controller.signal);
+    let currentCoords = { lat: BANDUNG_LAT, lon: BANDUNG_LON, name: 'Bandung' };
 
-    // Auto-refresh logic (every 3 minutes)
+    const init = async () => {
+      if ('geolocation' in navigator) {
+        try {
+          const position = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
+          });
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          const geoName = await reverseGeocode(lat, lon);
+          currentCoords = { lat, lon, name: geoName || 'Lokasi Anda' };
+          setUserLoc(currentCoords);
+        } catch (error) {
+          console.warn('Geolocation failed/blocked, using fallback.', error);
+        }
+      }
+      loadData(controller.signal, currentCoords);
+    };
+
+    init();
+
     const interval = setInterval(() => {
-      console.log('🔄 Dashboard Auto-refresh...');
-      loadData(controller.signal);
+      loadData(controller.signal, currentCoords);
     }, 180000);
 
     return () => {
@@ -375,7 +398,7 @@ const BmkgDashboard = () => {
             </p>
           </div>
           <button
-            onClick={() => { const c = new AbortController(); loadData(c.signal); }}
+            onClick={() => { const c = new AbortController(); loadData(c.signal, userLoc); }}
             disabled={loading}
             className="glass-card p-3 rounded-xl text-primary hover:bg-primary/10 transition-all active:scale-95 disabled:opacity-40"
             title="Perbarui data"
@@ -444,15 +467,15 @@ const BmkgDashboard = () => {
                 </div>
                 <div className="h-px w-12 bg-white/10 hidden sm:block" />
               </div>
-              <SectionTitle icon="flood" title="Pantauan Banjir Bandung" subtitle="Integrasi Real-time PetaBencana.id" />
+              <SectionTitle icon="flood" title="Pantauan Bencana Lokal" subtitle="Integrasi Real-time PetaBencana.id" />
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="grid grid-cols-2 lg:flex lg:items-center gap-3 w-full lg:w-auto mt-4 lg:mt-0">
               {[
-                { label: 'Kota Bandung', count: bandungFloods.filter(f => f.loc.toLowerCase().includes('kota bandung')).length, icon: 'location_on', color: 'text-primary' },
-                { label: 'Kab. Bandung', count: bandungFloods.filter(f => f.loc.toLowerCase().includes('kabupaten bandung')).length, icon: 'home_pin', color: 'text-orange-400' }
+                { label: 'Radius 30km', count: bandungFloods.length, icon: 'my_location', color: 'text-primary' },
+                { label: 'Darurat', count: bandungFloods.filter(f => f.severity !== 'normal').length, icon: 'warning', color: 'text-orange-400' }
               ].map((stat, i) => (
-                <div key={i} className="glass-card px-5 py-3 rounded-[20px] flex items-center gap-4 border border-white/5 hover:border-white/10 transition-all group overflow-hidden relative">
+                <div key={i} className="glass-card px-4 md:px-5 py-3 rounded-[20px] flex items-center justify-between lg:justify-start gap-4 border border-white/5 hover:border-white/10 transition-all group overflow-hidden relative w-full">
                   <div className={`absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity`} />
                   <div className="relative z-10">
                     <p className="text-[8px] font-black text-on-surface-variant opacity-40 uppercase tracking-[0.15em] mb-1">{stat.label}</p>
@@ -480,9 +503,9 @@ const BmkgDashboard = () => {
                   <div className="w-24 h-24 rounded-[32px] bg-gradient-to-br from-white/10 to-white/5 mx-auto mb-8 flex items-center justify-center text-5xl shadow-[inset_0_2px_10px_rgba(255,255,255,0.1)] border border-white/10 group-hover:scale-110 transition-transform duration-700">
                     <span className="drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">🌊</span>
                   </div>
-                  <h3 className="font-display font-black text-3xl text-on-surface tracking-tight mb-4 capitalize">Kondisi Bandung Aman</h3>
+                  <h3 className="font-display font-black text-3xl text-on-surface tracking-tight mb-4 capitalize">Kondisi Lokal Aman</h3>
                   <p className="text-sm md:text-base text-on-surface-variant opacity-50 max-w-md mx-auto leading-relaxed font-medium">
-                    Tidak ditemukan laporan banjir aktif di wilayah Bandung Raya untuk saat ini. Tetap waspada terhadap perubahan cuaca.
+                    Tidak ditemukan laporan bencana aktif di sekitar lokasi Anda saat ini. Tetap waspada terhadap perubahan cuaca.
                   </p>
                 </div>
               </div>
@@ -501,7 +524,7 @@ const BmkgDashboard = () => {
           )}
         </section>
 
-        {/* ── SECTION 5: Regional Bandung ──────────────────────────── */}
+        {/* ── SECTION 5: Regional Lokal ──────────────────────────── */}
         <section>
           {/* Section header with badge */}
           <div className="flex items-center gap-4 mb-6">
@@ -510,10 +533,10 @@ const BmkgDashboard = () => {
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="font-display text-xl font-black text-on-surface tracking-tight leading-none">Regional Bandung</h2>
-                <span className="text-[9px] font-black uppercase tracking-widest bg-sky-500/15 text-sky-400 px-2 py-0.5 rounded-full">📍 Kota Bandung</span>
+                <h2 className="font-display text-xl font-black text-on-surface tracking-tight leading-none">Cuaca Lokal</h2>
+                <span className="text-[9px] font-black uppercase tracking-widest bg-sky-500/15 text-sky-400 px-2 py-0.5 rounded-full">📍 {userLoc.name}</span>
               </div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-50 mt-0.5">Informasi cuaca khusus wilayah Bandung Raya</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-50 mt-0.5">Informasi cuaca terkini untuk lokasi Anda</p>
             </div>
           </div>
 
@@ -527,10 +550,10 @@ const BmkgDashboard = () => {
                   <div className="absolute top-0 right-0 w-64 h-64 rounded-full -mr-20 -mt-20 blur-3xl bg-sky-500/10" />
                   <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-6">
                     {/* Main temp */}
-                    <div className="flex items-center gap-6">
-                      <div className="text-7xl md:text-8xl">{currentWeather?.emoji}</div>
+                    <div className="flex items-center gap-5 md:gap-6">
+                      <div className="text-6xl md:text-8xl">{currentWeather?.emoji}</div>
                       <div>
-                        <div className="font-display text-7xl md:text-8xl font-black text-on-surface leading-none tracking-tighter">
+                        <div className="font-display text-6xl md:text-8xl font-black text-on-surface leading-none tracking-tighter">
                           {currentForecast.t}°
                         </div>
                         <div className="text-sm font-bold text-on-surface-variant opacity-70 mt-1">{currentWeather?.label}</div>
@@ -554,12 +577,10 @@ const BmkgDashboard = () => {
                     </div>
                   </div>
 
-                  {/* Bandung info strip */}
+                  {/* Location info strip */}
                   <div className="relative z-10 mt-5 pt-5 border-t border-white/5 flex flex-wrap gap-4 text-[10px] text-on-surface-variant opacity-50 font-bold uppercase tracking-wider">
-                    <span>📍 Kota Bandung, Jawa Barat</span>
-                    <span>🏔️ Elevasi ±768 m dpl</span>
-                    <span>🌡️ Rerata Tahunan 20–23°C</span>
-                    {bandungWeather?.lokasi?.kecamatan && <span>📌 {bandungWeather.lokasi.kecamatan}</span>}
+                    <span>📍 {userLoc.name}</span>
+                    <span>📌 Radius Pantauan 30 KM</span>
                   </div>
                 </div>
               )}

@@ -86,25 +86,42 @@ export async function fetchFeltEarthquakes(signal) {
 }
 
 /**
- * Fetch Bandung weather forecast from BMKG
- * Returns today's & upcoming forecast data
+ * Fetch local weather forecast from Open-Meteo
+ * Returns formatted data matching BMKG's structure for the UI
  */
-export async function fetchBandungWeather(signal) {
-  const res = await fetch(`${BMKG_WEATHER_API}?adm4=${BANDUNG_ADM4}`, { signal });
-  if (!res.ok) throw new Error('Gagal mengambil prakiraan cuaca Bandung');
+export async function fetchLocalWeather(lat, lon, signal) {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relative_humidity_2m,weather_code,visibility,wind_speed_10m,wind_direction_10m,precipitation&timezone=auto&forecast_days=3`;
+  const res = await fetch(url, { signal });
+  if (!res.ok) throw new Error('Gagal mengambil prakiraan cuaca lokal');
   const data = await res.json();
-  const lokasi = data.lokasi;
-  // data.data[0].cuaca is an array of day groups, each being an array of hourly forecasts
-  const allHours = data.data[0].cuaca.flat();
-  return { lokasi, forecasts: allHours };
+  
+  const forecasts = data.hourly.time.map((time, index) => {
+    return {
+      local_datetime: time,
+      datetime: time,
+      t: Math.round(data.hourly.temperature_2m[index]),
+      hu: data.hourly.relative_humidity_2m[index],
+      ws: (data.hourly.wind_speed_10m[index] / 3.6).toFixed(1), // convert km/h to m/s
+      wd_deg: data.hourly.wind_direction_10m[index],
+      vs_text: data.hourly.visibility[index] >= 1000 ? `${(data.hourly.visibility[index] / 1000).toFixed(1)} km` : `${data.hourly.visibility[index]} m`,
+      tp: data.hourly.precipitation[index],
+      weather: data.hourly.weather_code[index]
+    };
+  });
+  
+  // Filter only future forecasts (Open-Meteo returns past hours of current day too)
+  const now = new Date();
+  const futureForecasts = forecasts.filter(f => new Date(f.local_datetime) >= now);
+
+  return { lokasi: { kecamatan: 'Lokasi Anda' }, forecasts: futureForecasts };
 }
 
 /**
- * Fetch AQI for Bandung from Open-Meteo
+ * Fetch AQI for local coordinates from Open-Meteo
  */
-export async function fetchBandungAqi(signal) {
+export async function fetchLocalAqi(lat, lon, signal) {
   try {
-    const url = `${OPEN_METEO_AQI}?latitude=${BANDUNG_LAT}&longitude=${BANDUNG_LON}&current=us_aqi,pm2_5,pm10&hourly=us_aqi`;
+    const url = `${OPEN_METEO_AQI}?latitude=${lat}&longitude=${lon}&current=us_aqi,pm2_5,pm10&hourly=us_aqi`;
     const res = await fetch(url, { signal });
     if (!res.ok) throw new Error('AQI fetch failed');
     const data = await res.json();

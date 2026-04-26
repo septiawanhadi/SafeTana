@@ -225,7 +225,11 @@ const MapComponent = ({
                 </div>
                 <span className="font-bold text-xs text-on-surface text-left flex-1">{layer.label}</span>
                 <span className="text-[9px] font-black text-on-surface-variant opacity-40">
-                  {layer.id === 'safe' ? safeZones.length : (sourceSummary[layer.id] || 0)}
+                  {layer.id === 'safe' 
+                    ? safeZones.length 
+                    : (layer.id.startsWith('InaRisk') || layer.id.startsWith('InaWare')) 
+                      ? 'Area' 
+                      : (sourceSummary[layer.id] || 0)}
                 </span>
                 <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${activeLayers[layer.id] ? 'border-primary bg-primary' : 'border-white/20 bg-transparent'}`}>
                   {activeLayers[layer.id] && <span className="material-symbols-outlined text-white" style={{ fontSize: 10 }}>check</span>}

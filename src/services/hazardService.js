@@ -194,13 +194,13 @@ export const hazardService = {
   },
 
   /**
-   * Fetch specific flood reports for Bandung area from PetaBencana
+   * Fetch specific flood reports for local area from PetaBencana
    */
-  async fetchBandungFloods(signal) {
+  async fetchLocalFloods(lat, lon, signal) {
     try {
-      const url = `https://data.petabencana.id/reports?lat=${BANDUNG_COORDS.lat}&lon=${BANDUNG_COORDS.lon}&radius=${BANDUNG_COORDS.radius}`;
+      const url = `https://data.petabencana.id/reports?lat=${lat}&lon=${lon}&radius=30000`;
       const res = await fetch(url, { signal });
-      if (!res.ok) throw new Error('Failed to fetch local Bandung disasters');
+      if (!res.ok) throw new Error('Failed to fetch local disasters');
       
       const data = await res.json();
       if (!data?.result?.features) return [];
@@ -229,7 +229,7 @@ export const hazardService = {
         };
       });
     } catch (err) {
-      if (err.name !== 'AbortError') console.error('Error fetching Bandung floods:', err);
+      if (err.name !== 'AbortError') console.error('Error fetching local floods:', err);
       return [];
     }
   }
