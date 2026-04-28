@@ -29,8 +29,10 @@ const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [broadcastSuccess, setBroadcastSuccess] = useState(false);
   const [broadcastError, setBroadcastError] = useState('');
+  const [analyticsError, setAnalyticsError] = useState('');
 
   useEffect(() => {
+    setAnalyticsError('');
     const q = query(collection(db, 'active_users'), orderBy('lastActive', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const activeUsers = snapshot.docs.map(doc => ({
@@ -38,6 +40,9 @@ const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
         ...doc.data()
       }));
       setUsers(activeUsers);
+    }, (error) => {
+      console.error("User Analytics Error:", error);
+      setAnalyticsError(error.message);
     });
 
     return () => unsubscribe();
@@ -178,10 +183,20 @@ const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
                     <input type="text" placeholder="Cari User..." className="bg-slate-950 w-full sm:w-48 border border-slate-700 rounded-2xl py-2 px-4 text-xs text-white outline-none" onChange={(e) => setSearchTerm(e.target.value)} />
                   </div>
                 </div>
+
+                {analyticsError && (
+                  <div className="p-4 mx-6 mt-4 bg-red-500/10 border border-red-500/30 rounded-2xl">
+                    <p className="text-red-400 text-xs font-bold flex items-center gap-2">
+                      <AlertTriangle size={16} /> Error Memuat Data: {analyticsError}
+                    </p>
+                    <p className="text-[10px] text-slate-400 mt-1">Pastikan Anda memiliki izin Administrator (Custom Claims) untuk membaca data Active Users.</p>
+                  </div>
+                )}
+
                 <div className="overflow-x-auto flex-1 h-[500px] overflow-y-auto custom-scrollbar">
                   <table className="w-full text-left">
                     <tbody className="divide-y divide-slate-800/50 text-xs">
-                      {filteredUsers?.filter(u => u?.name?.toLowerCase().includes(searchTerm.toLowerCase())).map((user) => (
+                      {filteredUsers?.filter(u => (u?.name || '').toLowerCase().includes(searchTerm.toLowerCase())).map((user) => (
                         <tr key={user.id} className="hover:bg-white/[0.02] transition-all">
                           <td className="p-6 font-bold">{user.name}</td>
                           <td className="p-6"><span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase ${user.status === 'Butuh Evakuasi' ? 'bg-red-600 text-white' : 'bg-green-600/20 text-green-500 border border-green-500/30'}`}>{user.status}</span></td>
