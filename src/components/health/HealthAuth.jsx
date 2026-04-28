@@ -6,7 +6,10 @@ import {
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   updateProfile,
-  onAuthStateChanged
+  onAuthStateChanged,
+  sendEmailVerification,
+  sendPasswordResetEmail,
+  signOut
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
@@ -15,6 +18,7 @@ const HealthAuth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [showDomainHint, setShowDomainHint] = useState(false);
 
   // Form states
@@ -25,7 +29,7 @@ const HealthAuth = () => {
   // Check if already logged in
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
-      if (user) navigate('/health');
+      if (user && user.emailVerified) navigate('/health');
     });
     return () => unsub();
   }, [navigate]);
@@ -33,13 +37,23 @@ const HealthAuth = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccessMsg('');
     setLoading(true);
     setShowDomainHint(false);
 
     try {
       if (isLogin) {
         // LOGIN FLOW
-        await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        
+        if (!user.emailVerified) {
+          await signOut(auth);
+          setError('Email Anda belum diverifikasi. Silakan cek kotak masuk atau folder spam Anda untuk link verifikasi.');
+          setLoading(false);
+          return;
+        }
+        
         navigate('/health'); 
       } else {
         // REGISTER FLOW
@@ -59,7 +73,14 @@ const HealthAuth = () => {
           status: 'active'
         });
 
-        navigate('/health'); 
+        // Kirim email verifikasi
+        await sendEmailVerification(user);
+        
+        // Sign out user immediately after register so they are forced to login after verification
+        await signOut(auth);
+
+        setIsLogin(true);
+        setSuccessMsg('Pendaftaran berhasil! Link verifikasi telah dikirim ke email Anda. Silakan verifikasi sebelum login.');
       }
     } catch (err) {
       // Hanya log ke console jika error tidak ditangani secara spesifik
@@ -81,6 +102,33 @@ const HealthAuth = () => {
         setError('Password minimal 6 karakter.');
       } else if (err.code === 'auth/network-request-failed') {
         setError('Masalah jaringan. Periksa koneksi internet atau ad-blocker Anda.');
+      } else {
+        setError(`Kesalahan: ${err.message}`);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!email) {
+      setError('Silakan masukkan alamat email Anda terlebih dahulu di kolom Email untuk mereset password.');
+      setSuccessMsg('');
+      return;
+    }
+    
+    setLoading(true);
+    setError('');
+    setSuccessMsg('');
+    
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setSuccessMsg('Link reset password telah dikirim. Silakan cek kotak masuk atau folder spam email Anda.');
+    } catch (err) {
+      if (err.code === 'auth/user-not-found') {
+        setError('Email tidak terdaftar dalam sistem kami.');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('Format email tidak valid.');
       } else {
         setError(`Kesalahan: ${err.message}`);
       }
@@ -154,6 +202,17 @@ const HealthAuth = () => {
               </div>
             )}
 
+            {successMsg && (
+              <div className="mb-6 animate-in slide-in-from-top-4 duration-300">
+                <div className="bg-green-500/10 border border-green-500/20 p-4 rounded-2xl flex items-start gap-4">
+                  <ShieldCheck className="text-green-500 shrink-0 mt-0.5" size={18} />
+                  <div>
+                    <p className="text-xs text-green-200 font-bold leading-relaxed">{successMsg}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-5">
               {!isLogin && (
                 <div className="space-y-2">
@@ -206,6 +265,17 @@ const HealthAuth = () => {
                     placeholder="••••••••"
                   />
                 </div>
+                {isLogin && (
+                  <div className="flex justify-end mt-2">
+                    <button 
+                      type="button" 
+                      onClick={handleResetPassword}
+                      className="text-[10px] text-primary hover:text-primary/80 font-bold tracking-widest uppercase transition-colors px-1 py-1"
+                    >
+                      Lupa Password?
+                    </button>
+                  </div>
+                )}
               </div>
 
               <button
