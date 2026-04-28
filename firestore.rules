@@ -49,7 +49,7 @@ service cloud.firestore {
     // - Publik/Anonim bisa membuat/mengubah lokasi & status mereka sendiri
     // - Hanya admin yang bisa membaca daftar semua user aktif
     match /active_users/{userId} {
-      allow read: if isAdmin();
+      allow read: if request.auth != null;
       allow write: if true;
     }
 
