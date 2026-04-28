@@ -418,9 +418,7 @@ const App = () => {
         <Route path="/cuaca" element={<BmkgDashboard />} />
         <Route path="/admin" element={
           isAdminAuthenticated ? (
-            <div className="min-h-screen bg-[#020617] w-full relative z-10">
-              <CommandCenter reports={reports} onClose={() => navigate('/')} />
-            </div>
+            <CommandCenter reports={reports} onClose={() => navigate('/')} />
           ) : (
             <AdminLogin onLogin={() => setIsAdminAuthenticated(true)} onClose={() => navigate('/')} />
           )

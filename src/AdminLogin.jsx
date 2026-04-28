@@ -39,7 +39,7 @@ const AdminLogin = ({ onLogin, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[4000] bg-[#020617] flex items-center justify-center p-6 overflow-hidden">
+    <div className="fixed inset-0 z-[9999] bg-[#020617] flex items-center justify-center p-6 overflow-hidden">
       {/* Dynamic Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-[20%] -right-[10%] w-[60%] h-[60%] bg-blue-600/20 blur-[120px] rounded-full animate-pulse"></div>

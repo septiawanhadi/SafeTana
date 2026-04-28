@@ -100,7 +100,7 @@ const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[3000] bg-[#020617] text-slate-200 flex flex-col animate-in fade-in duration-500 overflow-hidden">
+    <div className="fixed inset-0 z-[9999] bg-[#020617] text-slate-200 flex flex-col animate-in fade-in duration-500 overflow-hidden">
       {/* Background Orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
         <div className="absolute -top-[30%] -right-[10%] w-[70%] h-[70%] bg-blue-700/20 blur-[150px] rounded-full animate-pulse"></div>
