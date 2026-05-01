@@ -18,13 +18,13 @@ import { reverseGeocode } from './utils/geoUtils';
 // ─── Sub-components ────────────────────────────────────────────────────────────
 
 const SectionTitle = ({ icon, title, subtitle }) => (
-  <div className="flex items-center gap-4 mb-6">
+  <div className="flex items-center gap-3 sm:gap-4 mb-6">
     <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center text-primary shadow-inner flex-shrink-0">
       <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
     </div>
-    <div>
-      <h2 className="font-display text-xl font-black text-on-surface tracking-tight leading-none">{title}</h2>
-      {subtitle && <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-50 mt-0.5">{subtitle}</p>}
+    <div className="min-w-0 flex-1">
+      <h2 className="font-display text-lg sm:text-xl font-black text-on-surface tracking-tight leading-none truncate">{title}</h2>
+      {subtitle && <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-50 mt-1 truncate">{subtitle}</p>}
     </div>
   </div>
 );
@@ -42,9 +42,9 @@ const EarlyWarningBanner = memo(({ warnings }) => {
   if (!warnings || warnings.length === 0) return (
     <div className="glass-card rounded-2xl p-4 flex items-center gap-4 border border-emerald-500/20">
       <div className="w-10 h-10 rounded-full bg-emerald-500/15 flex items-center justify-center text-xl flex-shrink-0">✅</div>
-      <div>
-        <p className="font-black text-sm text-emerald-400 uppercase tracking-wider">Kondisi Normal</p>
-        <p className="text-xs text-on-surface-variant opacity-60 mt-0.5">Tidak ada peringatan cuaca aktif saat ini</p>
+      <div className="min-w-0 flex-1">
+        <p className="font-black text-sm text-emerald-400 uppercase tracking-wider truncate">Kondisi Normal</p>
+        <p className="text-xs text-on-surface-variant opacity-60 mt-0.5 line-clamp-2">Tidak ada peringatan cuaca aktif saat ini</p>
       </div>
     </div>
   );
@@ -60,17 +60,17 @@ const EarlyWarningBanner = memo(({ warnings }) => {
       {warnings.map((w, i) => {
         const c = levelColors[w.level] || levelColors.watch;
         return (
-          <div key={i} className={`glass-card rounded-2xl p-5 border ${c.border} ${c.bg} relative overflow-hidden`}>
+          <div key={i} className={`glass-card rounded-2xl p-4 md:p-5 border ${c.border} ${c.bg} relative overflow-hidden`}>
             <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-10 -mt-10 blur-3xl ${c.bg} opacity-50`} />
-            <div className="relative z-10 flex items-start gap-4">
-              <div className="text-3xl mt-0.5 flex-shrink-0">{w.icon}</div>
+            <div className="relative z-10 flex items-start gap-3 md:gap-4">
+              <div className="text-2xl md:text-3xl mt-0.5 flex-shrink-0">{w.icon}</div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap mb-1">
-                  <span className={`font-black text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 rounded-full ${c.badge}`}>{c.tagLabel}</span>
-                  {w.time && <span className="text-[9px] font-bold text-on-surface-variant opacity-50 uppercase">Mulai ~{w.time}</span>}
+                <div className="flex items-center gap-2 flex-wrap mb-1.5 md:mb-1">
+                  <span className={`font-black text-[8px] md:text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 rounded-full ${c.badge}`}>{c.tagLabel}</span>
+                  {w.time && <span className="text-[8px] md:text-[9px] font-bold text-on-surface-variant opacity-50 uppercase block sm:inline">Mulai ~{w.time}</span>}
                 </div>
-                <p className={`font-headline font-black text-base ${c.text} leading-tight mb-1`}>{w.title}</p>
-                <p className="text-xs text-on-surface-variant opacity-70 leading-relaxed">{w.description}</p>
+                <p className={`font-headline font-black text-sm md:text-base ${c.text} leading-tight mb-1`}>{w.title}</p>
+                <p className="text-[11px] md:text-xs text-on-surface-variant opacity-70 leading-relaxed">{w.description}</p>
               </div>
             </div>
           </div>
@@ -88,46 +88,46 @@ const EarthquakeHeroCard = memo(({ quake }) => {
   const coords = quake.Coordinates?.split(',').map(Number) || [0, 0];
 
   return (
-    <div className={`glass-card rounded-2xl p-6 md:p-8 relative overflow-hidden ${isStrong ? 'border border-red-500/30' : 'border border-white/5'}`}>
+    <div className={`glass-card rounded-2xl p-5 md:p-8 relative overflow-hidden ${isStrong ? 'border border-red-500/30' : 'border border-white/5'}`}>
       <div className={`absolute top-0 right-0 w-64 h-64 rounded-full -mr-20 -mt-20 blur-3xl ${isStrong ? 'bg-red-500/10' : 'bg-primary/5'}`} />
       <div className="relative z-10">
         <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-3">
-              <span className="w-2 h-2 rounded-full bg-error animate-pulse" />
-              <span className="text-[9px] font-black uppercase tracking-[0.3em] text-on-surface-variant opacity-60">Gempa Terbaru</span>
+              <span className="w-2 h-2 rounded-full bg-error animate-pulse flex-shrink-0" />
+              <span className="text-[9px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-on-surface-variant opacity-60 truncate">Gempa Terbaru</span>
             </div>
-            <div className={`font-display text-6xl md:text-8xl font-black leading-none tracking-tighter mb-2 ${isStrong ? 'text-red-400' : 'text-on-surface'}`}>
+            <div className={`font-display text-5xl md:text-8xl font-black leading-none tracking-tighter mb-2 ${isStrong ? 'text-red-400' : 'text-on-surface'}`}>
               M{quake.Magnitude}
             </div>
-            <p className="text-sm font-medium text-on-surface-variant opacity-80 max-w-md leading-relaxed">{quake.Wilayah}</p>
+            <p className="text-xs md:text-sm font-medium text-on-surface-variant opacity-80 max-w-md leading-relaxed line-clamp-2 md:line-clamp-none">{quake.Wilayah}</p>
           </div>
-          <div className="flex flex-row md:flex-col gap-3 w-full md:w-auto mt-2 md:mt-0">
-            <div className="glass-card rounded-xl p-3 flex-1 md:flex-none md:min-w-[140px]">
-              <p className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant opacity-50 mb-1">Kedalaman</p>
-              <p className="font-display font-black text-lg text-on-surface">{quake.Kedalaman}</p>
+          <div className="flex flex-row md:flex-col gap-2 md:gap-3 w-full md:w-auto mt-2 md:mt-0">
+            <div className="glass-card rounded-xl p-3 flex-1 md:flex-none md:min-w-[140px] min-w-0">
+              <p className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant opacity-50 mb-1 truncate">Kedalaman</p>
+              <p className="font-display font-black text-base md:text-lg text-on-surface truncate">{quake.Kedalaman}</p>
             </div>
-            <div className="glass-card rounded-xl p-3 flex-1 md:flex-none">
-              <p className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant opacity-50 mb-1">Koordinat</p>
-              <p className="font-mono font-bold text-sm text-on-surface">{coords[0].toFixed(2)}°, {coords[1].toFixed(2)}°</p>
+            <div className="glass-card rounded-xl p-3 flex-1 md:flex-none min-w-0">
+              <p className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant opacity-50 mb-1 truncate">Koordinat</p>
+              <p className="font-mono font-bold text-xs md:text-sm text-on-surface truncate">{coords[0].toFixed(2)}°, {coords[1].toFixed(2)}°</p>
             </div>
           </div>
         </div>
-        <div className="flex flex-wrap gap-3 mt-5 pt-5 border-t border-white/5">
-          <div>
-            <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-0.5">Tanggal</p>
-            <p className="font-bold text-sm text-on-surface">{quake.Tanggal} — {quake.Jam}</p>
+        <div className="flex flex-wrap gap-4 mt-5 pt-5 border-t border-white/5">
+          <div className="w-[45%] md:w-auto">
+            <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-0.5 truncate">Tanggal</p>
+            <p className="font-bold text-xs md:text-sm text-on-surface">{quake.Tanggal} — {quake.Jam}</p>
           </div>
           {quake.Dirasakan && (
-            <div>
-              <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-0.5">Dirasakan</p>
-              <p className="font-bold text-sm text-on-surface">{quake.Dirasakan}</p>
+            <div className="w-[45%] md:w-auto min-w-0 flex-1">
+              <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-0.5 truncate">Dirasakan</p>
+              <p className="font-bold text-xs md:text-sm text-on-surface line-clamp-2" title={quake.Dirasakan}>{quake.Dirasakan}</p>
             </div>
           )}
           {quake.Potensi && (
-            <div className="ml-auto">
-              <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-0.5">Potensi</p>
-              <p className="font-bold text-xs text-primary max-w-[200px] leading-tight">{quake.Potensi}</p>
+            <div className="w-full md:w-auto md:ml-auto mt-1 md:mt-0">
+              <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-0.5 truncate">Potensi</p>
+              <p className="font-bold text-xs text-primary max-w-full md:max-w-[200px] leading-tight line-clamp-2">{quake.Potensi}</p>
             </div>
           )}
         </div>
@@ -141,17 +141,19 @@ const EarthquakeRow = memo(({ quake, index }) => {
   const mag = parseFloat(quake.Magnitude);
   const color = mag >= 6 ? 'text-red-400' : mag >= 5 ? 'text-orange-400' : mag >= 4 ? 'text-yellow-400' : 'text-emerald-400';
   return (
-    <div className={`flex items-center gap-4 py-3 ${index !== 0 ? 'border-t border-white/5' : ''}`}>
-      <div className={`font-display font-black text-xl w-14 text-right flex-shrink-0 ${color}`}>M{quake.Magnitude}</div>
-      <div className="flex-1 min-w-0">
-        <p className="font-bold text-sm text-on-surface truncate">{quake.Wilayah?.replace('Pusat gempa berada di ', '')}</p>
-        <p className="text-[10px] text-on-surface-variant opacity-50 font-medium">{quake.Tanggal} · {quake.Jam} · {quake.Kedalaman}</p>
-      </div>
-      {quake.Dirasakan && (
-        <div className="flex-shrink-0">
-          <span className="text-[9px] font-black bg-primary/10 text-primary px-2 py-1 rounded-full uppercase tracking-wide">{quake.Dirasakan}</span>
+    <div className={`flex items-start gap-3 md:gap-4 py-3 md:py-4 ${index !== 0 ? 'border-t border-white/5' : ''}`}>
+      <div className={`font-display font-black text-lg md:text-xl w-10 md:w-14 text-right flex-shrink-0 mt-0.5 ${color}`}>M{quake.Magnitude}</div>
+      <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+        <div>
+          <p className="font-bold text-xs md:text-sm text-on-surface leading-snug line-clamp-2 md:truncate">{quake.Wilayah?.replace('Pusat gempa berada di ', '')}</p>
+          <p className="text-[9px] md:text-[10px] text-on-surface-variant opacity-50 font-medium mt-0.5">{quake.Tanggal} · {quake.Jam} · {quake.Kedalaman}</p>
         </div>
-      )}
+        {quake.Dirasakan && (
+          <div>
+            <span className="text-[8px] md:text-[9px] font-black bg-primary/10 text-primary px-2 py-1 rounded-full uppercase tracking-wide inline-block max-w-full truncate">{quake.Dirasakan}</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 });
@@ -163,34 +165,34 @@ const AqiWidget = memo(({ aqi, pm25, pm10 }) => {
   const pct = Math.min(aqiNum / 300, 1) * 100;
 
   return (
-    <div className="glass-card rounded-2xl p-6 h-full">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <p className="text-[9px] font-black uppercase tracking-[0.3em] opacity-50 mb-1">Indeks Polusi Udara</p>
-          <p className={`text-4xl font-display font-black ${info.color}`}>{aqi === '--' ? '--' : aqiNum}</p>
-          <p className={`text-xs font-bold uppercase tracking-wider mt-1 ${info.color}`}>{info.label}</p>
+    <div className="glass-card rounded-2xl p-5 md:p-6 h-full flex flex-col">
+      <div className="flex items-start justify-between mb-4 md:mb-6 gap-2">
+        <div className="min-w-0 flex-1">
+          <p className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.1em] md:tracking-[0.3em] opacity-50 mb-1 truncate">Indeks Polusi Udara</p>
+          <p className={`text-4xl md:text-5xl font-display font-black ${info.color}`}>{aqi === '--' ? '--' : aqiNum}</p>
+          <p className={`text-[10px] md:text-xs font-bold uppercase tracking-wider mt-1 ${info.color} line-clamp-1`}>{info.label}</p>
         </div>
-        <div className={`w-16 h-16 rounded-2xl ${info.bg} flex items-center justify-center text-3xl shadow-inner`}>💨</div>
+        <div className={`w-12 h-12 md:w-16 md:h-16 rounded-2xl ${info.bg} flex items-center justify-center text-2xl md:text-3xl shadow-inner flex-shrink-0`}>💨</div>
       </div>
       {aqi !== '--' && (
-        <div className="space-y-2 mb-4">
+        <div className="space-y-2 mb-4 flex-1">
           <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-1000"
               style={{ width: `${pct}%`, background: `hsl(${120 - aqiNum / 2.5}, 80%, 55%)` }}
             />
           </div>
-          <p className="text-[10px] text-on-surface-variant opacity-60">{info.desc}</p>
+          <p className="text-[9px] md:text-[10px] text-on-surface-variant opacity-60 leading-relaxed">{info.desc}</p>
         </div>
       )}
-      <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-white/5">
-        <div>
-          <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-1">PM2.5</p>
-          <p className="font-display font-black text-base text-on-surface">{pm25 === '--' ? '--' : `${Number(pm25).toFixed(1)} µg`}</p>
+      <div className="grid grid-cols-2 gap-3 mt-auto pt-4 border-t border-white/5">
+        <div className="min-w-0">
+          <p className="text-[8px] md:text-[9px] font-black uppercase tracking-widest opacity-40 mb-1 truncate">PM2.5</p>
+          <p className="font-display font-black text-sm md:text-base text-on-surface truncate">{pm25 === '--' ? '--' : `${Number(pm25).toFixed(1)} µg`}</p>
         </div>
-        <div>
-          <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-1">PM10</p>
-          <p className="font-display font-black text-base text-on-surface">{pm10 === '--' ? '--' : `${Number(pm10).toFixed(1)} µg`}</p>
+        <div className="min-w-0">
+          <p className="text-[8px] md:text-[9px] font-black uppercase tracking-widest opacity-40 mb-1 truncate">PM10</p>
+          <p className="font-display font-black text-sm md:text-base text-on-surface truncate">{pm10 === '--' ? '--' : `${Number(pm10).toFixed(1)} µg`}</p>
         </div>
       </div>
     </div>
@@ -378,29 +380,29 @@ const BmkgDashboard = () => {
         <div className="absolute bottom-0 right-0 w-[50%] h-[50%] bg-indigo-500/10 blur-[120px] rounded-full" />
       </div>
 
-      <div className="relative z-10 max-w-5xl mx-auto px-4 md:px-6 space-y-8">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 md:px-6 space-y-8 md:space-y-10">
 
         {/* Page Header */}
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex-1 min-w-0">
             <button
               onClick={() => navigate(-1)}
-              className="flex items-center gap-2 text-on-surface-variant opacity-60 hover:opacity-100 mb-3 transition-opacity text-sm"
+              className="flex items-center gap-2 text-on-surface-variant opacity-60 hover:opacity-100 mb-3 transition-opacity text-sm w-fit"
             >
               <span className="material-symbols-outlined text-lg">arrow_back</span>
               <span className="font-bold">Kembali</span>
             </button>
-            <h1 className="font-display text-3xl md:text-4xl font-black text-on-surface tracking-tighter">
+            <h1 className="font-display text-3xl md:text-4xl font-black text-on-surface tracking-tight leading-none truncate">
               Cuaca &amp; Bencana
             </h1>
-            <p className="text-sm text-on-surface-variant opacity-60 mt-1 font-medium">
+            <p className="text-xs md:text-sm text-on-surface-variant opacity-60 mt-2 font-medium line-clamp-2">
               Informasi meteorologi &amp; geofisika real-time
             </p>
           </div>
           <button
             onClick={() => { const c = new AbortController(); loadData(c.signal, userLoc); }}
             disabled={loading}
-            className="glass-card p-3 rounded-xl text-primary hover:bg-primary/10 transition-all active:scale-95 disabled:opacity-40"
+            className="glass-card p-3 rounded-xl text-primary hover:bg-primary/10 transition-all active:scale-95 disabled:opacity-40 flex-shrink-0 self-start sm:self-auto"
             title="Perbarui data"
           >
             <span className={`material-symbols-outlined text-xl ${loading ? 'animate-spin' : ''}`}>refresh</span>
@@ -409,15 +411,15 @@ const BmkgDashboard = () => {
 
         {/* Last updated */}
         {lastUpdated && (
-          <p className="text-[10px] text-on-surface-variant opacity-40 font-medium -mt-4">
+          <p className="text-[10px] text-on-surface-variant opacity-40 font-medium -mt-6 md:-mt-8">
             Diperbarui: {lastUpdated.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })} WIB
           </p>
         )}
 
         {error && (
-          <div className="glass-card border border-yellow-500/20 bg-yellow-500/5 rounded-2xl px-5 py-4 flex items-center gap-3">
-            <span className="material-symbols-outlined text-yellow-400">warning</span>
-            <p className="text-sm text-yellow-400 font-medium">{error}</p>
+          <div className="glass-card border border-yellow-500/20 bg-yellow-500/5 rounded-2xl px-4 md:px-5 py-3 md:py-4 flex items-start md:items-center gap-3">
+            <span className="material-symbols-outlined text-yellow-400 flex-shrink-0 mt-0.5 md:mt-0">warning</span>
+            <p className="text-xs md:text-sm text-yellow-400 font-medium leading-relaxed">{error}</p>
           </div>
         )}
 
@@ -527,16 +529,16 @@ const BmkgDashboard = () => {
         {/* ── SECTION 5: Regional Lokal ──────────────────────────── */}
         <section>
           {/* Section header with badge */}
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-start sm:items-center gap-3 sm:gap-4 mb-6">
             <div className="w-10 h-10 rounded-xl bg-sky-500/15 flex items-center justify-center text-sky-400 shadow-inner flex-shrink-0">
               <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>location_city</span>
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="font-display text-xl font-black text-on-surface tracking-tight leading-none">Cuaca Lokal</h2>
-                <span className="text-[9px] font-black uppercase tracking-widest bg-sky-500/15 text-sky-400 px-2 py-0.5 rounded-full">📍 {userLoc.name}</span>
+                <h2 className="font-display text-lg sm:text-xl font-black text-on-surface tracking-tight leading-none truncate">Cuaca Lokal</h2>
+                <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest bg-sky-500/15 text-sky-400 px-2 py-0.5 rounded-full truncate max-w-full">📍 {userLoc.name}</span>
               </div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-50 mt-0.5">Informasi cuaca terkini untuk lokasi Anda</p>
+              <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-50 mt-1 sm:mt-0.5 truncate">Informasi cuaca terkini untuk lokasi Anda</p>
             </div>
           </div>
 
@@ -546,41 +548,43 @@ const BmkgDashboard = () => {
             <div className="space-y-5">
               {/* Current conditions hero */}
               {currentForecast && (
-                <div className="glass-card rounded-2xl p-6 md:p-8 border border-sky-500/15 relative overflow-hidden">
+                <div className="glass-card rounded-2xl p-5 md:p-8 border border-sky-500/15 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-64 h-64 rounded-full -mr-20 -mt-20 blur-3xl bg-sky-500/10" />
-                  <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-6">
+                  <div className="relative z-10 flex flex-col md:flex-row gap-6">
                     {/* Main temp */}
-                    <div className="flex items-center gap-5 md:gap-6">
-                      <div className="text-6xl md:text-8xl">{currentWeather?.emoji}</div>
+                    <div className="flex items-center gap-4 md:gap-6">
+                      <div className="text-5xl md:text-8xl">{currentWeather?.emoji}</div>
                       <div>
-                        <div className="font-display text-6xl md:text-8xl font-black text-on-surface leading-none tracking-tighter">
+                        <div className="font-display text-5xl md:text-8xl font-black text-on-surface leading-none tracking-tighter">
                           {currentForecast.t}°
                         </div>
-                        <div className="text-sm font-bold text-on-surface-variant opacity-70 mt-1">{currentWeather?.label}</div>
+                        <div className="text-xs md:text-sm font-bold text-on-surface-variant opacity-70 mt-1 line-clamp-1">{currentWeather?.label}</div>
                       </div>
                     </div>
 
                     {/* Detail grid */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-4 gap-4 flex-1">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 flex-1">
                       {[
                         { icon: 'water_drop', label: 'Kelembaban', val: `${currentForecast.hu}%` },
                         { icon: 'air', label: 'Angin', val: `${currentForecast.ws} m/s ${windDirLabel(currentForecast.wd_deg)}` },
                         { icon: 'visibility', label: 'Visibilitas', val: currentForecast.vs_text },
                         { icon: 'umbrella', label: 'Curah Hujan', val: `${currentForecast.tp} mm` },
                       ].map(item => (
-                        <div key={item.label} className="glass-card rounded-xl p-3">
-                          <span className="material-symbols-outlined text-sm text-primary opacity-70">{item.icon}</span>
-                          <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mt-1">{item.label}</p>
-                          <p className="font-display font-black text-sm text-on-surface mt-0.5">{item.val}</p>
+                        <div key={item.label} className="glass-card rounded-xl p-3 flex flex-col justify-between min-w-0">
+                          <span className="material-symbols-outlined text-sm md:text-base text-primary opacity-70 mb-1.5 md:mb-2">{item.icon}</span>
+                          <div>
+                            <p className="text-[8px] md:text-[9px] font-black uppercase tracking-widest opacity-40 mb-0.5 truncate">{item.label}</p>
+                            <p className="font-display font-black text-sm text-on-surface line-clamp-2 leading-tight">{item.val}</p>
+                          </div>
                         </div>
                       ))}
                     </div>
                   </div>
 
                   {/* Location info strip */}
-                  <div className="relative z-10 mt-5 pt-5 border-t border-white/5 flex flex-wrap gap-4 text-[10px] text-on-surface-variant opacity-50 font-bold uppercase tracking-wider">
-                    <span>📍 {userLoc.name}</span>
-                    <span>📌 Radius Pantauan 30 KM</span>
+                  <div className="relative z-10 mt-5 pt-4 md:pt-5 border-t border-white/5 flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-[9px] md:text-[10px] text-on-surface-variant opacity-50 font-bold uppercase tracking-wider">
+                    <span className="truncate">📍 {userLoc.name}</span>
+                    <span className="truncate">📌 Radius Pantauan 30 KM</span>
                   </div>
                 </div>
               )}
@@ -641,9 +645,9 @@ const BmkgDashboard = () => {
         </section>
 
         {/* ── Informational Footer ──────────────────────────────────── */}
-        <div className="glass-card rounded-2xl p-5 flex items-start gap-4 border border-white/5">
-          <span className="material-symbols-outlined text-on-surface-variant opacity-40 mt-0.5">info</span>
-          <div className="text-[10px] text-on-surface-variant opacity-50 leading-relaxed font-medium">
+        <div className="glass-card rounded-2xl p-4 md:p-5 flex items-start gap-3 md:gap-4 border border-white/5 mb-8">
+          <span className="material-symbols-outlined text-on-surface-variant opacity-40 mt-0.5 flex-shrink-0 text-lg md:text-xl">info</span>
+          <div className="text-[9px] md:text-[10px] text-on-surface-variant opacity-50 leading-relaxed font-medium">
             Data cuaca dan seismik diperbarui secara otomatis dari sumber resmi. Interval pembaruan: gempa (real-time), cuaca (3 jam), kualitas udara (1 jam).
             Peringatan dini dianalisis berdasarkan prakiraan cuaca terkini untuk wilayah Bandung Raya.
           </div>
