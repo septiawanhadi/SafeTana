@@ -109,7 +109,7 @@ const EarthquakeHeroCard = memo(({ quake }) => {
             </div>
             <div className="glass-card rounded-xl p-3 flex-1 md:flex-none min-w-0">
               <p className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant opacity-50 mb-1 truncate">Koordinat</p>
-              <p className="font-mono font-bold text-xs md:text-sm text-on-surface truncate">{coords[0].toFixed(2)}°, {coords[1].toFixed(2)}°</p>
+              <p className="font-mono font-bold text-xs md:text-sm text-on-surface truncate">{(coords[0] || 0).toFixed(2)}°, {(coords[1] || 0).toFixed(2)}°</p>
             </div>
           </div>
         </div>
@@ -373,7 +373,7 @@ const BmkgDashboard = () => {
   const next12Hours = bandungWeather?.forecasts?.slice(0, 8) || [];
 
   return (
-    <div className="min-h-screen bg-background pb-32 pt-20">
+    <div className="min-h-screen bg-background pb-32 pt-20 overflow-x-hidden">
       {/* Background deco */}
       <div className="fixed inset-0 pointer-events-none opacity-20 z-0">
         <div className="absolute top-0 left-0 w-[60%] h-[60%] bg-sky-500/10 blur-[150px] rounded-full" />
@@ -458,7 +458,7 @@ const BmkgDashboard = () => {
         {/* ── SECTION 4: Pantauan Banjir Bandung ───────────────────── */}
         <section className="relative">
           {/* Animated Background Deco */}
-          <div className="absolute top-0 right-0 w-80 h-80 bg-primary/10 blur-[120px] rounded-full pointer-events-none -mr-40 -mt-40 animate-pulse" />
+          <div className="absolute top-0 right-0 w-64 h-64 md:w-80 md:h-80 bg-primary/10 blur-[80px] md:blur-[120px] rounded-full pointer-events-none -mr-20 -mt-20 md:-mr-40 md:-mt-40 animate-pulse" />
           
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
             <div className="space-y-4">
