@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../../firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { satuSehatService } from '../../services/health/satuSehatService';
+import { dataService } from '../../services/health/dataService';
 
 const HealthDashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [latestScreening, setLatestScreening] = useState(null);
+  const [satuSehatStatus, setSatuSehatStatus] = useState({ status: 'checking' });
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -23,6 +26,14 @@ const HealthDashboard = () => {
       }
       setLoading(false);
     });
+
+    // Check SatuSehat Connection
+    const checkConnections = async () => {
+      const status = await satuSehatService.checkConnection();
+      setSatuSehatStatus(status);
+    };
+    checkConnections();
+
     return () => unsubscribe();
   }, []);
 
@@ -208,6 +219,38 @@ const HealthDashboard = () => {
                 </div>
               </div>
               <span className="material-symbols-outlined text-tertiary group-hover:translate-x-1 transition-transform">arrow_forward</span>
+           </div>
+        </section>
+
+          </div>
+        </section>
+
+        {/* National Health Integration Status */}
+        <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+           <div className="glass-card rounded-[2rem] p-5 border border-outline-variant/10 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${satuSehatStatus.status === 'connected' ? 'bg-success/10 text-success' : 'bg-on-surface/5 text-on-surface-variant'}`}>
+                  <span className="material-symbols-outlined">health_and_safety</span>
+                </div>
+                <div>
+                  <h4 className="text-[10px] font-black uppercase tracking-widest opacity-50">SatuSehat Kemenkes</h4>
+                  <p className="text-xs font-bold">{satuSehatStatus.status === 'connected' ? 'Terhubung (Sandbox)' : 'Belum Terhubung'}</p>
+                </div>
+              </div>
+              <div className={`w-2 h-2 rounded-full ${satuSehatStatus.status === 'connected' ? 'bg-success shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-on-surface/20'}`} />
+           </div>
+
+           <div className="glass-card rounded-[2rem] p-5 border border-outline-variant/10 flex items-center justify-between opacity-50 grayscale">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-on-surface/5 flex items-center justify-center text-on-surface-variant">
+                  <span className="material-symbols-outlined">account_balance_wallet</span>
+                </div>
+                <div>
+                  <h4 className="text-[10px] font-black uppercase tracking-widest opacity-50">BPJS Kesehatan</h4>
+                  <p className="text-xs font-bold">Belum Terintegrasi</p>
+                </div>
+              </div>
+              <div className="w-2 h-2 rounded-full bg-on-surface/20" />
            </div>
         </section>
 
