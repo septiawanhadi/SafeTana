@@ -222,9 +222,6 @@ const HealthDashboard = () => {
            </div>
         </section>
 
-          </div>
-        </section>
-
         {/* National Health Integration Status */}
         <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
            <div className="glass-card rounded-[2rem] p-5 border border-outline-variant/10 flex items-center justify-between">
