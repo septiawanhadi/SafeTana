@@ -3,6 +3,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const GEMINI_API_KEY = process.env.VITE_GEMINI_API_KEY;
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const OPENAI_API_KEY = process.env.VITE_OPENAI_API_KEY;
 const PROJECT_ID = process.env.VITE_FIREBASE_PROJECT_ID;
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
@@ -57,6 +58,48 @@ async function getGroqResponse(userInput) {
         return data.choices?.[0]?.message?.content || "Maaf, Groq gagal memberikan respon.";
     } catch (e) {
         console.error("Groq Fetch Error:", e);
+        throw e;
+    }
+}
+
+/**
+ * Helper to get response from OpenAI (Tier 3 Backup AI)
+ */
+async function getOpenAIResponse(userInput) {
+    if (!OPENAI_API_KEY) {
+        console.error("OPENAI_API_KEY is undefined in environment variables!");
+        throw new Error("OpenAI API Key missing");
+    }
+    
+    const url = "https://api.openai.com/v1/chat/completions";
+    try {
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: "gpt-4o-mini",
+                messages: [
+                    { role: "system", content: SYSTEM_INSTRUCTION },
+                    { role: "user", content: userInput }
+                ],
+                temperature: 0.7,
+                max_tokens: 800
+            })
+        });
+        
+        if (!res.ok) {
+            const errorBody = await res.json().catch(() => ({}));
+            console.error("OpenAI API error response:", JSON.stringify(errorBody));
+            throw new Error(`OpenAI API error: ${res.status}`);
+        }
+        
+        const data = await res.json();
+        return data.choices?.[0]?.message?.content || "Maaf, OpenAI gagal memberikan respon.";
+    } catch (e) {
+        console.error("OpenAI Fetch Error:", e);
         throw e;
     }
 }
@@ -176,9 +219,16 @@ export default async function handler(request, response) {
                     const groqResponse = await getGroqResponse(message.text);
                     await sendTelegramMessage(chatId, groqResponse.replace(/[#*`]/g, ''));
                 } catch (groqError) {
-                    console.error("Critical failure: Both Gemini and Groq FAILED.");
-                    console.error("Final Error Details:", groqError.message);
-                    await sendTelegramMessage(chatId, "Maaf, seluruh sistem AI kami sedang mencapai batas kuota gratis. Mohon tunggu beberapa menit lagi.");
+                    console.warn("Groq failure caught:", groqError.message);
+                    console.log("Attempting OpenAI fallback...");
+                    try {
+                        const openAiResponse = await getOpenAIResponse(message.text);
+                        await sendTelegramMessage(chatId, openAiResponse.replace(/[#*`]/g, ''));
+                    } catch (openAiError) {
+                        console.error("CRITICAL FAILURE: All AI services (Gemini, Groq, OpenAI) FAILED.");
+                        console.error("Final Error Details:", openAiError.message);
+                        await sendTelegramMessage(chatId, "Maaf, seluruh sistem AI kami sedang mencapai batas kuota gratis. Mohon tunggu beberapa menit lagi atau hubungi petugas.");
+                    }
                 }
             }
         }
