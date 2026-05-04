@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { auth } from '../../firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { satuSehatService } from '../../services/health/satuSehatService';
+import { bpjsService } from '../../services/health/bpjsService';
 import { dataService } from '../../services/health/dataService';
 
 const HealthDashboard = () => {
@@ -11,6 +12,9 @@ const HealthDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [latestScreening, setLatestScreening] = useState(null);
   const [satuSehatStatus, setSatuSehatStatus] = useState({ status: 'checking' });
+  const [bpjsStatus, setBpjsStatus] = useState({ status: 'checking' });
+  const [checkingBpjs, setCheckingBpjs] = useState(false);
+  const [bpjsResult, setBpjsResult] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -27,10 +31,13 @@ const HealthDashboard = () => {
       setLoading(false);
     });
 
-    // Check SatuSehat Connection
+    // Check Connections
     const checkConnections = async () => {
-      const status = await satuSehatService.checkConnection();
-      setSatuSehatStatus(status);
+      const ssStatus = await satuSehatService.checkConnection();
+      setSatuSehatStatus(ssStatus);
+      
+      const bStatus = await bpjsService.checkConnection();
+      setBpjsStatus(bStatus);
     };
     checkConnections();
 
@@ -237,17 +244,39 @@ const HealthDashboard = () => {
               <div className={`w-2 h-2 rounded-full ${satuSehatStatus.status === 'connected' ? 'bg-success shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-on-surface/20'}`} />
            </div>
 
-           <div className="glass-card rounded-[2rem] p-5 border border-outline-variant/10 flex items-center justify-between opacity-50 grayscale">
+           <div className={`glass-card rounded-[2rem] p-5 border border-outline-variant/10 flex items-center justify-between ${bpjsStatus.status === 'unconfigured' ? 'opacity-50 grayscale' : ''}`}>
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-on-surface/5 flex items-center justify-center text-on-surface-variant">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${bpjsResult?.active ? 'bg-success/10 text-success' : 'bg-on-surface/5 text-on-surface-variant'}`}>
                   <span className="material-symbols-outlined">account_balance_wallet</span>
                 </div>
                 <div>
                   <h4 className="text-[10px] font-black uppercase tracking-widest opacity-50">BPJS Kesehatan</h4>
-                  <p className="text-xs font-bold">Belum Terintegrasi</p>
+                  <p className="text-xs font-bold">
+                    {bpjsResult ? `Status: ${bpjsResult.label}` : (bpjsStatus.status === 'ready' ? 'Siap Cek Status' : 'Belum Terkonfigurasi')}
+                  </p>
                 </div>
               </div>
-              <div className="w-2 h-2 rounded-full bg-on-surface/20" />
+              <div className="flex items-center gap-3">
+                {bpjsStatus.status === 'ready' && !bpjsResult && (
+                  <button 
+                    onClick={() => {
+                      const nik = window.prompt("Masukkan NIK untuk cek status BPJS:");
+                      if (nik) {
+                        setCheckingBpjs(true);
+                        bpjsService.getStatusByNIK(nik)
+                          .then(setBpjsResult)
+                          .catch(err => alert(err.message))
+                          .finally(() => setCheckingBpjs(false));
+                      }
+                    }}
+                    disabled={checkingBpjs}
+                    className="text-[10px] font-black bg-primary text-on-primary px-3 py-1 rounded-full uppercase tracking-widest"
+                  >
+                    {checkingBpjs ? '...' : 'Cek'}
+                  </button>
+                )}
+                <div className={`w-2 h-2 rounded-full ${bpjsStatus.status === 'ready' ? (bpjsResult?.active ? 'bg-success shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-amber-500') : 'bg-on-surface/20'}`} />
+              </div>
            </div>
         </section>
 
