@@ -27,8 +27,17 @@ async function getAccessToken() {
     const params = new URLSearchParams();
     params.append('client_id', CLIENT_ID);
     params.append('client_secret', CLIENT_SECRET);
+    params.append('grant_type', 'client_credentials');
 
-    const response = await fetch(AUTH_URL, {
+    // Fix incorrect URL from env (change /token to /accesstoken)
+    let finalAuthUrl = AUTH_URL;
+    if (finalAuthUrl.endsWith('/token')) {
+        finalAuthUrl = finalAuthUrl.replace('/token', '/accesstoken?grant_type=client_credentials');
+    } else if (!finalAuthUrl.includes('grant_type')) {
+        finalAuthUrl += '?grant_type=client_credentials';
+    }
+
+    const response = await fetch(finalAuthUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: params
