@@ -6,6 +6,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 
 // Integration: Service Pattern
 import { dataService } from '../../services/health/dataService';
+import { satuSehatService } from '../../services/health/satuSehatService';
 import { calculateRisk } from '../../utils/healthUtils';
 
 const HealthScreening = () => {
@@ -17,6 +18,7 @@ const HealthScreening = () => {
 
   // Form State
   const [formData, setFormData] = useState({
+    nik: '',
     nama: '',
     usia: '',
     gender: '',
@@ -82,6 +84,14 @@ const HealthScreening = () => {
       
       // Use centralized Service
       await dataService.healthScreenings.add(user.uid, screeningData);
+      
+      // SINKRONISASI SATUSEHAT
+      try {
+        await satuSehatService.submitScreening(formData.nik, formData, assessment);
+        console.log("Berhasil sinkronisasi ke SATUSEHAT Sandbox");
+      } catch (ssErr) {
+        console.warn("Sinkronisasi SATUSEHAT gagal, namun data lokal tersimpan.", ssErr);
+      }
       
       setResult(assessment);
     } catch (err) {
@@ -321,8 +331,12 @@ const HealthScreening = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="glass-card p-6 rounded-[2rem] border border-outline-variant/20 shadow-sm">
-            <h2 className="font-headline font-black text-xs text-on-surface-variant uppercase tracking-widest mb-6">Pengukuran Fisik</h2>
+            <h2 className="font-headline font-black text-xs text-on-surface-variant uppercase tracking-widest mb-6">Pengukuran Fisik & Identitas</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="sm:col-span-2">
+                <label className="block text-[10px] font-bold mb-2 uppercase text-on-surface-variant tracking-wider">NIK (Nomor Induk Kependudukan)</label>
+                <input type="text" name="nik" value={formData.nik} onChange={handleChange} required minLength="16" maxLength="16" className="w-full p-4 rounded-xl border border-outline-variant/20 bg-surface-container-highest focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm font-bold text-on-surface transition-all placeholder:text-on-surface-variant/40" placeholder="Masukkan 16 Digit NIK Anda" />
+              </div>
               <div>
                 <label className="block text-[10px] font-bold mb-2 uppercase text-on-surface-variant tracking-wider">Usia (Tahun)</label>
                 <input type="number" name="usia" value={formData.usia} onChange={handleChange} required className="w-full p-4 rounded-xl border border-outline-variant/20 bg-surface-container-highest focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm font-bold text-on-surface transition-all placeholder:text-on-surface-variant/40" placeholder="Ketik disini..." />
