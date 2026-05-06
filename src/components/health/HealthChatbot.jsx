@@ -5,9 +5,9 @@ import { ArrowLeft, Send, Bot, User, RefreshCw, HeartPulse } from 'lucide-react'
 // Integration: Service Pattern
 import { aiService } from '../../services/health/aiService';
 import { satuSehatService } from '../../services/health/satuSehatService';
-import { reverseGeocode } from '../../utils/geoUtils';
+import { calculateDistance } from '../../utils/geoUtils';
 
-const HealthChatbot = ({ userLocation }) => {
+const HealthChatbot = () => {
   const navigate = useNavigate();
   const [messages, setMessages] = useState([
     {
@@ -19,7 +19,6 @@ const HealthChatbot = ({ userLocation }) => {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isPrivacyMode, setIsPrivacyMode] = useState(false);
-  const [locationText, setLocationText] = useState('');
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -29,14 +28,6 @@ const HealthChatbot = ({ userLocation }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTyping]);
-
-  useEffect(() => {
-    if (userLocation) {
-      reverseGeocode(userLocation[0], userLocation[1]).then(res => {
-        setLocationText(`${res.city}, ${res.province}`);
-      }).catch(err => console.error("Geocode error:", err));
-    }
-  }, [userLocation]);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -58,54 +49,75 @@ const HealthChatbot = ({ userLocation }) => {
         }));
 
       // Call the centralized aiService with privacy mode support
-      const responseText = await aiService.getHealthChatResponse(history, userInputText, isPrivacyMode, { locationText });
+      const responseText = await aiService.getHealthChatResponse(history, userInputText, isPrivacyMode);
       
-      // INTERCEPTOR LOGIC (Agen SATUSEHAT)
+      // INTERCEPTOR UNTUK FASYANKES AGENT
       if (responseText.includes('[SEARCH_FASYANKES:')) {
-        const match = responseText.match(/\[SEARCH_FASYANKES:\s*(\{.*?\})\s*\]/);
-        if (match) {
-          try {
-            const params = JSON.parse(match[1]);
-            
-            // Tampilkan pesan loading
-            setMessages(prev => [...prev, { id: Date.now() + 1, sender: 'bot', text: '⏳ Sedang mencari di database SATUSEHAT Kemenkes...' }]);
-            
-            // Search API
-            const res = await satuSehatService.getMasterSarana({ ...params, limit: 3 });
-            let faskesListStr = "Sayang sekali, tidak ada fasilitas kesehatan yang terdaftar di lokasi tersebut pada sistem Sandbox Kemenkes.";
-            
-            if (res?.data?.length > 0) {
-                faskesListStr = res.data.map((f, i) => `${i+1}. ${f.nama} (${f.alamat}, ${f.kabkota?.nama || ''})`).join('\n');
-            }
-            
-            // Minta AI merangkum hasil
-            const finalPrompt = `Saya telah melakukan pencarian fasyankes di Kemenkes berdasarkan perintah Anda. Berikut hasilnya:\n${faskesListStr}\n\nTolong sampaikan informasi ini ke pengguna dengan ramah, dan beri tahu bahwa data ini berasal dari Sandbox SATUSEHAT Kemenkes.`;
-            
-            const finalHistory = [...history, {role:'user', parts:[{text: userInputText}]}, {role:'model', parts:[{text: 'Baik, saya bantu carikan datanya di Kemenkes.'}]}];
-            const finalResponse = await aiService.getHealthChatResponse(finalHistory, finalPrompt, isPrivacyMode, { locationText });
-            
-            setMessages(prev => {
-              const newMsgs = [...prev];
-              newMsgs.pop(); // remove loading message
-              return [...newMsgs, { id: Date.now() + 2, sender: 'bot', text: finalResponse }];
-            });
-            
-          } catch (e) {
-            console.error("HealthChatbot Interceptor Error:", e);
-            setMessages(prev => {
-              const newMsgs = [...prev];
-              newMsgs.pop();
-              return [...newMsgs, { id: Date.now() + 2, sender: 'bot', text: 'Maaf, terjadi kesalahan saat menghubungi server Kemenkes. Coba lagi nanti.' }];
-            });
-          }
-        } else {
-          // Gagal parse JSON
-          setMessages(prev => [...prev, { id: Date.now() + 1, sender: 'bot', text: 'Maaf, saya tidak dapat memproses format pencarian fasyankes.' }]);
-        }
-      } else {
-        const botResponse = { id: Date.now() + 1, sender: 'bot', text: responseText };
-        setMessages(prev => [...prev, botResponse]);
+         const match = responseText.match(/\[SEARCH_FASYANKES:\s*(\{.*?\})\s*\]/);
+         if (match) {
+             const params = JSON.parse(match[1]);
+             
+             // Tambahkan indikator loading
+             const loadingId = Date.now() + 1;
+             setMessages(prev => [...prev, { id: loadingId, sender: 'bot', text: 'Menganalisis lokasi dan menghubungi database Kemenkes...' }]);
+             
+             try {
+                // Get User Location
+                const getUserLoc = () => new Promise((resolve) => {
+                   if (navigator.geolocation) {
+                      navigator.geolocation.getCurrentPosition(
+                        (pos) => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+                        () => resolve(null), { timeout: 5000 }
+                      );
+                   } else { resolve(null); }
+                });
+                const loc = await getUserLoc();
+
+                // Fetch SATUSEHAT
+                const res = await satuSehatService.getMasterSarana({ ...params, limit: 100 });
+                let faskesListStr = "Data tidak ditemukan.";
+                
+                if (res?.data?.length > 0) {
+                    let sortedData = res.data;
+                    if (loc) {
+                       sortedData = sortedData.map(f => {
+                          let distance = Infinity;
+                          if (f.latitude && f.longitude) {
+                             distance = calculateDistance(loc.lat, loc.lon, parseFloat(f.latitude), parseFloat(f.longitude));
+                          }
+                          return { ...f, distance };
+                       }).sort((a, b) => a.distance - b.distance);
+                    }
+                    
+                    // Ambil 3 terdekat
+                    const top3 = sortedData.slice(0, 3);
+                    faskesListStr = top3.map((f, i) => `${i+1}. ${f.nama} (${f.alamat}, ${f.kabkota?.nama})${f.distance !== Infinity && f.distance !== undefined ? ` - Jarak: ${f.distance.toFixed(1)} km` : ''}`).join('\n');
+                }
+                
+                // Prompt AI again with the results
+                const finalPrompt = `Saya (Sistem) telah melakukan pencarian fasilitas kesehatan di database SATUSEHAT Kemenkes. Berikut hasilnya (diurutkan terdekat dari lokasi user):\n${faskesListStr}\nTolong sampaikan informasi ini ke user dengan bahasa yang ramah. JANGAN sebutkan nama file atau kode API.`;
+                
+                const aiHistory = [...history, {role:'user', parts:[{text: userInputText}]}];
+                const finalResponse = await aiService.getHealthChatResponse(aiHistory, finalPrompt, isPrivacyMode);
+                
+                setMessages(prev => {
+                  const newMsgs = prev.filter(m => m.id !== loadingId);
+                  return [...newMsgs, { id: Date.now() + 2, sender: 'bot', text: finalResponse }];
+                });
+             } catch (e) {
+                console.error("Fasyankes Agent Error:", e);
+                setMessages(prev => {
+                  const newMsgs = prev.filter(m => m.id !== loadingId);
+                  return [...newMsgs, { id: Date.now() + 2, sender: 'bot', text: "Maaf, saya gagal terhubung dengan server SATUSEHAT. Silakan coba pencarian manual di menu Direktori Fasyankes." }];
+                });
+             }
+             setIsTyping(false);
+             return; // Stop here, don't execute the default response
+         }
       }
+
+      const botResponse = { id: Date.now() + 1, sender: 'bot', text: responseText };
+      setMessages(prev => [...prev, botResponse]);
     } catch (error) {
       console.error("HealthChatbot AI Error:", error);
       const errorMessage = { 

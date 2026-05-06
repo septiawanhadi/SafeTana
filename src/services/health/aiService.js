@@ -96,7 +96,7 @@ export const aiService = {
   /**
    * Get a chat response for the Health Clinic
    */
-  async getHealthChatResponse(history, userInput, useLocalAgent = false, userContext = {}) {
+  async getHealthChatResponse(history, userInput, useLocalAgent = false) {
     if (useLocalAgent) {
       return await NullClawBridge.process(userInput);
     }
@@ -109,15 +109,9 @@ export const aiService = {
       2. Melakukan triase medis dasar dan penjelasan hasil skrining kesehatan.
       3. Memberikan saran pemulihan pasca bencana (manajemen stres, trauma).
       4. INGATKAN: Anda adalah AI. Jika ada gejala gawat, instruksikan segera ke RS atau tekan SOS.
-      5. Gunakan bahasa Indonesia yang ramah, hangat, dan profesional.
-      6. Hindari format markdown yang rumit, gunakan poin (-) jika perlu.
-      
-      [INTEGRASI SATUSEHAT FASYANKES]
-      Lokasi Pengguna Saat Ini: ${userContext.locationText || 'Tidak diketahui'}.
-      Jika pengguna mencari atau menanyakan lokasi fasilitas kesehatan (Rumah Sakit, Klinik, Puskesmas, atau Praktik Mandiri) dan meminta Anda mencarikannya, Anda WAJIB bertindak sebagai Agen Pencari dan membalas HANYA dengan format perintah rahasia berikut (tanpa teks lain):
-      [SEARCH_FASYANKES: {"jenis_sarana": "104", "nama": "kata kunci nama faskes"}]
-      Kode jenis_sarana: 104=Rumah Sakit, 103=Klinik, 102=Puskesmas, 101=Praktik Mandiri. Jika tidak spesifik, gunakan "104". 
-      Aplikasi akan mengeksekusi pencarian berdasarkan perintah tersebut.
+      5. PENTING (AI AGENT): Jika pengguna mencari atau menanyakan lokasi Rumah Sakit, Klinik, Puskesmas, atau Praktik Mandiri, Anda WAJIB membalas HANYA dengan format khusus ini: [SEARCH_FASYANKES: {"jenis_sarana": "104", "nama": "kata kunci nama"}]. Gunakan kode: 104=RS, 103=Klinik, 102=Puskesmas, 101=Praktik Mandiri. JANGAN tambahkan teks lain jika Anda menggunakan format ini. Kosongkan "nama" jika tidak spesifik.
+      6. Gunakan bahasa Indonesia yang ramah, hangat, dan profesional.
+      7. Hindari format markdown yang rumit, gunakan poin (-) jika perlu.
     `;
 
     return await callAiWithFallback(userInput, systemPrompt, history);

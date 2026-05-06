@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { satuSehatService } from '../../services/health/satuSehatService';
+import { calculateDistance } from '../../utils/geoUtils';
 
 const JENIS_SARANA = [
   { id: '104', label: 'Rumah Sakit', icon: 'local_hospital' },
@@ -23,12 +24,39 @@ const SatuSehatFasyankes = () => {
       try {
         const response = await satuSehatService.getMasterSarana({
           jenis_sarana: selectedJenis,
-          limit: 20, // Ambil maksimal 20 data per kategori untuk demo
+          limit: 100, // Ambil lebih banyak untuk disortir terdekat
           page: 1
         });
         
         if (response && response.data) {
-          setFacilities(response.data);
+          let faskesList = response.data;
+          
+          // Dapatkan lokasi pengguna untuk sortir terdekat
+          const getUserLoc = () => new Promise((resolve) => {
+             if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                  (pos) => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+                  () => resolve(null),
+                  { timeout: 5000 }
+                );
+             } else {
+                resolve(null);
+             }
+          });
+
+          const loc = await getUserLoc();
+          if (loc) {
+             faskesList = faskesList.map(f => {
+                let distance = Infinity;
+                // Asumsi properti latitude dan longitude tersedia di response Sandbox
+                if (f.latitude && f.longitude) {
+                   distance = calculateDistance(loc.lat, loc.lon, parseFloat(f.latitude), parseFloat(f.longitude));
+                }
+                return { ...f, distance };
+             }).sort((a, b) => a.distance - b.distance);
+          }
+
+          setFacilities(faskesList);
         } else {
           setFacilities([]);
         }
@@ -137,6 +165,12 @@ const SatuSehatFasyankes = () => {
                     </div>
                     
                     <div className="flex flex-wrap gap-2">
+                      {facility.distance !== undefined && facility.distance !== Infinity && (
+                        <span className="px-3 py-1 bg-tertiary/10 rounded-lg text-[10px] font-bold text-tertiary border border-tertiary/20 flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[10px]">near_me</span>
+                          {facility.distance.toFixed(1)} km
+                        </span>
+                      )}
                       {facility.kabkota?.nama && (
                         <span className="px-3 py-1 bg-surface-container-highest rounded-lg text-[10px] font-bold text-on-surface-variant border border-outline-variant/10">
                           {facility.kabkota.nama}
