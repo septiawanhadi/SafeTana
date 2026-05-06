@@ -74,7 +74,7 @@ const HealthChatbot = () => {
                 const loc = await getUserLoc();
 
                 // Fetch SATUSEHAT
-                const res = await satuSehatService.getMasterSarana({ ...params, limit: 500 });
+                const res = await satuSehatService.getMasterSarana({ ...params, kode_provinsi: '32', limit: 500 });
                 let faskesListStr = "Data tidak ditemukan.";
                 
                 if (res?.data?.length > 0) {

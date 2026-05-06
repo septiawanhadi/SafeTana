@@ -25,6 +25,7 @@ const SatuSehatFasyankes = () => {
       try {
         const params = {
           jenis_sarana: selectedJenis,
+          kode_provinsi: '32', // Filter khusus Jawa Barat (Kode BPS 32)
           limit: 100, // Jika ada pencarian nama, 100 sudah cukup spesifik
           page: 1
         };
