@@ -35,7 +35,10 @@ const SatuSehatFasyankes = () => {
         
         const response = await satuSehatService.getMasterSarana(params);
         
-        if (response && response.data) {
+        if (response && response.error) {
+           setError(`API Error: ${response.error} - ${response.details || 'Cek Vercel Env Variables'}`);
+           setFacilities([]);
+        } else if (response && response.data) {
           let faskesList = response.data;
           
           // Dapatkan lokasi pengguna untuk sortir terdekat

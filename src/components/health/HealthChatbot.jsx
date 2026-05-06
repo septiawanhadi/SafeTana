@@ -77,6 +77,10 @@ const HealthChatbot = () => {
                 const res = await satuSehatService.getMasterSarana({ ...params, kode_provinsi: '32', limit: 500 });
                 let faskesListStr = "Data tidak ditemukan.";
                 
+                if (res && res.error) {
+                    throw new Error(res.details || res.error);
+                }
+                
                 if (res?.data?.length > 0) {
                     let sortedData = res.data;
                     if (loc) {
