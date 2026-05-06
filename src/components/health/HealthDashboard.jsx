@@ -241,36 +241,17 @@ const HealthDashboard = () => {
                 <div>
                   <h4 className="text-[10px] font-black uppercase tracking-widest opacity-50">SatuSehat Kemenkes</h4>
                   <p className="text-xs font-bold">
-                    {satuSehatStatus.status === 'connected' ? (saranaResult ? `Ditemukan: ${saranaResult.data?.length || 0} fasyankes` : 'Terhubung (Sandbox)') : 'Belum Terhubung'}
+                    {satuSehatStatus.status === 'connected' ? 'Terhubung (Sandbox)' : 'Belum Terhubung'}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                {satuSehatStatus.status === 'connected' && !saranaResult && (
+                {satuSehatStatus.status === 'connected' && (
                   <button 
-                    onClick={async () => {
-                      const kode = window.prompt("Masukkan jenis sarana (contoh: 101 Praktek Mandiri, 102 Puskesmas, 103 Klinik, 104 RS):", "101");
-                      if (kode) {
-                        setCheckingSarana(true);
-                        try {
-                          const res = await satuSehatService.getMasterSarana({ jenis_sarana: kode });
-                          setSaranaResult(res);
-                          if(res?.data?.length > 0) {
-                            alert(`Berhasil! Faskes pertama: ${res.data[0].nama} (${res.data[0].provinsi?.nama})`);
-                          } else {
-                            alert("Data fasyankes tidak ditemukan atau kosong.");
-                          }
-                        } catch (err) {
-                          alert("Gagal memuat data master sarana: " + err.message);
-                        } finally {
-                          setCheckingSarana(false);
-                        }
-                      }
-                    }}
-                    disabled={checkingSarana}
-                    className="text-[10px] font-black bg-primary text-on-primary px-3 py-1 rounded-full uppercase tracking-widest"
+                    onClick={() => navigate('/health/fasyankes')}
+                    className="text-[10px] font-black bg-primary text-on-primary px-3 py-1 rounded-full uppercase tracking-widest hover:scale-105 transition-transform shadow-md"
                   >
-                    {checkingSarana ? '...' : 'Cari'}
+                    Lihat Direktori
                   </button>
                 )}
                 <div className={`w-2 h-2 rounded-full ${satuSehatStatus.status === 'connected' ? 'bg-success shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-on-surface/20'}`} />

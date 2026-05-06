@@ -37,6 +37,7 @@ import HealthDictionary from './components/health/HealthDictionary';
 import HealthPrivacy from './components/health/HealthPrivacy';
 import HealthTerms from './components/health/HealthTerms';
 import HealthAbout from './components/health/HealthAbout';
+import SatuSehatFasyankes from './components/health/SatuSehatFasyankes';
 
 // Legacy/Additional Modules
 import CommandCenter from './CommandCenter';
@@ -419,6 +420,7 @@ const App = () => {
         <Route path="/health/privacy" element={<HealthPrivacy />} />
         <Route path="/health/terms" element={<HealthTerms />} />
         <Route path="/health/about" element={<HealthAbout />} />
+        <Route path="/health/fasyankes" element={<SatuSehatFasyankes />} />
 
         {/* Other Modules */}
         <Route path="/education" element={<EducationDashboard />} />
