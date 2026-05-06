@@ -74,7 +74,7 @@ const HealthChatbot = () => {
                 const loc = await getUserLoc();
 
                 // Fetch SATUSEHAT
-                const res = await satuSehatService.getMasterSarana({ ...params, limit: 100 });
+                const res = await satuSehatService.getMasterSarana({ ...params, limit: 500 });
                 let faskesListStr = "Data tidak ditemukan.";
                 
                 if (res?.data?.length > 0) {
@@ -82,8 +82,10 @@ const HealthChatbot = () => {
                     if (loc) {
                        sortedData = sortedData.map(f => {
                           let distance = Infinity;
-                          if (f.latitude && f.longitude) {
-                             distance = calculateDistance(loc.lat, loc.lon, parseFloat(f.latitude), parseFloat(f.longitude));
+                          const lat = f.latitude || f.posisi?.latitude;
+                          const lon = f.longitude || f.posisi?.longitude;
+                          if (lat && lon) {
+                             distance = calculateDistance(loc.lat, loc.lon, parseFloat(lat), parseFloat(lon));
                           }
                           return { ...f, distance };
                        }).sort((a, b) => a.distance - b.distance);

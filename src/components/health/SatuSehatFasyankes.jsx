@@ -24,7 +24,7 @@ const SatuSehatFasyankes = () => {
       try {
         const response = await satuSehatService.getMasterSarana({
           jenis_sarana: selectedJenis,
-          limit: 100, // Ambil lebih banyak untuk disortir terdekat
+          limit: 500, // Tingkatkan limit untuk memperbesar peluang fasyankes terdekat masuk dalam daftar
           page: 1
         });
         
@@ -48,9 +48,11 @@ const SatuSehatFasyankes = () => {
           if (loc) {
              faskesList = faskesList.map(f => {
                 let distance = Infinity;
-                // Asumsi properti latitude dan longitude tersedia di response Sandbox
-                if (f.latitude && f.longitude) {
-                   distance = calculateDistance(loc.lat, loc.lon, parseFloat(f.latitude), parseFloat(f.longitude));
+                // Cek properti latitude/longitude di root atau di dalam posisi
+                const lat = f.latitude || f.posisi?.latitude;
+                const lon = f.longitude || f.posisi?.longitude;
+                if (lat && lon) {
+                   distance = calculateDistance(loc.lat, loc.lon, parseFloat(lat), parseFloat(lon));
                 }
                 return { ...f, distance };
              }).sort((a, b) => a.distance - b.distance);
