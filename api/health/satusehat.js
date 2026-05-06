@@ -63,7 +63,15 @@ export default async function handler(req, res) {
         
         // Construct full URL with original query params
         const queryString = new URLSearchParams(query).toString();
-        const url = `${BASE_URL}/${path}${queryString ? '?' + queryString : ''}`;
+        let url = '';
+        
+        // Handle masterdata endpoint which has a different base URL structure
+        if (path.startsWith('masterdata/')) {
+            const domainOnly = BASE_URL.replace('/fhir-r4/v1', '');
+            url = `${domainOnly}/${path}${queryString ? '?' + queryString : ''}`;
+        } else {
+            url = `${BASE_URL}/${path}${queryString ? '?' + queryString : ''}`;
+        }
 
         console.log(`Proxying request to SatuSehat: ${url}`);
 

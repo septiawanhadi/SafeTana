@@ -95,6 +95,21 @@ export const satuSehatService = {
   },
 
   /**
+   * Search Master Sarana Index (Fasyankes)
+   * @param {Object} params - Query params like limit, page, jenis_sarana, dll.
+   */
+  async getMasterSarana(params = { limit: 10, page: 1 }) {
+    try {
+      const queryString = new URLSearchParams(params).toString();
+      const response = await fetch(`/api/health/satusehat?path=masterdata/v1/mastersaranaindex/mastersarana&${queryString}`);
+      return await response.json();
+    } catch (error) {
+      console.error("satuSehatService.getMasterSarana error:", error);
+      throw error;
+    }
+  },
+
+  /**
    * Check connection status
    */
   async checkConnection() {

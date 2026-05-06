@@ -15,6 +15,8 @@ const HealthDashboard = () => {
   const [bpjsStatus, setBpjsStatus] = useState({ status: 'checking' });
   const [checkingBpjs, setCheckingBpjs] = useState(false);
   const [bpjsResult, setBpjsResult] = useState(null);
+  const [checkingSarana, setCheckingSarana] = useState(false);
+  const [saranaResult, setSaranaResult] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -231,17 +233,48 @@ const HealthDashboard = () => {
 
         {/* National Health Integration Status */}
         <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-           <div className="glass-card rounded-[2rem] p-5 border border-outline-variant/10 flex items-center justify-between">
+           <div className="glass-card rounded-[2rem] p-5 border border-outline-variant/10 flex items-center justify-between flex-wrap gap-4">
               <div className="flex items-center gap-4">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${satuSehatStatus.status === 'connected' ? 'bg-success/10 text-success' : 'bg-on-surface/5 text-on-surface-variant'}`}>
                   <span className="material-symbols-outlined">health_and_safety</span>
                 </div>
                 <div>
                   <h4 className="text-[10px] font-black uppercase tracking-widest opacity-50">SatuSehat Kemenkes</h4>
-                  <p className="text-xs font-bold">{satuSehatStatus.status === 'connected' ? 'Terhubung (Sandbox)' : 'Belum Terhubung'}</p>
+                  <p className="text-xs font-bold">
+                    {satuSehatStatus.status === 'connected' ? (saranaResult ? `Ditemukan: ${saranaResult.data?.length || 0} fasyankes` : 'Terhubung (Sandbox)') : 'Belum Terhubung'}
+                  </p>
                 </div>
               </div>
-              <div className={`w-2 h-2 rounded-full ${satuSehatStatus.status === 'connected' ? 'bg-success shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-on-surface/20'}`} />
+              <div className="flex items-center gap-3">
+                {satuSehatStatus.status === 'connected' && !saranaResult && (
+                  <button 
+                    onClick={async () => {
+                      const kode = window.prompt("Masukkan jenis sarana (contoh: 101 Praktek Mandiri, 102 Puskesmas, 103 Klinik, 104 RS):", "101");
+                      if (kode) {
+                        setCheckingSarana(true);
+                        try {
+                          const res = await satuSehatService.getMasterSarana({ jenis_sarana: kode });
+                          setSaranaResult(res);
+                          if(res?.data?.length > 0) {
+                            alert(`Berhasil! Faskes pertama: ${res.data[0].nama} (${res.data[0].provinsi?.nama})`);
+                          } else {
+                            alert("Data fasyankes tidak ditemukan atau kosong.");
+                          }
+                        } catch (err) {
+                          alert("Gagal memuat data master sarana: " + err.message);
+                        } finally {
+                          setCheckingSarana(false);
+                        }
+                      }
+                    }}
+                    disabled={checkingSarana}
+                    className="text-[10px] font-black bg-primary text-on-primary px-3 py-1 rounded-full uppercase tracking-widest"
+                  >
+                    {checkingSarana ? '...' : 'Cari'}
+                  </button>
+                )}
+                <div className={`w-2 h-2 rounded-full ${satuSehatStatus.status === 'connected' ? 'bg-success shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-on-surface/20'}`} />
+              </div>
            </div>
 
            <div className={`glass-card rounded-[2rem] p-5 border border-outline-variant/10 flex items-center justify-between ${bpjsStatus.status === 'unconfigured' ? 'opacity-50 grayscale' : ''}`}>
