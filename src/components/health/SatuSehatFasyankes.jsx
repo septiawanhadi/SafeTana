@@ -13,6 +13,7 @@ const JENIS_SARANA = [
 const SatuSehatFasyankes = () => {
   const navigate = useNavigate();
   const [selectedJenis, setSelectedJenis] = useState('104');
+  const [searchQuery, setSearchQuery] = useState('');
   const [facilities, setFacilities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -22,11 +23,16 @@ const SatuSehatFasyankes = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await satuSehatService.getMasterSarana({
+        const params = {
           jenis_sarana: selectedJenis,
-          limit: 500, // Tingkatkan limit untuk memperbesar peluang fasyankes terdekat masuk dalam daftar
+          limit: 100, // Jika ada pencarian nama, 100 sudah cukup spesifik
           page: 1
-        });
+        };
+        if (searchQuery.trim()) {
+           params.nama = searchQuery.trim();
+        }
+        
+        const response = await satuSehatService.getMasterSarana(params);
         
         if (response && response.data) {
           let faskesList = response.data;
@@ -70,8 +76,13 @@ const SatuSehatFasyankes = () => {
       }
     };
 
-    fetchData();
-  }, [selectedJenis]);
+    // Use a small debounce for search query
+    const delayDebounceFn = setTimeout(() => {
+      fetchData();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [selectedJenis, searchQuery]);
 
   return (
     <div className="min-h-screen bg-background text-on-background font-body pb-20">
@@ -99,6 +110,16 @@ const SatuSehatFasyankes = () => {
            <p className="text-sm font-medium text-on-surface-variant opacity-80 max-w-xl mx-auto leading-relaxed">
              Data ini bersumber langsung dari Master Sarana Index (MSI) Kemenkes via integrasi SATUSEHAT Sandbox.
            </p>
+           <div className="max-w-md mx-auto relative pt-4">
+             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 translate-y-2 text-on-surface-variant">search</span>
+             <input 
+               type="text" 
+               placeholder="Cari nama rumah sakit, puskesmas, atau klinik..."
+               value={searchQuery}
+               onChange={(e) => setSearchQuery(e.target.value)}
+               className="w-full bg-surface-container-highest border border-outline-variant/20 rounded-2xl py-4 pl-12 pr-6 text-sm font-bold text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all shadow-inner placeholder:text-on-surface-variant/40"
+             />
+           </div>
         </section>
 
         {/* Tab Filters */}
