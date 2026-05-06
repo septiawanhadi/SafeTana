@@ -415,7 +415,7 @@ const App = () => {
         <Route path="/health/auth" element={<HealthAuth />} />
         <Route path="/health/screening" element={<HealthScreening />} />
         <Route path="/health/mood" element={<MoodTracker />} />
-        <Route path="/health/chat" element={<HealthChatbot />} />
+        <Route path="/health/chat" element={<HealthChatbot userLocation={userLocation} />} />
         <Route path="/health/dictionary" element={<HealthDictionary />} />
         <Route path="/health/privacy" element={<HealthPrivacy />} />
         <Route path="/health/terms" element={<HealthTerms />} />
