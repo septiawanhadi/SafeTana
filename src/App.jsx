@@ -114,6 +114,14 @@ const App = () => {
   
   const { showNotification, showReminder } = useDynamicIsland();
 
+  // --- Universal URL Masking ---
+  // Hides the internal routing path from the address bar (always shows safetana.vercel.app/)
+  useEffect(() => {
+    if (window.location.pathname !== '/') {
+      window.history.replaceState(null, '', '/');
+    }
+  }, [location.pathname]);
+
   // Splash & Onboarding Logic
   const [showSplash, setShowSplash] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
