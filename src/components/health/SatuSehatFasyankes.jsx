@@ -114,8 +114,8 @@ const SatuSehatFasyankes = () => {
            <p className="text-sm font-medium text-on-surface-variant opacity-80 max-w-xl mx-auto leading-relaxed">
              Data ini bersumber langsung dari Master Sarana Index (MSI) Kemenkes via integrasi SATUSEHAT Sandbox.
            </p>
-           <div className="max-w-md mx-auto relative pt-4">
-             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 translate-y-2 text-on-surface-variant">search</span>
+           <div className="max-w-md mx-auto relative mt-2">
+             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
              <input 
                type="text" 
                placeholder="Cari nama rumah sakit, puskesmas, atau klinik..."
