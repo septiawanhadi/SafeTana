@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { satuSehatService } from '../../services/health/satuSehatService';
 import { calculateDistance } from '../../utils/geoUtils';
-import puskesmasData from '../../data/puskesmasJabar.json';
+import puskesmasData from '../../data/puskesmas_jabar.json';
 
 const JENIS_SARANA = [
   { id: '104', label: 'Rumah Sakit', icon: 'local_hospital' },
@@ -35,50 +35,88 @@ const SatuSehatFasyankes = () => {
         }
 
         const response = await satuSehatService.getMasterSarana(params);
+        
+        let faskesList = [];
+        let hasApiError = false;
 
         if (response && response.error) {
-          setError(`API Error: ${response.error} - ${response.details || 'Cek Vercel Env Variables'}`);
-          setFacilities([]);
+           hasApiError = true;
+           if (selectedJenis !== '102') {
+               setError(`API Error: ${response.error} - ${response.details || 'Cek Vercel Env Variables'}`);
+               setFacilities([]);
+               setLoading(false);
+               return;
+           }
         } else if (response && response.data) {
-          let faskesList = response.data;
+           faskesList = response.data;
+        }
 
+        // --- INJEKSI DATA LOKAL PUSKESMAS JAWA BARAT ---
+        if (selectedJenis === '102') {
+           let localPuskesmas = puskesmasData.map(p => ({
+               nama: p.nama_puskesmas,
+               kode_satusehat: p.kode_puskesmas,
+               alamat: p.alamat,
+               provinsi: { nama: 'JAWA BARAT' },
+               kabkota: { nama: p.wilayah },
+               status_aktif: true,
+               status_sarana: p.poned === "1" ? "PONED" : (p.jenis_puskesmas === "1" ? "Rawat Inap" : "Non Rawat Inap"),
+               latitude: null, // Data JSON tidak memiliki koordinat
+               longitude: null
+           }));
+
+           if (searchQuery.trim()) {
+               const q = searchQuery.trim().toLowerCase();
+               localPuskesmas = localPuskesmas.filter(p => 
+                   p.nama.toLowerCase().includes(q) || 
+                   p.alamat.toLowerCase().includes(q) || 
+                   p.kabkota.nama.toLowerCase().includes(q)
+               );
+           }
+
+           // Filter duplikat (utamakan data dari API Sandbox jika ada)
+           const existingIds = new Set(faskesList.map(f => f.kode_satusehat));
+           localPuskesmas = localPuskesmas.filter(p => !existingIds.has(p.kode_satusehat));
+
+           // Gabungkan
+           faskesList = [...faskesList, ...localPuskesmas];
+        }
+
+        if (faskesList.length > 0) {
           // Dapatkan lokasi pengguna untuk sortir terdekat
           const getUserLoc = () => new Promise((resolve) => {
-            if (navigator.geolocation) {
-              navigator.geolocation.getCurrentPosition(
-                (pos) => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
-                () => resolve(null),
-                { timeout: 5000 }
-              );
-            } else {
-              resolve(null);
-            }
+             if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                  (pos) => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+                  () => resolve(null),
+                  { timeout: 5000 }
+                );
+             } else {
+                resolve(null);
+             }
           });
 
           const loc = await getUserLoc();
           if (loc) {
-            faskesList = faskesList.map(f => {
-              let distance = Infinity;
-              // Cek properti latitude/longitude di root atau di dalam posisi
-              const lat = f.latitude || f.posisi?.latitude;
-              const lon = f.longitude || f.posisi?.longitude;
-              if (lat && lon) {
-                distance = calculateDistance(loc.lat, loc.lon, parseFloat(lat), parseFloat(lon));
-              }
-              return { ...f, distance };
-            }).sort((a, b) => a.distance - b.distance);
+             faskesList = faskesList.map(f => {
+                let distance = Infinity;
+                const lat = f.latitude || f.posisi?.latitude;
+                const lon = f.longitude || f.posisi?.longitude;
+                if (lat && lon && lat !== "nan" && lon !== "nan") {
+                   distance = calculateDistance(loc.lat, loc.lon, parseFloat(lat), parseFloat(lon));
+                }
+                return { ...f, distance };
+             }).sort((a, b) => a.distance - b.distance);
+          } else {
+             faskesList = faskesList.map(f => ({ ...f, distance: Infinity }));
           }
 
-          setFacilities(faskesList);
-        } else if (selectedJenis === '102' && (!response || !response.error)) {
-          // Fallback to local PDF data for Puskesmas Jawa Barat
-          let fallbackData = puskesmasData;
-          if (searchQuery.trim()) {
-              const q = searchQuery.toLowerCase();
-              fallbackData = fallbackData.filter(p => p.nama.toLowerCase().includes(q) || p.alamat.toLowerCase().includes(q));
-          }
-          setFacilities(fallbackData.slice(0, 100)); // Limit to 100 for performance
+          // Render maksimal 100 data untuk menjaga performa UI browser
+          setFacilities(faskesList.slice(0, 100));
         } else {
+          if (hasApiError) {
+             setError(`API Error: ${response.error} - ${response.details || 'Cek Vercel Env Variables'}`);
+          }
           setFacilities([]);
         }
       } catch (err) {
@@ -173,7 +211,7 @@ const SatuSehatFasyankes = () => {
             <div className="glass-card p-12 rounded-3xl border-outline-variant/10 text-center flex flex-col items-center gap-4 opacity-70">
               <span className="material-symbols-outlined text-6xl text-on-surface-variant">search_off</span>
               <h3 className="font-headline font-black text-xl text-on-surface">Tidak Ada Data</h3>
-              <p className="text-sm font-medium text-on-surface-variant max-w-md">Belum ada sarana kesehatan untuk kategori ini di dalam sistem sandbox SATUSEHAT atau data lokal.</p>
+              <p className="text-sm font-medium text-on-surface-variant max-w-md">Belum ada sarana kesehatan untuk kategori ini di dalam sistem sandbox SATUSEHAT.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
