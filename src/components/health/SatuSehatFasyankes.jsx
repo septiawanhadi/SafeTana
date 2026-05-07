@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { satuSehatService } from '../../services/health/satuSehatService';
 import { calculateDistance } from '../../utils/geoUtils';
-import puskesmasData from '../../data/puskesmas_jabar.json';
 
 const JENIS_SARANA = [
   { id: '104', label: 'Rumah Sakit', icon: 'local_hospital' },
@@ -18,6 +17,23 @@ const SatuSehatFasyankes = () => {
   const [facilities, setFacilities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  const [nasionalData, setNasionalData] = useState([]);
+  const [isNasionalLoading, setIsNasionalLoading] = useState(true);
+
+  // Load data nasional (3.6MB) secara background (hanya 1x)
+  useEffect(() => {
+    fetch('/data/fasyankes_nasional.json')
+      .then(res => res.json())
+      .then(data => {
+        setNasionalData(data);
+        setIsNasionalLoading(false);
+      })
+      .catch(err => {
+        console.error("Gagal memuat data fasyankes nasional:", err);
+        setIsNasionalLoading(false);
+      });
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,35 +67,47 @@ const SatuSehatFasyankes = () => {
            faskesList = response.data;
         }
 
-        // --- INJEKSI DATA LOKAL PUSKESMAS JAWA BARAT ---
-        if (selectedJenis === '102') {
-           let localPuskesmas = puskesmasData.map(p => ({
-               nama: p.nama_puskesmas,
-               kode_satusehat: p.kode_puskesmas,
-               alamat: p.alamat,
-               provinsi: { nama: 'JAWA BARAT' },
-               kabkota: { nama: p.wilayah },
+        // --- INJEKSI DATA LOKAL FASYANKES NASIONAL ---
+        if (!isNasionalLoading && nasionalData.length > 0) {
+           // Mapping selectedJenis ke teks di data Excel
+           const jenisMap = {
+              '104': 'Rumah Sakit',
+              '103': 'Klinik',
+              '102': 'Puskesmas',
+              '101': 'Dokter Praktik Mandiri'
+           };
+           const targetJenis = jenisMap[selectedJenis];
+
+           let localData = nasionalData.filter(d => d.t === targetJenis);
+
+           // Format data lokal
+           let formattedData = localData.map(p => ({
+               nama: p.n,
+               kode_satusehat: p.k,
+               alamat: '-', // Excel tidak punya alamat detail, hanya wilayah
+               provinsi: { nama: p.p },
+               kabkota: { nama: p.c },
                status_aktif: true,
-               status_sarana: p.poned === "1" ? "PONED" : (p.jenis_puskesmas === "1" ? "Rawat Inap" : "Non Rawat Inap"),
+               status_sarana: p.o, // Menampilkan pemilik/owner
                latitude: null, // Data JSON tidak memiliki koordinat
                longitude: null
            }));
 
            if (searchQuery.trim()) {
                const q = searchQuery.trim().toLowerCase();
-               localPuskesmas = localPuskesmas.filter(p => 
+               formattedData = formattedData.filter(p => 
                    p.nama.toLowerCase().includes(q) || 
-                   p.alamat.toLowerCase().includes(q) || 
-                   p.kabkota.nama.toLowerCase().includes(q)
+                   p.kabkota.nama.toLowerCase().includes(q) ||
+                   p.provinsi.nama.toLowerCase().includes(q)
                );
            }
 
            // Filter duplikat (utamakan data dari API Sandbox jika ada)
            const existingIds = new Set(faskesList.map(f => f.kode_satusehat));
-           localPuskesmas = localPuskesmas.filter(p => !existingIds.has(p.kode_satusehat));
+           formattedData = formattedData.filter(p => !existingIds.has(p.kode_satusehat));
 
            // Gabungkan
-           faskesList = [...faskesList, ...localPuskesmas];
+           faskesList = [...faskesList, ...formattedData];
         }
 
         if (faskesList.length > 0) {
@@ -133,7 +161,7 @@ const SatuSehatFasyankes = () => {
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [selectedJenis, searchQuery]);
+  }, [selectedJenis, searchQuery, isNasionalLoading]); // Fetch ulang jika data nasional selesai dimuat
 
   return (
     <div className="min-h-screen bg-background text-on-background font-body pb-20">
