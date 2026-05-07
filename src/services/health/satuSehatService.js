@@ -2,6 +2,8 @@
  * Service to interact with SatuSehat (Kemenkes) via the backend proxy
  * Following HL7 FHIR R4 Standards
  */
+import { mockFasyankesJabar } from '../../data/mockFasyankesJabar';
+
 export const satuSehatService = {
   /**
    * Search for a Patient by NIK
@@ -100,9 +102,32 @@ export const satuSehatService = {
    */
   async getMasterSarana(params = { limit: 10, page: 1 }) {
     try {
-      const queryString = new URLSearchParams(params).toString();
-      const response = await fetch(`/api/health/satusehat?path=masterdata/v1/mastersaranaindex/mastersarana&${queryString}`);
-      return await response.json();
+      // MOCK DATA IMPLEMENTATION
+      // Bypassing real Sandbox API due to instability and missing coordinate data
+      let filteredData = mockFasyankesJabar;
+
+      if (params.jenis_sarana) {
+        filteredData = filteredData.filter(f => f.jenis_sarana.id === params.jenis_sarana);
+      }
+
+      if (params.nama) {
+        const query = params.nama.toLowerCase();
+        filteredData = filteredData.filter(f => f.nama.toLowerCase().includes(query));
+      }
+
+      // Simulate network delay to make it feel realistic
+      await new Promise(resolve => setTimeout(resolve, 800));
+
+      return {
+        data: filteredData,
+        total: filteredData.length,
+        message: "Data Sintetik Jawa Barat"
+      };
+      
+      // KODE ASLI SEBELUM BYPASS MOCK DATA:
+      // const queryString = new URLSearchParams(params).toString();
+      // const response = await fetch(`/api/health/satusehat?path=masterdata/v1/mastersaranaindex/mastersarana&${queryString}`);
+      // return await response.json();
     } catch (error) {
       console.error("satuSehatService.getMasterSarana error:", error);
       throw error;
