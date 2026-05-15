@@ -121,11 +121,20 @@ const HealthScreening = () => {
     const bmi = result.imt;
     
     // BMI Category for the meter
+    const getBmiPos = (val) => {
+      if (val < 18.5) return `${(val / 18.5) * 25}%`;
+      if (val < 25) return `${25 + ((val - 18.5) / 6.5) * 25}%`;
+      if (val < 30) return `${50 + ((val - 25) / 5) * 25}%`;
+      const maxVal = Math.min(val, 40);
+      return `${75 + ((maxVal - 30) / 10) * 25}%`;
+    };
+
     const getBmiCategory = (val) => {
-      if (val < 18.5) return { label: 'Kurus', pos: '15%', color: 'text-blue-400' };
-      if (val < 25) return { label: 'Normal', pos: '40%', color: 'text-success' };
-      if (val < 30) return { label: 'Overweight', pos: '65%', color: 'text-amber-500' };
-      return { label: 'Obesitas', pos: '85%', color: 'text-error' };
+      const pos = getBmiPos(val);
+      if (val < 18.5) return { label: 'Kurus', pos, color: 'text-blue-400' };
+      if (val < 25) return { label: 'Normal', pos, color: 'text-success' };
+      if (val < 30) return { label: 'Overweight', pos, color: 'text-amber-500' };
+      return { label: 'Obesitas', pos, color: 'text-error' };
     };
     const bmiInfo = getBmiCategory(bmi);
 
@@ -171,37 +180,37 @@ const HealthScreening = () => {
             </div>
 
             {/* BMI Meter */}
-            <div className="mt-12 bg-surface-container-lowest/30 rounded-3xl p-6 border border-outline-variant/10">
+            <div className="mt-12 bg-surface-container-lowest/30 rounded-3xl p-6 border border-outline-variant/10 shadow-inner">
                <div className="flex justify-between items-center mb-4">
                  <h3 className="text-xs font-black uppercase tracking-widest text-on-surface-variant">BMI (Indeks Massa Tubuh)</h3>
-                 <span className={`text-xl font-headline font-black ${bmiInfo.color}`}>{bmi.toFixed(1)}</span>
+                 <span className={`text-2xl font-headline font-black ${bmiInfo.color}`}>{bmi.toFixed(1)}</span>
                </div>
                
-               <div className="relative h-3 bg-surface-container-high rounded-full overflow-hidden mb-2">
+               <div className="relative h-4 rounded-full mb-2 bg-surface-container-high">
                  {/* Color Zones */}
-                 <div className="absolute inset-0 flex">
-                   <div className="h-full w-[18.5%] bg-blue-400/30 border-r border-background/20" />
-                   <div className="h-full w-[6.5%] bg-success/30 border-r border-background/20" />
-                   <div className="h-full w-[5%] bg-amber-500/30 border-r border-background/20" />
-                   <div className="h-full flex-1 bg-error/30" />
+                 <div className="absolute inset-0 flex rounded-full overflow-hidden opacity-80">
+                   <div className="h-full w-1/4 bg-blue-500 border-r border-background/20" />
+                   <div className="h-full w-1/4 bg-success border-r border-background/20" />
+                   <div className="h-full w-1/4 bg-amber-500 border-r border-background/20" />
+                   <div className="h-full w-1/4 bg-error" />
                  </div>
                  {/* Indicator Pin */}
                  <div 
-                   className="absolute top-0 bottom-0 w-1.5 bg-white shadow-lg z-10 transition-all duration-1000 ease-out rounded-full ring-2 ring-primary/20" 
-                   style={{ left: `calc(${bmiInfo.pos} - 0.75px)` }} 
+                   className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)] z-10 transition-all duration-1000 ease-out rounded-full ring-4 ring-background" 
+                   style={{ left: `calc(${bmiInfo.pos} - 8px)` }} 
                  />
                </div>
                
-               <div className="flex justify-between text-[8px] font-black uppercase tracking-widest text-on-surface-variant/40">
-                 <span>Underweight</span>
-                 <span>Ideal</span>
-                 <span>Overweight</span>
-                 <span>Obese</span>
+               <div className="flex w-full mt-2 text-[9px] font-black uppercase tracking-widest text-on-surface-variant/70 text-center">
+                 <span className="w-1/4">Kurus</span>
+                 <span className="w-1/4">Ideal</span>
+                 <span className="w-1/4">Gemuk</span>
+                 <span className="w-1/4">Obese</span>
                </div>
                
-               <div className="mt-4 flex items-center gap-2">
-                 <div className={`w-2 h-2 rounded-full ${bmiInfo.color.replace('text-', 'bg-')}`} />
-                 <p className="text-[10px] font-bold text-on-surface-variant">Status Anda: <span className={bmiInfo.color}>{bmiInfo.label}</span></p>
+               <div className="mt-5 flex items-center gap-3 bg-background/50 p-3 rounded-2xl border border-outline-variant/10">
+                 <div className={`w-3 h-3 rounded-full shadow-md ${bmiInfo.color.replace('text-', 'bg-')}`} />
+                 <p className="text-xs font-bold text-on-surface-variant">Status Anda: <span className={`${bmiInfo.color} font-black uppercase tracking-widest`}>{bmiInfo.label}</span></p>
                </div>
             </div>
           </div>
