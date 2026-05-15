@@ -245,12 +245,23 @@ const App = () => {
   useEffect(() => {
     if (latestBroadcast && latestBroadcast.timestamp?.seconds !== lastBroadcastIdRef.current) {
       lastBroadcastIdRef.current = latestBroadcast.timestamp?.seconds;
+      
       showNotification({
         title: 'Peringatan Terbaru',
         description: latestBroadcast.message,
         icon: 'campaign',
         action: () => navigate('/')
       });
+
+      // Nyalakan sirine otomatis jika broadcast ini sangat baru (< 1 menit)
+      // atau belum memiliki timestamp server (baru saja disubmit secara lokal)
+      const now = Math.floor(Date.now() / 1000);
+      const isRecent = latestBroadcast.timestamp?.seconds && (now - latestBroadcast.timestamp.seconds) < 60;
+      
+      if (isRecent || !latestBroadcast.timestamp) {
+        if ("vibrate" in navigator) navigator.vibrate([200, 100, 200, 100, 500]);
+        playSiren();
+      }
     }
   }, [latestBroadcast, navigate, showNotification]);
 
