@@ -78,12 +78,16 @@ const ReportForm = ({ onClose }) => {
       return;
     }
 
+    // Generate slight random offset (jitter) so markers don't overlap perfectly with user location
+    const offsetLat = report.coords.lat + (Math.random() - 0.5) * 0.002;
+    const offsetLon = report.coords.lon + (Math.random() - 0.5) * 0.002;
+
     // Sanitize and format before submitting to database
     const sanitizedReport = {
       type: sanitizeInput(report.type),
       desc: sanitizeInput(report.description),
       loc: report.location,
-      position: [report.coords.lat, report.coords.lon],
+      position: [offsetLat, offsetLon],
       source: 'Warga',
       photoName: report.photo ? report.photo.name : null,
       timestamp: serverTimestamp(),
@@ -92,6 +96,17 @@ const ReportForm = ({ onClose }) => {
 
     try {
       await addDoc(collection(db, 'user_reports'), sanitizedReport);
+      
+      // AI Triage Simulation: Auto-Broadcast critical events
+      const criticalTypes = ['Gempa Bumi', 'Tanah Longsor', 'Kebakaran', 'Banjir', 'Angin Puting Beliung'];
+      if (criticalTypes.includes(sanitizedReport.type)) {
+        await addDoc(collection(db, 'broadcasts'), {
+          message: `🚨 AWAS: Terdeteksi ${sanitizedReport.type} di area ${sanitizedReport.loc}. Harap waspada dan jauhi area!`,
+          type: 'Darurat',
+          timestamp: serverTimestamp()
+        });
+      }
+
       alert("Laporan Anda telah terkirim dan sedang dianalisis AI.");
       onClose();
     } catch (err) {
