@@ -121,20 +121,15 @@ const HealthScreening = () => {
     const bmi = result.imt;
     
     // BMI Category for the meter
-    const getBmiPos = (val) => {
-      if (val < 18.5) return `${(val / 18.5) * 25}%`;
-      if (val < 25) return `${25 + ((val - 18.5) / 6.5) * 25}%`;
-      if (val < 30) return `${50 + ((val - 25) / 5) * 25}%`;
-      const maxVal = Math.min(val, 40);
-      return `${75 + ((maxVal - 30) / 10) * 25}%`;
-    };
-
     const getBmiCategory = (val) => {
-      const pos = getBmiPos(val);
-      if (val < 18.5) return { label: 'Kurus', pos, color: 'text-blue-400' };
-      if (val < 25) return { label: 'Normal', pos, color: 'text-success' };
-      if (val < 30) return { label: 'Overweight', pos, color: 'text-amber-500' };
-      return { label: 'Obesitas', pos, color: 'text-error' };
+      let percent = ((val - 15) / 25) * 100;
+      percent = Math.max(0, Math.min(100, percent));
+      const pos = `${percent}%`;
+
+      if (val < 18.5) return { label: 'Kurus', pos, color: 'text-blue-400', bg: 'bg-blue-400' };
+      if (val < 25) return { label: 'Normal', pos, color: 'text-success', bg: 'bg-success' };
+      if (val < 30) return { label: 'Overweight', pos, color: 'text-amber-500', bg: 'bg-amber-500' };
+      return { label: 'Obesitas', pos, color: 'text-error', bg: 'bg-error' };
     };
     const bmiInfo = getBmiCategory(bmi);
 
@@ -180,37 +175,39 @@ const HealthScreening = () => {
             </div>
 
             {/* BMI Meter */}
-            <div className="mt-12 bg-surface-container-lowest/30 rounded-3xl p-6 border border-outline-variant/10 shadow-inner">
+            <div className="mt-12 bg-surface-container-lowest/30 rounded-3xl p-6 border border-outline-variant/10">
                <div className="flex justify-between items-center mb-4">
                  <h3 className="text-xs font-black uppercase tracking-widest text-on-surface-variant">BMI (Indeks Massa Tubuh)</h3>
-                 <span className={`text-2xl font-headline font-black ${bmiInfo.color}`}>{bmi.toFixed(1)}</span>
+                 <span className={`text-xl font-headline font-black ${bmiInfo.color}`}>{bmi.toFixed(1)}</span>
                </div>
                
-               <div className="relative h-4 rounded-full mb-2 bg-surface-container-high">
+               <div className="relative h-5 bg-surface-container-high rounded-full overflow-hidden mb-3 shadow-inner">
                  {/* Color Zones */}
-                 <div className="absolute inset-0 flex rounded-full overflow-hidden opacity-80">
-                   <div className="h-full w-1/4 bg-blue-500 border-r border-background/20" />
-                   <div className="h-full w-1/4 bg-success border-r border-background/20" />
-                   <div className="h-full w-1/4 bg-amber-500 border-r border-background/20" />
-                   <div className="h-full w-1/4 bg-error" />
+                 <div className="absolute inset-0 flex opacity-90">
+                   <div className="h-full w-[14%] bg-blue-500 border-r-2 border-background/50" />
+                   <div className="h-full w-[26%] bg-emerald-500 border-r-2 border-background/50" />
+                   <div className="h-full w-[20%] bg-amber-500 border-r-2 border-background/50" />
+                   <div className="h-full flex-1 bg-red-500" />
                  </div>
                  {/* Indicator Pin */}
                  <div 
-                   className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)] z-10 transition-all duration-1000 ease-out rounded-full ring-4 ring-background" 
-                   style={{ left: `calc(${bmiInfo.pos} - 8px)` }} 
-                 />
+                   className="absolute -top-1 -bottom-1 w-2.5 bg-white shadow-xl z-10 transition-all duration-1000 ease-out rounded-full border border-background/40" 
+                   style={{ left: `calc(${bmiInfo.pos} - 5px)` }} 
+                 >
+                   <div className="absolute inset-0 rounded-full shadow-[0_0_12px_rgba(255,255,255,0.9)]" />
+                 </div>
                </div>
                
-               <div className="flex w-full mt-2 text-[9px] font-black uppercase tracking-widest text-on-surface-variant/70 text-center">
-                 <span className="w-1/4">Kurus</span>
-                 <span className="w-1/4">Ideal</span>
-                 <span className="w-1/4">Gemuk</span>
-                 <span className="w-1/4">Obese</span>
+               <div className="relative flex text-[9px] font-black uppercase tracking-widest text-on-surface-variant/80">
+                 <div className="w-[14%] text-center">Kurus</div>
+                 <div className="w-[26%] text-center">Ideal</div>
+                 <div className="w-[20%] text-center">Lebih</div>
+                 <div className="flex-1 text-center">Obesitas</div>
                </div>
                
-               <div className="mt-5 flex items-center gap-3 bg-background/50 p-3 rounded-2xl border border-outline-variant/10">
-                 <div className={`w-3 h-3 rounded-full shadow-md ${bmiInfo.color.replace('text-', 'bg-')}`} />
-                 <p className="text-xs font-bold text-on-surface-variant">Status Anda: <span className={`${bmiInfo.color} font-black uppercase tracking-widest`}>{bmiInfo.label}</span></p>
+               <div className="mt-5 flex items-center gap-2 bg-surface-container-high/50 p-3 rounded-2xl">
+                 <div className={`w-3 h-3 rounded-full ${bmiInfo.bg} shadow-lg`} />
+                 <p className="text-xs font-bold text-on-surface-variant">Status Anda: <span className={`${bmiInfo.color} font-black text-sm uppercase tracking-wider ml-1`}>{bmiInfo.label}</span></p>
                </div>
             </div>
           </div>
