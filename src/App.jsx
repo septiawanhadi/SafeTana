@@ -100,7 +100,9 @@ const BroadcastBanner = memo(({ broadcast }) => {
 const App = () => {
   const navigate = useNavigate();
   const [isSOSActive, setIsSOSActive] = useState(false);
-  const [reports, setReports] = useState([]);
+  const [apiReports, setApiReports] = useState([]);
+  const [userReports, setUserReports] = useState([]);
+  const reports = useMemo(() => [...userReports, ...apiReports], [apiReports, userReports]);
   const [userLocation, setUserLocation] = useState(null);
   const [latestBroadcast, setLatestBroadcast] = useState(null);
   const [isAiOpen, setIsAiOpen] = useState(false);
@@ -180,7 +182,7 @@ const App = () => {
   const fetchHazards = useCallback(async (signal) => {
     try {
       const combinedReports = await hazardService.fetchAllHazards(signal);
-      setReports(combinedReports);
+      setApiReports(combinedReports);
     } catch (e) {
       if (e.name !== 'AbortError') {
         console.error("fetchHazards Error", e);
@@ -216,6 +218,12 @@ const App = () => {
       if (!snap.empty) setLatestBroadcast(snap.docs[0].data());
     });
 
+    const q_reports = query(collection(db, 'user_reports'), orderBy('timestamp', 'desc'), limit(50));
+    const unsub_reports = onSnapshot(q_reports, (snap) => {
+      const dbReports = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setUserReports(dbReports);
+    });
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((pos) => {
         setUserLocation([pos.coords.latitude, pos.coords.longitude]);
@@ -224,6 +232,7 @@ const App = () => {
 
     return () => {
       unsub_broadcast();
+      unsub_reports();
       clearInterval(pollInterval);
       controller.abort();
     };

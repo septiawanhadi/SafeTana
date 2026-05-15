@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Send, MapPin, Camera, X, CheckCircle2 } from 'lucide-react';
 import { sanitizeInput } from './securityUtils';
 import { reverseGeocode } from './utils/geoUtils';
+import { db } from './firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 const ReportForm = ({ onClose }) => {
   const [report, setReport] = useState({
@@ -57,20 +59,45 @@ const ReportForm = ({ onClose }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const getStatusColor = (type) => {
+    switch (type) {
+      case 'Banjir': return 'bg-primary';
+      case 'Gempa Bumi': return 'bg-error';
+      case 'Tanah Longsor': return 'bg-amber-500';
+      case 'Kebakaran': return 'bg-error';
+      case 'Angin Puting Beliung': return 'bg-surface-variant';
+      default: return 'bg-tertiary';
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Sanitize before submitting to database
+    if (!report.coords) {
+      alert("Gagal mengirim: Lokasi belum didapatkan. Pastikan GPS aktif.");
+      return;
+    }
+
+    // Sanitize and format before submitting to database
     const sanitizedReport = {
-      ...report,
       type: sanitizeInput(report.type),
-      description: sanitizeInput(report.description),
-      photoName: report.photo ? report.photo.name : null
+      desc: sanitizeInput(report.description),
+      loc: report.location,
+      position: [report.coords.lat, report.coords.lon],
+      source: 'Warga',
+      photoName: report.photo ? report.photo.name : null,
+      timestamp: serverTimestamp(),
+      statusColor: getStatusColor(report.type)
     };
 
-    console.log("Submitting Sanitized Report:", sanitizedReport);
-    alert("Laporan Anda telah terkirim dan sedang dianalisis AI.");
-    onClose();
+    try {
+      await addDoc(collection(db, 'user_reports'), sanitizedReport);
+      alert("Laporan Anda telah terkirim dan sedang dianalisis AI.");
+      onClose();
+    } catch (err) {
+      console.error("Gagal mengirim laporan:", err);
+      alert("Gagal mengirim laporan. Silakan periksa koneksi Anda.");
+    }
   };
 
   return (
