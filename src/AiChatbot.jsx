@@ -68,7 +68,7 @@ const AiChatbot = ({ onClose, isSOS, userLocation, reports }) => {
   };
 
   return (
-    <div className="fixed bottom-24 right-6 left-6 md:left-auto md:w-[420px] h-[600px] max-h-[80vh] glass-card rounded-lg shadow-2xl z-[9999] flex flex-col overflow-hidden border-t-2 border-primary/20 animate-in fade-in slide-in-from-bottom-10">
+    <div className="fixed bottom-24 right-6 left-6 md:left-auto md:w-[420px] h-[600px] max-h-[80vh] bg-background rounded-lg shadow-2xl z-[9999] flex flex-col overflow-hidden border-t-2 border-primary/20 animate-in fade-in slide-in-from-bottom-10">
       {/* AI Header */}
       <header className={`p-4 flex items-center justify-between border-b border-outline-variant/10 ${isSOS ? 'bg-error text-white' : 'bg-surface-container-highest'}`}>
         <div className="flex items-center gap-3">

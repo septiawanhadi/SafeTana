@@ -1,0 +1,3961 @@
+﻿
+
+
+
+1. 
+Pendahuluan
+
+
+
+1.1 Tujuan 
+Penulisan
+ 
+Dokumen
+
+
+
+
+Dokumen
+ 
+ini
+ 
+disusun
+ 
+untuk
+ 
+memberikan
+ 
+spesifikasi
+ 
+teknis
+ dan 
+rancangan
+ 
+arsitektur
+ 
+aplikasi
+ 
+SafeTana
+. 
+Dokumen
+ 
+ini
+ 
+digunakan
+ oleh 
+pengembang
+ 
+sebagai
+ 
+panduan
+ 
+implementasi
+, 
+desainer
+ 
+sistem
+ 
+untuk
+ 
+pengembangan
+ 
+infrastruktur
+, dan 
+pemangku
+ 
+kepentingan
+ 
+untuk
+ 
+memvalidasi
+ 
+alur
+ 
+bisnis
+ 
+serta
+ 
+integrasi
+ data.
+
+
+1.2 
+Lingkup
+ 
+Masalah
+
+
+
+
+SafeTana
+ 
+adalah
+ platform 
+mitigasi
+ 
+bencana
+ 
+terintegrasi
+ yang 
+menggabungkan
+ monitoring 
+bencana
+ real-time (BMKG/GDACS) 
+dengan
+ 
+asisten
+ 
+kesehatan
+ 
+cerdas
+ 
+berbasis
+ AI. 
+Aplikasi
+ 
+ini
+ 
+dirancang
+ 
+untuk
+ 
+memberikan
+ 
+peringatan
+ 
+dini
+, 
+panduan
+ 
+evakuasi
+ 
+ke
+ 
+titik
+ 
+aman
+ 
+terdekat
+, 
+serta
+ 
+bantuan
+ 
+medis
+ 
+mandiri
+ 
+saat
+ 
+akses
+ 
+kesehatan
+ 
+terbatas
+ 
+akibat
+ 
+bencana
+.
+
+
+1.3 
+Definisi
+, Istilah dan 
+Singkatan
+
+
+
+
+SafeTana
+: 
+Sistem
+ 
+Mitigasi
+ 
+Bencana
+ Terintegrasi.
+
+
+PWA (Progressive Web App): 
+Aplikasi
+ web yang 
+dapat
+ 
+diinstal
+ dan 
+memiliki
+ 
+kemampuan
+ offline.
+
+
+Gemini AI: Model 
+bahasa
+ 
+besar
+ (LLM) 
+dari
+ Google yang 
+digunakan
+ 
+untuk
+ 
+asisten
+ 
+kesehatan
+.
+
+
+Null Claw Agent: Modul AI 
+lokal
+ 
+berbasis
+ 
+WebAssembly
+ (
+Wasm
+) 
+untuk
+ mode offline.
+
+
+
+Firestore
+: Database NoSQL 
+berbasis
+ cloud 
+dari
+ Firebase.
+
+
+PII Masking: Teknik 
+menyembunyikan
+ 
+informasi
+ 
+identitas
+ 
+pribadi
+ 
+untuk
+ 
+privasi
+.
+
+
+1.4 
+Aturan
+ 
+Penomoran
+
+
+
+REQ-F-XXX: 
+Kebutuhan
+ 
+Fungsional
+.
+
+
+UC-XXX: Kode Use Case.
+
+
+TBL-XXX: Kode Tabel/
+Koleksi
+ Data.
+
+
+1.5 
+Referensi
+
+
+
+
+Spesifikasi
+ 
+Kebutuhan
+ 
+Perangkat
+ Lunak (SKPL) 
+SafeTana
+.
+
+
+
+Dokumentasi
+ Firebase Cloud 
+Firestore
+.
+
+
+Google Gemini API Reference.
+
+
+1.6 
+Deskripsi
+ 
+umum
+ 
+Dokumen
+ (
+Ikhtisar
+)
+
+
+
+Dokumen
+ 
+ini
+ 
+mencakup
+ 
+analisis
+ proses 
+bisnis
+ (SIPOC), 
+perancangan
+ data model, 
+arsitektur
+ 
+infrastruktur
+, 
+pemodelan
+ 
+sistem
+ 
+menggunakan
+ UML (Use Case, Activity, Sequence, Class), 
+serta
+ detail 
+integrasi
+ 
+eksternal
+ dan 
+antarmuka
+ 
+pengguna
+.
+
+
+
+
+
+2. SIPOC
+
+
+Diagram SIPOC 
+menggambarkan
+ 
+aliran
+ data dan 
+nilai
+ 
+dari
+ 
+sumber
+ 
+ke
+ 
+pengguna
+ 
+akhir
+.
+
+
+Supplier
+
+
+Input
+
+
+Process
+
+
+Output
+
+
+Customer
+
+
+BMKG / GDACS
+
+
+Data 
+Gempa
+ &amp; 
+Cuaca
+
+
+
+
+Penarikan
+ data (Fetch) &amp; 
+Analisis
+ Radius
+
+
+
+Notifikasi
+ 
+Peringatan
+ Dini
+
+
+Masyarakat Umum
+
+
+Google Gemini API
+
+
+Prompt Kesehatan User
+
+
+
+Pemrosesan
+ LLM &amp; 
+Konseling
+
+
+
+
+Rekomendasi
+ 
+Medis
+/
+Psikologis
+
+
+
+Masyarakat Umum
+
+
+User (Masyarakat)
+
+
+
+Koordinat
+ SOS &amp; Status
+
+
+
+Enkripsi
+ &amp; Update Real-time
+
+
+
+Laporan
+ 
+Darurat
+ Lapangan
+
+
+Administrator
+
+
+Administrator
+
+
+Data 
+Titik
+ Aman
+
+
+
+Validasi
+ &amp; 
+Manajemen
+ Data
+
+
+Peta 
+Titik
+ 
+aman
+ 
+Terverifikasi
+
+
+
+Masyarakat Umum
+
+
+
+
+3. 
+Perancangan
+ Data
+
+
+3.1 Daftar 
+Koleksi
+ (
+Firestore
+)
+
+
+
+Aplikasi
+ 
+menggunakan
+ database NoSQL 
+Firestore
+ 
+dengan
+ daftar 
+koleksi
+ 
+utama
+ 
+sebagai
+ 
+berikut
+:
+
+
+Nama 
+Koleksi
+
+
+
+Primary Key
+
+
+
+Deskripsi
+
+
+
+
+safe_points
+
+
+
+
+pointId
+
+
+
+
+Menyimpan
+ data 
+titik
+ 
+evakuasi
+, 
+kapasitas
+, dan 
+fasilitas
+.
+
+
+reports
+
+
+
+reportId
+
+
+
+
+Menyimpan
+ 
+laporan
+ SOS dan 
+kejadian
+ 
+dari
+ 
+masyarakat
+.
+
+
+broadcasts
+
+
+
+broadcastId
+
+
+
+
+Menyimpan
+ 
+pesan
+ 
+peringatan
+ 
+dini
+ 
+dari
+ Admin/
+Sistem
+.
+
+
+
+mood_logs
+
+
+
+
+docId
+
+
+
+Riwayat 
+kondisi
+ 
+psikologis
+ dan 
+jurnal
+ 
+kesehatan
+ 
+pengguna
+.
+
+
+3.2 Conceptual Data Model
+
+
+
+
+
+3.3 
+Struktur
+ Data
+
+
+1. 
+Koleksi
+: users (Auth &amp; Profile)
+
+
+No
+
+
+Field Name
+
+
+Data Type
+
+
+Description
+
+
+1
+
+
+
+uid
+
+
+
+String
+
+
+ID 
+unik
+ 
+dari
+ Firebase Authentication (Primary Key).
+
+
+2
+
+
+email
+
+
+String
+
+
+Alamat email 
+terdaftar
+ 
+pengguna
+.
+
+
+3
+
+
+name
+
+
+String
+
+
+Nama 
+lengkap
+ 
+atau
+ display name 
+pengguna
+.
+
+
+4
+
+
+role
+
+
+String
+
+
+Peran 
+pengguna
+ (user 
+atau
+ admin).
+
+
+2. 
+Koleksi
+: 
+safe_zones
+ (Data 
+Titik
+ Aman)
+
+
+No
+
+
+Field Name
+
+
+Data Type
+
+
+Description
+
+
+1
+
+
+
+pointId
+
+
+
+String
+
+
+ID 
+unik
+ 
+dokumen
+ 
+titik
+ 
+aman
+ (Primary Key).
+
+
+2
+
+
+name
+
+
+String
+
+
+Nama 
+tempat
+ 
+atau
+ 
+lokasi
+ 
+titik
+ 
+aman
+ (
+Contoh
+: GOR 
+Saparua
+).
+
+
+3
+
+
+
+lat
+
+
+
+Number
+
+
+
+Koordinat
+ Lintang (Latitude) 
+lokasi
+.
+
+
+4
+
+
+
+lng
+
+
+
+Number
+
+
+
+Koordinat
+ 
+Bujur
+ (Longitude) 
+lokasi
+.
+
+
+5
+
+
+capacity
+
+
+Number
+
+
+
+Kapasitas
+ 
+maksimal
+ 
+penampungan
+ (orang).
+
+
+6
+
+
+facilities
+
+
+String
+
+
+Daftar 
+fasilitas
+ 
+tersedia
+ (
+Medis
+, Logistik, 
+Sanitasi
+).
+
+
+3. 
+Koleksi
+: reports (
+Laporan
+ SOS &amp; 
+Kejadian
+)
+
+
+No
+
+
+Field Name
+
+
+Data Type
+
+
+Description
+
+
+1
+
+
+
+reportId
+
+
+
+String
+
+
+ID 
+unik
+ 
+dokumen
+ 
+laporan
+ (Primary Key).
+
+
+2
+
+
+
+userId
+
+
+
+String
+
+
+ID 
+pengguna
+ yang 
+melapor
+ (Foreign Key).
+
+
+3
+
+
+type
+
+
+String
+
+
+
+Tipe
+ 
+kejadian
+ (
+Gempa
+, 
+Banjir
+, SOS, 
+Kebakaran
+).
+
+
+4
+
+
+
+lat
+
+
+
+Number
+
+
+Lokasi Lintang 
+pelapor
+ 
+saat
+ 
+mengirim
+.
+
+
+5
+
+
+
+lng
+
+
+
+Number
+
+
+Lokasi 
+Bujur
+ 
+pelapor
+ 
+saat
+ 
+mengirim
+.
+
+
+6
+
+
+description
+
+
+String
+
+
+
+Penjelasan
+ 
+tambahan
+ 
+mengenai
+ 
+kondisi
+ 
+darurat
+.
+
+
+7
+
+
+timestamp
+
+
+Timestamp
+
+
+Waktu 
+laporan
+ 
+dikirimkan
+.
+
+
+4. 
+Koleksi
+: 
+health_screenings
+ (Hasil 
+Skrining
+ AI)
+
+
+No
+
+
+Field Name
+
+
+Data Type
+
+
+Description
+
+
+1
+
+
+
+docId
+
+
+
+String
+
+
+ID 
+unik
+ 
+hasil
+ 
+skrining
+ (Primary Key).
+
+
+2
+
+
+
+userId
+
+
+
+String
+
+
+ID 
+pengguna
+ yang 
+melakukan
+ 
+skrining
+ (Foreign Key).
+
+
+3
+
+
+score
+
+
+Number
+
+
+Skor 
+hasil
+ 
+evaluasi
+ 
+kesehatan
+ (
+Resiliensi
+/
+Stres
+).
+
+
+4
+
+
+result
+
+
+String
+
+
+Kesimpulan 
+atau
+ saran 
+dari
+ AI (Gemini).
+
+
+5
+
+
+timestamp
+
+
+Timestamp
+
+
+Waktu 
+pemeriksaan
+ 
+dilakukan
+.
+
+
+5. 
+Koleksi
+: 
+mood_logs
+ (
+Jurnal
+ Kesehatan Mental)
+
+
+No
+
+
+Field Name
+
+
+Data Type
+
+
+Description
+
+
+1
+
+
+
+docId
+
+
+
+String
+
+
+ID 
+unik
+ 
+catatan
+ mood (Primary Key).
+
+
+2
+
+
+
+userId
+
+
+
+String
+
+
+ID 
+pemilik
+ 
+catatan
+ (Foreign Key).
+
+
+3
+
+
+mood
+
+
+String
+
+
+Status 
+emosi
+ (
+Senang
+, 
+Cemas
+, 
+Sedih
+, 
+Tenang
+).
+
+
+4
+
+
+note
+
+
+String
+
+
+
+Catatan
+ 
+pribadi
+ 
+atau
+ 
+jurnal
+ 
+harian
+ user.
+
+
+5
+
+
+timestamp
+
+
+Timestamp
+
+
+Waktu 
+pencatatan
+ mood.
+
+
+6. 
+Koleksi
+: 
+active_users
+ (Live Tracker)
+
+
+No
+
+
+Field Name
+
+
+Data Type
+
+
+Description
+
+
+1
+
+
+
+userId
+
+
+
+String
+
+
+ID 
+unik
+ 
+pengguna
+ 
+aktif
+ (Primary Key).
+
+
+2
+
+
+
+lat
+
+
+
+Number
+
+
+
+Posisi
+ Lintang 
+terakhir
+ 
+pengguna
+.
+
+
+3
+
+
+
+lng
+
+
+
+Number
+
+
+
+Posisi
+ 
+Bujur
+ 
+terakhir
+ 
+pengguna
+.
+
+
+4
+
+
+status
+
+
+String
+
+
+Status 
+keamanan
+ (Safe, Danger, Evacuating).
+
+
+5
+
+
+
+lastUpdate
+
+
+
+Timestamp
+
+
+Waktu 
+pembaruan
+ 
+lokasi
+ 
+terakhir
+.
+
+
+7. 
+Koleksi
+: broadcasts (
+Pesan
+ 
+Peringatan
+)
+
+
+No
+
+
+Field Name
+
+
+Data Type
+
+
+Description
+
+
+1
+
+
+
+broadcastId
+
+
+
+String
+
+
+ID 
+unik
+ 
+pesan
+ 
+peringatan
+ (Primary Key).
+
+
+2
+
+
+title
+
+
+String
+
+
+
+Judul
+ 
+peringatan
+ (
+Contoh
+: 
+Waspada
+ Tsunami).
+
+
+3
+
+
+message
+
+
+String
+
+
+Isi 
+pesan
+ 
+atau
+ 
+instruksi
+ 
+darurat
+.
+
+
+4
+
+
+type
+
+
+String
+
+
+
+Kategori
+ 
+peringatan
+ (
+Informasi
+, 
+Peringatan
+, 
+Bahaya
+).
+
+
+5
+
+
+timestamp
+
+
+Timestamp
+
+
+Waktu 
+pesan
+ 
+dikirimkan
+ oleh Admin.
+
+
+
+
+
+4. 
+Arsitektur
+ 
+Sistem
+
+
+
+4.1 
+Arsitektur
+ 
+Aplikasi
+
+
+
+
+
+
+
+Aplikasi
+ 
+dibangun
+ 
+menggunakan
+ 
+arsitektur
+ PWA-Serverless: 
+
+
+Frontend: React 19 
+dengan
+ Vite (Single Page Application).
+
+
+Backend Service: Firebase Auth, 
+Firestore
+, &amp; Cloud Messaging. 
+
+
+AI Engine: Hybrid Cloud (Gemini API) &amp; Local (Null Claw 
+Wasm
+).
+
+
+4.2 
+Arsitektur
+ Integrasi
+
+
+
+SafeTana
+ 
+mengintegrasikan
+ 
+beberapa
+ 
+layanan
+ 
+pihak
+ 
+ketiga
+: 
+
+
+BMKG API: 
+Untuk
+ 
+sinkronisasi
+ data 
+gempa
+ 
+bumi
+ (JSON/XML). 
+
+
+GDACS: 
+Untuk
+ 
+notifikasi
+ 
+bencana
+ global. 
+
+
+Google Gemini API: 
+Untuk
+ 
+pemrosesan
+ 
+bahasa
+ 
+alami
+ pada 
+fitur
+ Klinik AI.
+
+
+4.3 
+Arsitektur
+ 
+Infrastruktur
+
+
+
+Hosting: Firebase Hosting (Global CDN).
+
+
+Functions: 
+Vercel
+ Serverless Functions 
+untuk
+ 
+sinkronisasi
+ data 
+berkala
+.
+
+
+Storage: Cloud 
+Firestore
+ (Database) &amp; 
+IndexedDB
+ (Cache Offline).
+
+
+5. 
+Pemodelan
+ 
+Aplikasi
+
+
+
+5.1 Use Case
+
+
+
+
+
+1. Aktor Utama
+
+
+Masyarakat Umum: 
+Pengguna
+ yang 
+berfokus
+ pada 
+mitigasi
+ 
+diri
+, 
+seperti
+ 
+memantau
+ 
+bencana
+, 
+mencari
+ 
+rute
+ 
+evakuasi
+, dan 
+menggunakan
+ 
+asisten
+ 
+kesehatan
+ AI.
+
+
+Administrator: 
+Pengelola
+ 
+pusat
+ 
+komando
+ yang 
+bertanggung
+ 
+jawab
+ 
+atas
+ 
+validitas
+ data dan 
+koordinasi
+ 
+bantuan
+ 
+darurat
+.
+
+
+2. Fitur Bersama (Shared Use Cases)
+
+
+
+Beberapa
+ 
+fungsi
+ 
+dapat
+ 
+diakses
+ oleh 
+kedua
+ 
+aktor
+, 
+yaitu
+:
+
+
+Login &amp; Log Out: 
+Keamanan
+ 
+standar
+ 
+untuk
+ 
+masuk
+ 
+ke
+ 
+dalam
+ 
+akun
+ masing-masing.
+
+
+Monitoring Peta 
+Bencana
+: 
+Keduanya
+ 
+perlu
+ 
+melihat
+ 
+peta
+ real-time 
+untuk
+ 
+memantau
+ 
+situasi
+ di wilayah 
+tersebut
+.
+
+
+3. 
+Fungsionalitas
+ 
+Khusus
+
+
+
+Sisi Masyarakat: 
+Memiliki
+ 
+akses
+ 
+eksklusif
+ 
+untuk
+ Lapor SOS dan Klinik AI. 
+Penggunaan
+ 
+fitur
+ Cari 
+Titik
+ 
+aman
+ dan Klinik AI 
+ditunjukkan
+ 
+dengan
+ 
+relasi
+ &lt;&lt;include&gt;&gt;, yang 
+berarti
+ 
+fitur
+ 
+ini
+ 
+merupakan
+ 
+bagian
+ inti 
+dari
+ 
+pengalaman
+ 
+pengguna
+ 
+saat
+ 
+mitigasi
+.
+
+
+Sisi Administrator: 
+Memiliki
+ 
+akses
+ 
+penuh
+ 
+untuk
+ 
+Manajemen
+ 
+Titik
+ 
+aman
+ (
+menambah
+/
+mengubah
+ 
+titik
+ 
+aman
+), Monitor 
+Laporan
+ SOS (
+melihat
+ 
+laporan
+ 
+masuk
+ 
+dari
+ 
+warga
+), dan 
+Manajemen
+ 
+Edukasi
+ (
+mengunggah
+ 
+materi
+ 
+mitigasi
+).
+
+
+4. 
+Hubungan
+ 
+Relasi
+ (include &amp; extend)
+
+
+&lt;&lt;include&gt;&gt;: 
+Menunjukkan
+ 
+bahwa
+ 
+fungsi
+ 
+tersebut
+ 
+adalah
+ 
+bagian
+ 
+wajib
+ 
+atau
+ 
+otomatis
+ 
+dari
+ 
+alur
+ 
+kerja
+ 
+aktor
+ 
+tersebut
+.
+
+
+&lt;&lt;extend&gt;&gt;: (
+Ditunjukkan
+ pada 
+sisi
+ Admin 
+ke
+ 
+fitur
+ 
+tertentu
+) 
+Menunjukkan
+ 
+fungsi
+ 
+tambahan
+ yang 
+memperluas
+ 
+kemampuan
+ 
+dasar
+ 
+sistem
+, 
+misalnya
+ 
+dari
+ 
+sekadar
+ 
+memantau
+ 
+peta
+ 
+bencana
+, admin 
+bisa
+ 
+memperluas
+ 
+fungsinya
+ 
+untuk
+ 
+mengelola
+ 
+titik
+ 
+aman
+ yang 
+terdampak
+.
+
+
+5.1 
+Deskripsi
+ Use Case 
+Keseluruhan
+
+
+
+1. Monitoring Peta 
+Bencana
+
+
+
+
+Komponen
+
+
+
+
+Deskripsi
+
+
+
+
+Fungsi
+ 
+Bisnis
+
+
+
+
+Mitigasi
+ &amp; 
+Kewaspadaan
+ Dini
+
+
+Use Case
+
+
+UC-01: Monitoring Peta 
+Bencana
+
+
+
+
+Deskripsi
+
+
+
+
+Sistem
+ 
+menampilkan
+ 
+visualisasi
+ 
+titik
+ 
+bencana
+ (
+gempa
+, 
+cuaca
+) 
+secara
+ real-time 
+dari
+ 
+sumber
+ 
+otoritas
+.
+
+
+Aktor
+
+
+Masyarakat Umum, Administrator
+
+
+Basic Flow
+
+
+1. User 
+membuka
+ 
+aplikasi
+. 2. 
+Sistem
+ 
+menarik
+ data 
+dari
+ BMKG/GDACS. 3. 
+Sistem
+ 
+memplot
+ 
+koordinat
+ pada 
+peta
+ Leaflet. 4. User 
+melihat
+ detail 
+magnitudo
+/
+intensitas
+.
+
+
+Alternate Flow
+
+
+Jika API BMKG 
+gagal
+, 
+sistem
+ 
+menampilkan
+ data 
+terakhir
+ yang 
+tersimpan
+ di cache (
+IndexedDB
+).
+
+
+Pre-Condition
+
+
+
+Perangkat
+ 
+memiliki
+ 
+koneksi
+ internet (
+atau
+ data cache 
+tersedia
+).
+
+
+Post-Condition
+
+
+User 
+mendapatkan
+ 
+informasi
+ 
+lokasi
+ 
+bencana
+ 
+terkini
+.
+
+
+Trigger/Events
+
+
+
+Aplikasi
+ 
+dibuka
+ 
+atau
+ 
+notifikasi
+ 
+peringatan
+ 
+dini
+ 
+masuk
+.
+
+
+2. Cari 
+Titik
+ 
+aman
+ &amp; Rute 
+Evakuasi
+
+
+
+
+Komponen
+
+
+
+
+Deskripsi
+
+
+
+
+Fungsi
+ 
+Bisnis
+
+
+
+
+Penyelamatan
+ &amp; 
+Evakuasi
+
+
+
+Use Case
+
+
+UC-02: Cari 
+Titik
+ 
+aman
+ &amp; Rute 
+Evakuasi
+
+
+
+
+Deskripsi
+
+
+
+
+Menemukan
+ 
+titik
+ 
+aman
+ 
+terdekat
+ dan 
+memberikan
+ 
+panduan
+ 
+rute
+ 
+navigasi
+.
+
+
+Aktor
+
+
+Masyarakat Umum
+
+
+Basic Flow
+
+
+1. User 
+memilih
+ 
+fitur
+ “Safe Zone”. 2. 
+Sistem
+ 
+mendeteksi
+ 
+lokasi
+ GPS user. 3. 
+Sistem
+ 
+membandingkan
+ 
+koordinat
+ user 
+dengan
+ database 
+safe_points
+. 4. 
+Sistem
+ 
+menampilkan
+ 
+rute
+ 
+tercepat
+.
+
+
+Alternate Flow
+
+
+Jika GPS 
+tidak
+ 
+aktif
+, user 
+diminta
+ 
+memasukkan
+ 
+lokasi
+ 
+secara
+ manual 
+atau
+ 
+memilih
+ 
+titik
+ di 
+peta
+.
+
+
+Pre-Condition
+
+
+Fitur Geolocation pada browser 
+diaktifkan
+.
+
+
+Post-Condition
+
+
+
+Tampil
+ 
+rute
+ 
+navigasi
+ 
+ke
+ 
+titik
+ 
+aman
+ di 
+layar
+ user.
+
+
+Trigger/Events
+
+
+User 
+menekan
+ 
+tombol
+ “Find Safe Zone”.
+
+
+3. 
+Konsultasi
+ Klinik AI
+
+
+
+Komponen
+
+
+
+
+Deskripsi
+
+
+
+
+Fungsi
+ 
+Bisnis
+
+
+
+
+Layanan
+ Kesehatan 
+Mandiri
+
+
+
+Use Case
+
+
+UC-03: 
+Konsultasi
+ Klinik AI
+
+
+
+Deskripsi
+
+
+
+Chatbot 
+berbasis
+ AI 
+untuk
+ 
+bantuan
+ 
+medis
+ 
+pertama
+ dan 
+konseling
+ 
+psikologis
+ 
+darurat
+.
+
+
+Aktor
+
+
+Masyarakat Umum
+
+
+Basic Flow
+
+
+1. User 
+membuka
+ 
+modul
+ Klinik AI. 2. User 
+memasukkan
+ 
+keluhan
+/
+gejala
+. 3. 
+Sistem
+ 
+mengirimkan
+ 
+ke
+ Gemini API. 4. AI 
+memberikan
+ 
+respon
+ 
+panduan
+ 
+medis
+.
+
+
+Alternate Flow
+
+
+Jika offline, 
+sistem
+ 
+menggunakan
+ Null Claw (Local AI) 
+dengan
+ dataset 
+kamusData.json
+.
+
+
+Pre-Condition
+
+
+User 
+telah
+ login 
+untuk
+ 
+sinkronisasi
+ 
+jurnal
+ 
+kesehatan
+.
+
+
+Post-Condition
+
+
+User 
+mendapatkan
+ 
+panduan
+ 
+tindakan
+ 
+medis
+ 
+pertama
+.
+
+
+Trigger/Events
+
+
+User 
+mengirim
+ 
+pesan
+ di 
+kolom
+ chat Klinik AI.
+
+
+4. Lapor Status SOS
+
+
+
+Komponen
+
+
+
+
+Deskripsi
+
+
+
+
+Fungsi
+ 
+Bisnis
+
+
+
+
+Pelaporan
+ 
+Darurat
+
+
+
+Use Case
+
+
+UC-04: Lapor Status SOS
+
+
+
+Deskripsi
+
+
+
+
+Melaporkan
+ 
+kondisi
+ 
+darurat
+ dan 
+lokasi
+ 
+terkini
+ 
+ke
+ 
+pusat
+ 
+komando
+ (Admin).
+
+
+Aktor
+
+
+Masyarakat Umum
+
+
+Basic Flow
+
+
+1. User 
+menekan
+ 
+tombol
+ “SOS”. 2. 
+Sistem
+ 
+mengambil
+ 
+koordinat
+ GPS 
+terkini
+. 3. 
+Sistem
+ 
+mengirim
+ data 
+laporan
+ 
+ke
+ 
+koleksi
+ reports di 
+Firestore
+. 4. 
+Notifikasi
+ 
+dikirim
+ 
+ke
+ Admin.
+
+
+Alternate Flow
+
+
+User 
+dapat
+ 
+menambahkan
+ 
+deskripsi
+ 
+tambahan
+ 
+atau
+ 
+foto
+ 
+kejadian
+ 
+sebelum
+ 
+mengirim
+.
+
+
+Pre-Condition
+
+
+User 
+dalam
+ radius area 
+bencana
+ 
+atau
+ 
+kondisi
+ 
+darurat
+.
+
+
+Post-Condition
+
+
+
+Laporan
+ 
+tersimpan
+ di database dan 
+terlihat
+ oleh Admin 
+secara
+ real-time.
+
+
+Trigger/Events
+
+
+
+Tombol
+ SOS 
+ditekan
+.
+
+
+5. 
+Manajemen
+ Data 
+Titik
+ 
+aman
+ (Admin)
+
+
+
+Komponen
+
+
+
+
+Deskripsi
+
+
+
+
+Fungsi
+ 
+Bisnis
+
+
+
+Tata Kelola Data 
+Lapangan
+
+
+
+Use Case
+
+
+UC-05: 
+Manajemen
+ Data 
+Titik
+ 
+aman
+
+
+
+
+Deskripsi
+
+
+
+
+Mengelola
+ (
+Tambah
+, Ubah, Hapus) 
+informasi
+ 
+titik
+ 
+aman
+/
+titik
+ 
+aman
+.
+
+
+Aktor
+
+
+Administrator
+
+
+Basic Flow
+
+
+1. Admin login 
+ke
+ CommandCenter. 2. 
+Pilih
+ menu “Safe Zone Manager”. 3. Admin input data (Nama, 
+Kapasitas
+, 
+Koordinat
+). 4. 
+Sistem
+ update 
+koleksi
+ 
+safe_points
+.
+
+
+Alternate Flow
+
+
+Admin 
+dapat
+ 
+mengubah
+ status 
+titik
+ 
+aman
+ 
+menjadi
+ “
+Penuh
+” 
+untuk
+ 
+mengalihkan
+ 
+rute
+ user.
+
+
+Pre-Condition
+
+
+
+Memiliki
+ 
+hak
+ 
+akses
+ Administrator.
+
+
+Post-Condition
+
+
+Data 
+titik
+ 
+aman
+ 
+terbaru
+ 
+dipublikasikan
+ 
+ke
+ 
+peta
+ 
+seluruh
+ user.
+
+
+Trigger/Events
+
+
+
+Perubahan
+ 
+kondisi
+ di 
+lapangan
+ 
+atau
+ 
+penambahan
+ 
+titik
+ 
+aman
+ 
+baru
+.
+
+
+6. Monitor 
+Laporan
+ SOS (Admin)
+
+
+
+Komponen
+
+
+
+
+Deskripsi
+
+
+
+
+Fungsi
+ 
+Bisnis
+
+
+
+
+Respon
+ 
+Darurat
+ &amp; Monitoring
+
+
+Use Case
+
+
+UC-06: Monitor 
+Laporan
+ SOS
+
+
+
+Deskripsi
+
+
+
+
+Memantau
+ 
+seluruh
+ 
+laporan
+ 
+masuk
+ 
+dari
+ 
+masyarakat
+ 
+untuk
+ 
+koordinasi
+ 
+bantuan
+.
+
+
+Aktor
+
+
+Administrator
+
+
+Basic Flow
+
+
+1. Admin 
+membuka
+ dashboard Monitor. 2. 
+Sistem
+ 
+menampilkan
+ daftar 
+laporan
+ 
+terbaru
+ 
+dari
+ 
+koleksi
+ reports. 3. Admin 
+melakukan
+ 
+verifikasi
+ status 
+laporan
+ (Pending/Handled).
+
+
+Alternate Flow
+
+
+Admin 
+memfilter
+ 
+laporan
+ 
+berdasarkan
+ radius 
+lokasi
+ 
+atau
+ 
+tipe
+ 
+bencana
+.
+
+
+Pre-Condition
+
+
+Admin 
+aktif
+ 
+dalam
+ 
+sesi
+ login.
+
+
+Post-Condition
+
+
+
+Laporan
+ 
+diproses
+ dan status 
+bantuan
+ 
+terupdate
+.
+
+
+Trigger/Events
+
+
+
+Laporan
+ 
+baru
+ 
+masuk
+ 
+ke
+ 
+sistem
+ 
+Firestore
+.
+
+
+5.2 Activity Diagram (Alur 
+Evakuasi
+)
+
+
+
+
+
+1. 
+Inisialisasi
+ &amp; 
+Sinkronisasi
+
+
+
+Alur 
+dimulai
+ 
+ketika
+ Masyarakat 
+membuka
+ 
+aplikasi
+.
+
+
+
+Secara
+ 
+otomatis
+, 
+Sistem
+ 
+melakukan
+ 
+Sinkronisasi
+ Data (
+mengambil
+ data 
+gempa
+/
+cuaca
+ 
+terbaru
+ 
+dari
+ BMKG/GDACS).
+
+
+
+Setelah
+ data 
+siap
+, 
+Sistem
+ 
+mengirimkan
+ 
+informasi
+ 
+tersebut
+ 
+kembali
+ 
+ke
+ Masyarakat 
+dalam
+ 
+bentuk
+ 
+Penyajian
+ Peta &amp; 
+Notifikasi
+.
+
+
+2. Monitoring &amp; 
+Pengambilan
+ Keputusan
+
+
+Masyarakat 
+kemudian
+ 
+dapat
+ 
+melihat
+ 
+lokasi
+ 
+titik
+ 
+bencana
+ dan 
+titik
+ 
+aman
+ (
+titik
+ 
+aman
+) pada 
+peta
+ 
+interaktif
+.
+
+
+
+Terdapat
+ 
+titik
+ 
+keputusan
+ (Decision Point): "
+Terjadi
+ 
+Bencana
+?"
+
+
+Jika YA: 
+Pengguna
+ 
+dapat
+ 
+melakukan
+ Lapor SOS.
+
+
+Jika TIDAK: 
+Pengguna
+ 
+dapat
+ 
+berinteraksi
+ 
+dengan
+ AI 
+Asisten
+ 
+Penjaga
+ &amp; Klinik AI 
+untuk
+ 
+edukasi
+ 
+atau
+ 
+pengecekan
+ 
+kesehatan
+ 
+mandiri
+.
+
+
+3. Jalur 
+Laporan
+ SOS (
+Kondisi
+ 
+Darurat
+)
+
+
+Saat 
+masyarakat
+ 
+menekan
+ 
+tombol
+ SOS, 
+Sistem
+ 
+akan
+ 
+Menerima
+ Laporan dan 
+secara
+ 
+instan
+ 
+mengirimkan
+ 
+Notifikasi
+ 
+ke
+ Administrator.
+
+
+Administrator (
+pusat
+ 
+komando
+) 
+kemudian
+ 
+menerima
+ data 
+tersebut
+ 
+untuk
+ 
+melakukan
+ 
+Koordinasi
+ 
+Bantuan
+ di 
+lapangan
+.
+
+
+4. Jalur Klinik AI (
+Kondisi
+ Normal/
+Edukasi
+)
+
+
+Masyarakat 
+mengirimkan
+ 
+pertanyaan
+ 
+atau
+ 
+keluhan
+ 
+kesehatan
+ 
+ke
+ 
+modul
+ AI.
+
+
+
+Sistem
+ 
+melalui
+ AI Chatbot 
+memproses
+ 
+informasi
+ 
+tersebut
+ (
+menggunakan
+ Gemini 
+atau
+ Null Claw).
+
+
+Masyarakat 
+kemudian
+ 
+Menerima
+ 
+Jawaban
+ 
+berupa
+ saran 
+medis
+ 
+atau
+ 
+informasi
+ 
+mitigasi
+.
+
+
+5.3 Sequence Diagram (Chat Klinik AI)
+
+
+
+
+
+1. 
+Inisiasi
+ oleh 
+Pengguna
+ (Masyarakat Umum)
+
+
+Alur 
+dimulai
+ 
+ketika
+ Masyarakat Umum 
+menekan
+ 
+tombol
+ SOS di 
+antarmuka
+ 
+aplikasi
+ (App UI).
+
+
+App UI 
+kemudian
+ 
+melakukan
+ 
+fungsi
+ internal (self-call) 
+untuk
+ 
+mengambil
+ 
+koordinat
+ GPS (Latitude &amp; Longitude) 
+perangkat
+ 
+pengguna
+.
+
+
+2. 
+Transmisi
+ Data 
+ke
+ Cloud
+
+
+
+Setelah
+ 
+koordinat
+ 
+didapatkan
+, App UI 
+mengirimkan
+ data 
+laporan
+ 
+tersebut
+ 
+ke
+ Firebase/
+Firestore
+.
+
+
+Firebase/
+Firestore
+ 
+menyimpan
+ data 
+tersebut
+ 
+secara
+ Real-time. Ini 
+adalah
+ 
+poin
+ 
+krusial
+ 
+karena
+ 
+teknologi
+ 
+Firestore
+ 
+memungkinkan
+ data 
+langsung
+ 
+tersedia
+ 
+tanpa
+ 
+perlu
+ 
+memuat
+ 
+ulang
+ 
+halaman
+ (refresh).
+
+
+3. 
+Notifikasi
+ 
+ke
+ Administrator
+
+
+
+Begitu
+ data 
+tersimpan
+, Firebase/
+Firestore
+ 
+secara
+ 
+otomatis
+ 
+memicu
+ 
+notifikasi
+ 
+ke
+ Admin Dashboard.
+
+
+Admin Dashboard 
+kemudian
+ 
+menampilkan
+ 
+peringatan
+ (Alert SOS) 
+secara
+ visual 
+kepada
+ Administrator.
+
+
+4. 
+Respon
+ &amp; 
+Verifikasi
+
+
+
+Administrator 
+melakukan
+ 
+tinjauan
+ (review) 
+terhadap
+ 
+laporan
+ 
+tersebut
+ dan 
+memperbarui
+ status 
+laporan
+ 
+menjadi
+ "
+Ditangani
+" 
+melalui
+ dashboard.
+
+
+
+Perubahan
+ status 
+ini
+ 
+dikirim
+ 
+kembali
+ (
+Sinkronisasi
+) 
+ke
+ Firebase/
+Firestore
+.
+
+
+5. 
+Konfirmasi
+ Balik 
+ke
+ 
+Pengguna
+
+
+
+Karena 
+koneksinya
+ 
+bersifat
+ bidirectional (dua 
+arah
+), Firebase/
+Firestore
+ 
+langsung
+ 
+memperbarui
+ status di App UI 
+pengguna
+ 
+secara
+ 
+otomatis
+.
+
+
+Terakhir, App UI 
+menampilkan
+ 
+notifikasi
+ 
+kepada
+ Masyarakat Umum 
+berupa
+ 
+pesan
+ "
+Bantuan
+ Sedang 
+Diproses
+".
+
+
+5.4 Class Diagram (Frontend Model)
+
+
+
+1. 
+Entitas
+ 
+Pengguna
+ &amp; Akses
+
+User: 
+Merupakan
+ 
+kelas
+ 
+utama
+ 
+untuk
+ 
+masyarakat
+. 
+Memiliki
+ 
+atribut
+ 
+identitas
+ (
+uid
+, name, email) dan 
+metode
+ 
+untuk
+ 
+melakukan
+ 
+aksi
+ 
+seperti
+ 
+register(
+) dan 
+login(
+).
+
+Admin: 
+Kelas
+ 
+khusus
+ 
+untuk
+ 
+pengelola
+ 
+sistem
+. 
+Kelas
+ 
+ini
+ 
+memiliki
+ 
+hubungan
+ "Monitors" 
+dengan
+ 
+SafeZone
+, 
+artinya
+ 
+satu
+ Admin 
+dapat
+ 
+memantau
+ 
+banyak
+ 
+titik
+ 
+aman
+ 
+sekaligus
+.
+
+2. 
+Entitas
+ 
+Pelaporan
+ &amp; 
+Pelacakan
+
+
+Report: 
+Digunakan
+ 
+untuk
+ 
+menyimpan
+ data 
+laporan
+ 
+bencana
+ 
+atau
+ SOS. 
+Memiliki
+ 
+atribut
+ 
+lokasi
+ (
+lat
+, 
+lng
+) dan 
+tipe
+ 
+bencana
+. Metode 
+
+updateStatus
+(
+) 
+digunakan
+ 
+untuk
+ 
+mengubah
+ 
+kondisi
+ 
+laporan
+ (
+misal
+: 
+dari
+ "Pending" 
+menjadi
+ "
+Ditangani
+").
+
+
+ActiveUser
+: 
+Kelas
+ yang 
+bertanggung
+ 
+jawab
+ 
+atas
+ 
+fitur
+ Live Tracker. 
+Objek
+ 
+ini
+ 
+terus
+ 
+memperbarui
+ 
+lokasi
+ 
+pengguna
+ 
+secara
+ real-time 
+melalui
+ 
+metode
+ 
+
+updateLocation
+(
+).
+
+3. Modul Kesehatan &amp; 
+Mitigasi
+
+
+
+HealthLog
+: 
+Digunakan
+ oleh 
+fitur
+ Klinik AI. 
+Fokus
+ 
+utamanya
+ 
+adalah
+ 
+privasi
+, 
+tercermin
+ 
+dari
+ 
+adanya
+ 
+metode
+ 
+encrypt(
+) 
+untuk
+ 
+melindungi
+ data 
+medis
+ 
+pengguna
+ 
+sebelum
+ 
+disimpan
+.
+
+
+SafeZone
+: 
+Menyimpan
+ 
+informasi
+ 
+infrastruktur
+ 
+evakuasi
+ (
+kapasitas
+, nama, 
+lokasi
+). Metode 
+
+getStatus
+(
+) 
+digunakan
+ 
+untuk
+ 
+mengecek
+ 
+apakah
+ 
+titik
+ 
+aman
+ 
+tersebut
+ 
+masih
+ 
+tersedia
+ 
+atau
+ 
+sudah
+ 
+penuh
+.
+
+Broadcast: 
+Kelas
+ 
+untuk
+ 
+mengirimkan
+ 
+pesan
+ 
+peringatan
+ 
+masal
+. 
+Memiliki
+ 
+hubungan
+ "Manages" (
+diatur
+ oleh 
+otoritas
+) 
+untuk
+ 
+mengirimkan
+ 
+pesan
+ 
+ke
+ 
+banyak
+ 
+pengguna
+.
+
+4. 
+Hubungan
+ (
+Multiplisitas
+)
+
+Diagram 
+ini
+ juga 
+menunjukkan
+ 
+angka-angka
+ di garis 
+penghubung
+ (multiplicity):
+
+1 
+ke
+ *: 
+Menunjukkan
+ 
+hubungan
+ One-to-Many. 
+Misalnya
+, 
+satu
+ Admin 
+dapat
+ 
+mengelola
+ 
+banyak
+ (*) 
+SafeZone
+ 
+atau
+ Broadcast.
+
+
+Koneksi
+ 
+Objek
+: 
+Menunjukkan
+ 
+bagaimana
+ 
+satu
+ 
+bagian
+ program 
+bergantung
+ pada 
+bagian
+ 
+lainnya
+, 
+memastikan
+ 
+alur
+ data di database (
+Firestore
+) 
+tetap
+ 
+konsisten
+ 
+dengan
+ 
+logika
+ 
+kode
+ di 
+aplikasi
+.
+
+
+6. Integrasi
+
+
+
+Aplikasi
+ 
+melakukan
+ 
+interoperabilitas
+ data 
+dengan
+: 
+
+
+BMKG: Data 
+gempa
+ 
+bumi
+ 
+terkini
+ 
+ditarik
+ 
+setiap
+ 5 
+menit
+ 
+untuk
+ update dashboard. 
+
+
+GDACS: 
+Peringatan
+ 
+cuaca
+ 
+ekstrim
+ dan 
+banjir
+ 
+tingkat
+ global. 
+
+
+Google Gemini API: Integrasi via SDK 
+untuk
+ 
+fitur
+ chatbot 
+kesehatan
+.
+
+
+
+
+
+7. User Interface (UI)
+
+
+Daftar 
+halaman
+ 
+antarmuka
+ 
+utama
+: 
+
+
+Dashboard Utama: 
+Ringkasan
+ 
+bencana
+ 
+terbaru
+ dan status 
+keamanan
+. 
+
+
+Peta 
+Interaktif
+: 
+Visualisasi
+ Leaflet 
+dengan
+ layer 
+titik
+ 
+aman
+ dan area 
+bahaya
+. 
+
+
+Klinik AI Portal: 
+Antarmuka
+ chat 
+untuk
+ 
+bantuan
+ 
+medis
+ 
+mandiri
+. 
+
+
+Admin CommandCenter: Dashboard 
+khusus
+ administrator 
+untuk
+ 
+manajemen
+ data dan monitoring SOS. 
+
+
+Education Hub: 
+Katalog
+ 
+konten
+ 
+edukasi
+ 
+bencana
+ (
+artikel
+ &amp; video).
+
+
+Link 
+Figma :
+https://www.figma.com/design/DzauWoVoJK0SSqoiZQJXQL/SafeTana?node-id=0-1&amp;t=SXX3cZhAdrQzdUPn-1
+
+
+Link 
+Diagram :
+https://drive.google.com/file/d/1QGFYQIsjQLkbBMnGalYxNNNtjD73W24/view?usp=sharing
+
+
