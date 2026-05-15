@@ -233,7 +233,10 @@ const HealthDashboard = () => {
 
         {/* National Health Integration Status */}
         <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-           <div className="glass-card rounded-[2rem] p-5 border border-outline-variant/10 flex items-center justify-between flex-wrap gap-4">
+           <div 
+             onClick={() => navigate('/health/fasyankes')}
+             className="glass-card rounded-[2rem] p-5 border border-outline-variant/10 flex items-center justify-between flex-wrap gap-4 cursor-pointer hover:bg-white/5 active:scale-[0.98] transition-all group"
+           >
               <div className="flex items-center gap-4">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${satuSehatStatus.status === 'connected' ? 'bg-success/10 text-success' : 'bg-on-surface/5 text-on-surface-variant'}`}>
                   <span className="material-symbols-outlined">health_and_safety</span>
@@ -246,14 +249,9 @@ const HealthDashboard = () => {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                {satuSehatStatus.status === 'connected' && (
-                  <button 
-                    onClick={() => navigate('/health/fasyankes')}
-                    className="text-[10px] font-black bg-primary text-on-primary px-3 py-1 rounded-full uppercase tracking-widest hover:scale-105 transition-transform shadow-md"
-                  >
-                    Lihat Direktori
-                  </button>
-                )}
+                <div className="text-[10px] font-black bg-primary text-on-primary px-3 py-1 rounded-full uppercase tracking-widest group-hover:scale-105 transition-transform shadow-md flex items-center gap-1">
+                  Direktori <span className="material-symbols-outlined text-[10px]">arrow_forward</span>
+                </div>
                 <div className={`w-2 h-2 rounded-full ${satuSehatStatus.status === 'connected' ? 'bg-success shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-on-surface/20'}`} />
               </div>
            </div>
