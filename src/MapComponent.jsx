@@ -81,6 +81,7 @@ function magToRadius(mag) {
 const LAYERS = [
   { id: 'BMKG', label: 'Gempa BMKG', icon: 'earthquake', color: '#EF4444' },
   { id: 'PetaBencana', label: 'Bencana Lokal', icon: 'flood', color: '#3B82F6' },
+  { id: 'Warga', label: 'Laporan Warga', icon: 'campaign', color: '#8B5CF6' },
   { id: 'GDACS', label: 'GDACS Global', icon: 'public', color: '#F97316' },
   { id: 'safe', label: 'Titik Aman', icon: 'gpp_good', color: '#22C55E' },
   { id: 'InaRiskFlood', label: 'Risiko Banjir (inaRISK)', icon: 'water_damage', color: '#38BDF8' },
@@ -105,7 +106,7 @@ const MapComponent = ({
   const [isAllZonesOpen, setIsAllZonesOpen] = useState(false);
   const [isLayerPanelOpen, setIsLayerPanelOpen] = useState(false);
   const [activeLayers, setActiveLayers] = useState({ 
-    BMKG: true, PetaBencana: true, GDACS: true, safe: true, 
+    BMKG: true, PetaBencana: true, GDACS: true, safe: true, Warga: true,
     InaRiskFlood: false, InaRiskEq: false, InaRiskLandslide: false, InaWareRisk: false 
   });
 
