@@ -222,6 +222,8 @@ const App = () => {
     const unsub_reports = onSnapshot(q_reports, (snap) => {
       const dbReports = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setUserReports(dbReports);
+    }, (error) => {
+      console.warn("⚠️ Gagal memuat data laporan warga. Hal ini biasanya karena 'Rules' Firestore belum diubah menjadi 'allow read, write: if true;'. Error:", error.message);
     });
 
     if (navigator.geolocation) {

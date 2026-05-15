@@ -96,7 +96,11 @@ const ReportForm = ({ onClose }) => {
       onClose();
     } catch (err) {
       console.error("Gagal mengirim laporan:", err);
-      alert("Gagal mengirim laporan. Silakan periksa koneksi Anda.");
+      if (err.code === 'permission-denied') {
+        alert("Gagal mengirim: Akses ditolak oleh Firebase. Pastikan Rules Firestore Anda sudah diatur ke 'allow read, write: if true;'.");
+      } else {
+        alert("Gagal mengirim laporan. Silakan periksa koneksi internet atau ekstensi Adblocker Anda.");
+      }
     }
   };
 
