@@ -68,9 +68,9 @@ const AiChatbot = ({ onClose, isSOS, userLocation, reports }) => {
   };
 
   return (
-    <div className="fixed bottom-24 right-6 left-6 md:left-auto md:w-[420px] h-[600px] max-h-[80vh] bg-background rounded-lg shadow-2xl z-[9999] flex flex-col overflow-hidden border-t-2 border-primary/20 animate-in fade-in slide-in-from-bottom-10">
+    <div className="fixed bottom-24 right-6 left-6 md:left-auto md:w-[420px] h-[600px] max-h-[80vh] bg-[#0b1326] rounded-lg shadow-2xl z-[9999] flex flex-col overflow-hidden border-t-2 border-primary/20 animate-in fade-in slide-in-from-bottom-10">
       {/* AI Header */}
-      <header className={`p-4 flex items-center justify-between border-b border-outline-variant/10 ${isSOS ? 'bg-error text-white' : 'bg-surface-container-highest'}`}>
+      <header className={`p-4 flex items-center justify-between border-b border-outline-variant/10 ${isSOS ? 'bg-error text-white' : 'bg-[#2d3449]'}`}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
             <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>{isSOS ? 'emergency_home' : 'smart_toy'}</span>
@@ -94,8 +94,8 @@ const AiChatbot = ({ onClose, isSOS, userLocation, reports }) => {
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[85%] p-4 rounded-lg text-sm font-medium leading-relaxed tracking-tight shadow-lg ${
               msg.role === 'user' 
-              ? 'bg-primary text-white rounded-tr-none' 
-              : 'bg-surface-container-low text-on-surface rounded-tl-none border border-outline-variant/10'
+              ? 'bg-[#c3c0ff] text-[#1d00a5] rounded-tr-none' 
+              : 'bg-[#131b2e] text-[#dae2fd] rounded-tl-none border border-outline-variant/10'
             }`}>
               {msg.text}
               {msg.role === 'bot' && (
@@ -121,13 +121,13 @@ const AiChatbot = ({ onClose, isSOS, userLocation, reports }) => {
       </div>
 
       {/* Input Dock */}
-      <form onSubmit={handleSend} className="p-4 bg-surface-container-highest border-t border-outline-variant/10 flex gap-3">
+      <form onSubmit={handleSend} className="p-4 bg-[#2d3449] border-t border-outline-variant/10 flex gap-3">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ketik pertanyaan Anda..."
-          className="flex-1 bg-surface-container-low border border-outline-variant/20 rounded-lg px-5 py-3 text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all placeholder:opacity-30"
+          className="flex-1 bg-[#131b2e] border border-outline-variant/20 rounded-lg px-5 py-3 text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all placeholder:opacity-30"
         />
         <button type="submit" disabled={isTyping} className="w-12 h-12 bg-primary text-white rounded-lg flex items-center justify-center shadow-lg active:scale-95 transition-transform disabled:opacity-50">
           <span className="material-symbols-outlined">send</span>
