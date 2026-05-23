@@ -118,8 +118,10 @@ const App = () => {
 
   // --- Universal URL Masking ---
   // Hides the internal routing path from the address bar (always shows safetana.vercel.app/)
+  // Excludes legal routes (/privacy and /terms) so Google's crawler and Publisher Center can verify them
   useEffect(() => {
-    if (window.location.pathname !== '/') {
+    const unmaskedPaths = ['/privacy', '/terms', '/health/privacy', '/health/terms'];
+    if (window.location.pathname !== '/' && !unmaskedPaths.includes(window.location.pathname)) {
       window.history.replaceState(null, '', '/');
     }
   }, [location.pathname]);
@@ -449,6 +451,8 @@ const App = () => {
         <Route path="/health/dictionary" element={<HealthDictionary />} />
         <Route path="/health/privacy" element={<HealthPrivacy />} />
         <Route path="/health/terms" element={<HealthTerms />} />
+        <Route path="/privacy" element={<HealthPrivacy />} />
+        <Route path="/terms" element={<HealthTerms />} />
         <Route path="/health/about" element={<HealthAbout />} />
         <Route path="/health/fasyankes" element={<SatuSehatFasyankes />} />
 
