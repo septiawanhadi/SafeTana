@@ -43,7 +43,7 @@ export default async function handler(request, response) {
             // Cache for 1 hour on the edge
             response.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400');
             return response.status(200).json(results);
-        } catch (error) {
+        } catch {
             console.warn(`Search failed on ${api}, trying next...`);
         }
     }

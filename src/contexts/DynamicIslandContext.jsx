@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useRef } from 'react';
 
 const DynamicIslandContext = createContext();
@@ -38,6 +39,19 @@ export const DynamicIslandProvider = ({ children }) => {
 
   const lastTimeRef = useRef(0);
   const stuckCountRef = useRef(0);
+
+  function handleAudioError() {
+    console.warn("Direct stream failed, switching to IFrame mode...");
+    setMusicData(prev => ({ ...prev, audioUrl: '' }));
+  }
+
+  function findAlternativePlayback() {
+    if (musicData.title) {
+       window.dispatchEvent(new CustomEvent('safetana:find-alternative', { 
+         detail: { title: musicData.title, artist: musicData.artist } 
+       }));
+    }
+  }
 
   // Sync Audio Playback (v9.0)
   React.useEffect(() => {
@@ -86,11 +100,6 @@ export const DynamicIslandProvider = ({ children }) => {
     }
     return () => clearInterval(interval);
   }, [musicData.isPlaying, musicData.audioUrl, musicData.duration, musicData.currentTime]);
-
-  const handleAudioError = () => {
-    console.warn("Direct stream failed, switching to IFrame mode...");
-    setMusicData(prev => ({ ...prev, audioUrl: '' }));
-  };
 
   const seekTo = (seconds) => {
     setMusicData(prev => ({ 
@@ -167,14 +176,6 @@ export const DynamicIslandProvider = ({ children }) => {
         progress: (cur / dur) * 100,
         duration: dur
       }));
-    }
-  };
-
-  const findAlternativePlayback = () => {
-    if (musicData.title) {
-       window.dispatchEvent(new CustomEvent('safetana:find-alternative', { 
-         detail: { title: musicData.title, artist: musicData.artist } 
-       }));
     }
   };
 

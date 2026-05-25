@@ -29,7 +29,7 @@ const ReportForm = ({ onClose }) => {
               coords: { lat, lon },
               location: address || `${lat.toFixed(4)}, ${lon.toFixed(4)}`
             }));
-          } catch (error) {
+          } catch {
             setReport(prev => ({ 
               ...prev, 
               coords: { lat, lon },

@@ -3,8 +3,6 @@ import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { collection, onSnapshot, query, orderBy, limit, setDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import { db, requestForToken, onMessageListener, functions } from './firebase';
-import { calculateDistance, reverseGeocode } from './utils/geoUtils';
-import { maskName, maskPhone } from './securityUtils';
 import { playSiren, stopSiren } from './utils/audioUtils';
 import { bandungSafeZones } from './data/safeZones';
 import { kabBandungSafeZones } from './data/kabBandungSafeZones';
@@ -21,8 +19,6 @@ import DynamicIsland from './components/common/DynamicIsland';
 import ReportForm from './ReportForm';
 
 // Integration: Service Pattern
-import { aiService } from './services/health/aiService';
-import { dataService } from './services/health/dataService';
 import { hazardService } from './services/hazardService';
 import { envService } from './services/envService';
 import { useDynamicIsland } from './contexts/DynamicIslandContext';
@@ -107,7 +103,7 @@ const App = () => {
   const [latestBroadcast, setLatestBroadcast] = useState(null);
   const [isAiOpen, setIsAiOpen] = useState(false);
   const [isReportFormOpen, setIsReportFormOpen] = useState(false);
-  const [safeZones, setSafeZones] = useState([...bandungSafeZones, ...kabBandungSafeZones]);
+  const safeZones = useMemo(() => [...bandungSafeZones, ...kabBandungSafeZones], []);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [weatherData, setWeatherData] = useState({ aqi: '--', precipitation: '--' });
   
@@ -133,7 +129,7 @@ const App = () => {
   useEffect(() => {
     const hasSeenOnboarding = sessionStorage.getItem('hasSeenOnboarding_v1');
     if (hasSeenOnboarding) {
-      setShowSplash(false); // Skip splash if already seen in session
+      setTimeout(() => setShowSplash(false), 0); // Skip splash if already seen in session
     }
 
     // --- Pendaftaran Notifikasi Background (FCM) ---
@@ -207,7 +203,7 @@ const App = () => {
     const controller = new AbortController();
     
     // Initial fetch
-    fetchHazards(controller.signal);
+    setTimeout(() => fetchHazards(controller.signal), 0);
 
     // Set up polling interval every 3 minutes
     const pollInterval = setInterval(() => {
@@ -281,11 +277,10 @@ const App = () => {
     return () => clearTimeout(timer);
   }, [navigate]);
 
-  // Fetch Realtime Weather & AQI based on userLocation
   useEffect(() => {
     if (!userLocation) return;
     const controller = new AbortController();
-    fetchRealtimeEnv(userLocation[0], userLocation[1], controller.signal);
+    setTimeout(() => fetchRealtimeEnv(userLocation[0], userLocation[1], controller.signal), 0);
     return () => controller.abort();
   }, [userLocation, fetchRealtimeEnv]);
 
@@ -475,7 +470,6 @@ const App = () => {
           onClose={() => setIsAiOpen(false)} 
           isSOS={isSOSActive} 
           userLocation={userLocation} 
-          reports={reports} 
         />
       )}
 

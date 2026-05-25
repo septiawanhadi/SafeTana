@@ -51,7 +51,7 @@ export const bpjsService = {
       }
       
       return { status: 'ready' };
-    } catch (error) {
+    } catch {
       return { status: 'error' };
     }
   }

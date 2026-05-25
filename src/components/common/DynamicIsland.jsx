@@ -3,11 +3,11 @@ import { useDynamicIsland } from '../../contexts/DynamicIslandContext';
 
 const DynamicIsland = () => {
   const { 
-    islandType, setIslandType, 
+    islandType, 
     activeActivities, removeActivity,
     isExpanded, setIsExpanded,
-    isFutureMode, setIsFutureMode,
-    musicData, togglePlay, stopMusic, seekTo, findAlternativePlayback,
+    isFutureMode,
+    musicData, togglePlay, seekTo, findAlternativePlayback,
     notificationData 
   } = useDynamicIsland();
 
@@ -24,7 +24,7 @@ const DynamicIsland = () => {
 
   useEffect(() => {
     if (activeActivities.length > 0) {
-      setIsVisible(true);
+      setTimeout(() => setIsVisible(true), 0);
       const primary = activeActivities[0];
       
       // Auto-expand slightly on notification/reminder

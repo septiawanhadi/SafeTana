@@ -79,7 +79,7 @@ const SplashScreen = ({ onDone }) => {
   };
 
   useEffect(() => {
-    playChime();
+    setTimeout(() => playChime(), 0);
     
     // Jika tidak butuh interaksi (sudah play), langsung jalankan fase
     // Jika butuh interaksi, fase akan berjalan setelah handleStart() dipanggil user
@@ -128,7 +128,7 @@ const SplashScreen = ({ onDone }) => {
         </div>
 
         {/* INTERACTION BRIDGE UI */}
-        {needsInteraction && !hasPlayedRef.current && phase !== 'exit' && (
+        {needsInteraction && phase !== 'exit' && (
            <div className="mt-8 animate-pulse">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">
                  Tap anywhere to start experience

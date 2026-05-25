@@ -90,7 +90,7 @@ const MoodTracker = () => {
               }))
               .filter(v => v.videoId);
           }
-        } catch (err) {
+        } catch {
           console.warn(`Channel failed: ${proxy || 'direct'} + ${source.name}`);
         }
       }
@@ -117,7 +117,7 @@ const MoodTracker = () => {
           const best = audioStreams.find(s => s.format === 'M4A' || s.mimeType?.includes('audio/mp4')) || audioStreams[0];
           if (best && best.url) return best.url;
         }
-      } catch (e) { console.warn(`Stream fetch failed: ${instance}`); }
+      } catch { console.warn(`Stream fetch failed: ${instance}`); }
     }
     return null;
   };

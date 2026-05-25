@@ -4,12 +4,11 @@ import {
   Users, MapPin, Battery, AlertCircle, CheckCircle,
   Clock, X, Search, ShieldAlert, Send, Radio, Smartphone, MessageSquare, AlertTriangle, RefreshCw
 } from 'lucide-react';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { functions, db } from './firebase';
+import { db } from './firebase';
 import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp } from 'firebase/firestore';
 import SafeZoneManager from './SafeZoneManager';
 
-const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
+const CommandCenter = ({ reports = [], onClose }) => {
   const navigate = useNavigate();
   
   const handleClose = () => {
@@ -25,7 +24,6 @@ const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [is24HourFilter, setIs24HourFilter] = useState(false);
   const [lastRefreshedTime, setLastRefreshedTime] = useState(null);
-  const [broadcastMessage, setBroadcastMessage] = useState('');
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [broadcastSuccess, setBroadcastSuccess] = useState(false);
   const [broadcastError, setBroadcastError] = useState('');
@@ -47,12 +45,6 @@ const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
 
     return () => unsubscribe();
   }, []);
-
-  const stats = {
-    total: users?.length || 0,
-    critical: users?.filter(u => u.status === 'Butuh Evakuasi').length || 0,
-    safe: users?.filter(u => u.status === 'Aman').length || 0
-  };
 
   const toggle24HourFilter = () => {
     const newState = !is24HourFilter;
@@ -174,7 +166,7 @@ const CommandCenter = ({ reports = [], onClose, onSendBroadcast }) => {
                         disabled={isBroadcasting}
                         className="w-full py-3.5 rounded-2xl font-black text-[9px] uppercase tracking-[0.2em] transition-all bg-white text-slate-950 hover:bg-blue-50 hover:text-blue-900 flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg group-hover:scale-[1.02]"
                       >
-                        {isBroadcasting ? <Loader2 size={14} className="animate-spin text-slate-500" /> : <Send size={14} />}
+                        {isBroadcasting ? <RefreshCw size={14} className="animate-spin text-slate-500" /> : <Send size={14} />}
                         {isBroadcasting ? 'Memproses...' : 'Eksekusi Broadcast'}
                       </button>
                     </div>

@@ -302,7 +302,7 @@ export const satuSehatService = {
       }
       await this.getOrganizationInfo(orgId);
       return { status: 'connected', environment: 'sandbox' };
-    } catch (error) {
+    } catch {
       return { status: 'error', message: 'Konfigurasi belum lengkap' };
     }
   }

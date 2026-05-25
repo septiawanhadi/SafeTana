@@ -36,7 +36,7 @@ const HealthDictionary = () => {
       // Call AI Service
       const details = await aiService.getDictionaryInfo(title, type);
       setTopicDetails(details);
-    } catch (error) {
+    } catch {
       setTopicDetails('Gagal memuat informasi medis dari server. Harap periksa koneksi internet Anda atau coba lagi nanti.');
     } finally {
       setIsLoadingDetails(false);

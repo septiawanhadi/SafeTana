@@ -1,6 +1,5 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const cors = require('cors')({ origin: true });
 
 admin.initializeApp();
 
@@ -42,7 +41,7 @@ async function broadcastToTelegram(title, body) {
 /**
  * Cloud Function to subscribe a token to the 'all_users' topic
  */
-exports.subscribeToTopic = functions.https.onCall(async (data, context) => {
+exports.subscribeToTopic = functions.https.onCall(async (data) => {
     const { token, topic = 'all_users' } = data;
     if (!token) {
         throw new functions.https.HttpsError('invalid-argument', 'Token is required.');
@@ -57,7 +56,7 @@ exports.subscribeToTopic = functions.https.onCall(async (data, context) => {
     }
 });
 
-exports.pollBmkgHazards = functions.pubsub.schedule('every 5 minutes').onRun(async (context) => {
+exports.pollBmkgHazards = functions.pubsub.schedule('every 5 minutes').onRun(async () => {
     const BMKG_AUTO = 'https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json';
     const BMKG_FELT = 'https://data.bmkg.go.id/DataMKG/TEWS/gempadirasakan.json';
     const BMKG_MIN_5 = 'https://data.bmkg.go.id/DataMKG/TEWS/gempaterkini.json';

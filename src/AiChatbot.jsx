@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { sanitizeInput } from './securityUtils';
-import { calculateDistance } from './utils/geoUtils';
 import { disasterAiService } from './services/disasterAiService';
 
-const AiChatbot = ({ onClose, isSOS, userLocation, reports }) => {
+const AiChatbot = ({ onClose, isSOS, userLocation }) => {
   const [messages, setMessages] = useState([
     {
       role: 'bot',
@@ -44,7 +43,7 @@ const AiChatbot = ({ onClose, isSOS, userLocation, reports }) => {
     try {
       const responseText = await disasterAiService.getAssistantResponse(cleanInput, userLocation);
       setMessages(prev => [...prev, { role: 'bot', text: responseText }]);
-    } catch (error) {
+    } catch {
       // Offline fallback dictionary
       const text = cleanInput.toLowerCase();
       let fallbackText = "Sinyal sangat lemah/terputus. Hubungi 112 untuk keadaan darurat bencana.";

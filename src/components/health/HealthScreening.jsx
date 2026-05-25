@@ -52,7 +52,7 @@ const HealthScreening = () => {
   }, [navigate]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, checked } = e.target;
     if (name.includes('.')) {
       const [category, item] = name.split('.');
       setFormData(prev => ({

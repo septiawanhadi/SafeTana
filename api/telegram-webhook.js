@@ -160,7 +160,7 @@ async function getLatestQuake() {
         const data = await res.json();
         const quake = data.Infogempa.gempa;
         return `*Gempa Bumi Terbaru*\n\n📍 Wilayah: ${quake.Wilayah}\n📏 Magnitudo: ${quake.Magnitude}\n🌊 Kedalaman: ${quake.Kedalaman}\n⏰ Waktu: ${quake.Tanggal} ${quake.Jam}\n⚠️ Potensi: ${quake.Potensi}`;
-    } catch (error) {
+    } catch {
         return "Gagal mengambil data BMKG saat ini.";
     }
 }

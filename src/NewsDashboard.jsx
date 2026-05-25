@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 const MOCK_NEWS = [
     {
@@ -35,14 +34,11 @@ const MOCK_NEWS = [
 ];
 
 const NewsDashboard = () => {
-    const navigate = useNavigate();
     const [news, setNews] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
     const fetchNews = async () => {
         setLoading(true);
-        setError(null);
         try {
             const API_KEY = import.meta.env.VITE_NEWS_API_KEY;
             if (!API_KEY) {
@@ -54,7 +50,7 @@ const NewsDashboard = () => {
             if (!response.ok) throw new Error("API Limit Reached");
             const data = await response.json();
             setNews(data.articles || MOCK_NEWS);
-        } catch (err) {
+        } catch {
             setNews(MOCK_NEWS);
         } finally {
             setLoading(false);

@@ -15,8 +15,6 @@ const HealthDashboard = () => {
   const [bpjsStatus, setBpjsStatus] = useState({ status: 'checking' });
   const [checkingBpjs, setCheckingBpjs] = useState(false);
   const [bpjsResult, setBpjsResult] = useState(null);
-  const [checkingSarana, setCheckingSarana] = useState(false);
-  const [saranaResult, setSaranaResult] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
