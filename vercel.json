@@ -3,6 +3,10 @@
     "devCommand": "npm run dev",
     "rewrites": [
         {
+            "source": "/rss.xml",
+            "destination": "/api/rss"
+        },
+        {
             "source": "/sitemap-index.xml",
             "destination": "/api/sitemap"
         },
