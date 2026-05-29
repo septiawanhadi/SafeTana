@@ -9,9 +9,9 @@ const DEFAULT_ARTICLES = [
       <p><strong>SafeTana AI</strong> adalah platform progresif perintis yang dirancang khusus untuk memperkuat resiliensi masyarakat terhadap bencana alam dan krisis kesehatan. Dengan menggabungkan kekuatan pemetaan geospasial real-time, kecerdasan buatan (<strong>Google Gemini AI</strong>), dan modul layanan medis prediktif (Klinik AI), platform ini memberikan perlindungan menyeluruh—baik dari ancaman alam maupun risiko kesehatan personal.</p>
       <p>Mengusung jargon <em>"Cerdas Berbagi, Sigap Mitigasi, dan Peduli Kesehatan"</em>, SafeTana memadukan teknologi canggih seperti:</p>
       <ul>
-        <li><strong>AI Early Detection Engine & Voice Assistant (TTS):</strong> Integrasi Gemini AI untuk memandu evakuasi dengan asisten suara lantang.</li>
-        <li><strong>Live User Tracking & SOS System:</strong> Fitur tracking lokasi anonim menggunakan algoritma Haversine dan enkripsi koordinat demi menjaga privasi penuh pengguna.</li>
-        <li><strong>Peta Bencana Live:</strong> Visualisasi peta interaktif 24/7 berbasis Leaflet yang menampilkan data real-time BMKG & GDACS beserta titik kumpul evakuasi terdekat.</li>
+        <li><strong>AI Early Detection Engine dan Voice Assistant (TTS):</strong> Integrasi Gemini AI untuk memandu evakuasi dengan asisten suara lantang.</li>
+        <li><strong>Live User Tracking dan SOS System:</strong> Fitur tracking lokasi anonim menggunakan algoritma Haversine dan enkripsi koordinat demi menjaga privasi penuh pengguna.</li>
+        <li><strong>Peta Bencana Live:</strong> Visualisasi peta interaktif 24/7 berbasis Leaflet yang menampilkan data real-time BMKG dan GDACS beserta titik kumpul evakuasi terdekat.</li>
       </ul>
       <p>SafeTana AI berkomitmen tinggi menjadi pelindung digital utama Anda, memastikan Anda selalu sigap dan terlindungi di mana pun Anda berada.</p>
     `,
@@ -26,7 +26,7 @@ const DEFAULT_ARTICLES = [
       <p>Modul Klinik AI memberdayakan pengguna melalui serangkaian fitur medis presisi:</p>
       <ol>
         <li><strong>Skrining Kesehatan Mandiri:</strong> Penilaian instan cerdas untuk mengalkulasi Indeks Massa Tubuh (IMT) guna mendeteksi risiko obesitas, serta memantau ambang batas tekanan darah sistolik dan diastolik sesuai klasifikasi JNC-8.</li>
-        <li><strong>Catatan Jurnal & Mood Tracker 30 Hari:</strong> Layanan catatan psikologis harian terintegrasi dengan dasbor analitik personal untuk memantau emosi dominan dan tren kesehatan mental Anda.</li>
+        <li><strong>Catatan Jurnal dan Mood Tracker 30 Hari:</strong> Layanan catatan psikologis harian terintegrasi dengan dasbor analitik personal untuk memantau emosi dominan dan tren kesehatan mental Anda.</li>
         <li><strong>SatuSehat HL7 FHIR R4 Compliance:</strong> Seluruh data observasi kesehatan Anda dipetakan langsung ke format rekam medis digital HL7 FHIR (LOINC-compliant) yang siap disinkronisasikan ke kementerian kesehatan SatuSehat Indonesia.</li>
         <li><strong>SafeTanaBot (Health AI Assistant):</strong> Chatbot medis 24/7 siap menjawab gejala umum, rekomendasi gaya hidup sehat, hingga lokasi klinik terdekat secara interaktif.</li>
       </ol>
