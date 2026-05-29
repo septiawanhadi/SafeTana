@@ -436,6 +436,7 @@ const App = () => {
         <Route path="/" element={DashboardContent} />
         <Route path="/map" element={<div className="pt-20 pb-28 h-[100dvh]"><MapComponent reports={reports} userLocation={userLocation} safeZones={safeZones} showSafeZones={true} isInteractive={true} selectedReportPosition={focusCoords} /></div>} />
         <Route path="/news" element={<NewsDashboard />} />
+        <Route path="/news/:slug" element={<NewsDashboard />} />
         
         {/* Health Module Cluster */}
         <Route path="/health" element={<HealthDashboard />} />
