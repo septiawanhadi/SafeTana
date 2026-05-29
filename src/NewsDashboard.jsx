@@ -8,7 +8,7 @@ const FALLBACK_ARTICLES = [
     description: "Mengenal SafeTana AI, sistem terintegrasi berbasis kecerdasan buatan (Gemini AI) yang menggabungkan pemetaan geospasial real-time, telemetry darurat BMKG, dan layanan medis mandiri.",
     content: `
       <p class="mb-4"><strong>SafeTana AI</strong> adalah platform progresif perintis yang dirancang khusus untuk memperkuat resiliensi masyarakat terhadap bencana alam dan krisis kesehatan. Dengan menggabungkan kekuatan pemetaan geospasial real-time, kecerdasan buatan (<strong>Google Gemini AI</strong>), dan modul layanan medis prediktif (Klinik AI), platform ini memberikan perlindungan menyeluruh—baik dari ancaman alam maupun risiko kesehatan personal.</p>
-      <p class="mb-4">Mengusung jargon <em>"Cerdas Berbagi, Sigap Mitigasi, & Peduli Kesehatan"</em>, SafeTana memadukan teknologi canggih seperti:</p>
+      <p class="mb-4">Mengusung jargon <em>"Cerdas Berbagi, Sigap Mitigasi, dan Peduli Kesehatan"</em>, SafeTana memadukan teknologi canggih seperti:</p>
       <ul class="list-disc pl-6 mb-4 space-y-3">
         <li><strong>AI Early Detection Engine & Voice Assistant (TTS):</strong> Integrasi Gemini AI untuk memandu evakuasi dengan asisten suara lantang.</li>
         <li><strong>Live User Tracking & SOS System:</strong> Fitur tracking lokasi anonim menggunakan algoritma Haversine dan enkripsi koordinat demi menjaga privasi penuh pengguna.</li>
@@ -42,19 +42,19 @@ const FALLBACK_ARTICLES = [
     image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=800"
   },
   {
-    title: "Di Balik Layar SafeTana AI: Mengenal Septiawan Hadi Prasetyo & Restu Utami",
+    title: "Di Balik Layar SafeTana AI: Mengenal Septiawan Hadi Prasetyo dan Restu Utami",
     slug: "mengenal-developer-safetana-ai",
-    description: "Di balik keandalan SafeTana AI. Profil Septiawan Hadi Prasetyo selaku Lead Developer & Security Architect, serta Restu Utami selaku Co-Developer & UI/UX Specialist.",
+    description: "Di balik keandalan SafeTana AI. Profil Septiawan Hadi Prasetyo selaku Lead Developer dan Security Architect, serta Restu Utami selaku Co-Developer dan UI/UX Specialist.",
     content: `
       <p class="mb-4">Inovasi besar lahir dari dedikasi dan visi yang kuat. Platform <strong>SafeTana AI</strong> yang tangguh dan estetik ini dirancang serta dibangun oleh kolaborasi hebat talenta pengembang terbaik:</p>
-      <h3 class="font-bold text-lg text-white mt-4 mb-2"><strong>1. Septiawan Hadi Prasetyo – Lead Developer & Security Architect</strong></h3>
+      <h3 class="font-bold text-lg text-white mt-4 mb-2"><strong>1. Septiawan Hadi Prasetyo – Lead Developer dan Security Architect</strong></h3>
       <p class="mb-4">Bertindak sebagai arsitek utama sistem, Septiawan mendedikasikan keahliannya dalam menyusun infrastruktur web yang sangat aman dan berkinerja tinggi. Septiawan bertanggung jawab atas:</p>
       <ul class="list-disc pl-6 mb-4 space-y-2">
         <li>Penerapan <strong>Triple-Tier AI Fallback Chain</strong> (Gemini -> Groq -> OpenAI) yang memastikan asisten AI tidak pernah padam saat bencana melanda.</li>
         <li>Enkripsi koordinat lokasi real-time dan penyamaran data PII (Personal Identifiable Information) demi keamanan privasi mutlak pengguna.</li>
         <li>Implementasi arsitektur <em>Service Pattern</em> tersentralisasi pada backend serverless Vercel.</li>
       </ul>
-      <h3 class="font-bold text-lg text-white mt-4 mb-2"><strong>2. Restu Utami – Co-Developer & UI/UX Specialist</strong></h3>
+      <h3 class="font-bold text-lg text-white mt-4 mb-2"><strong>2. Restu Utami – Co-Developer dan UI/UX Specialist</strong></h3>
       <p class="mb-4">Menjadi otak di balik kemudahan interaksi dan visual premium SafeTana, Restu merancang antarmuka pengguna yang memukau dan ergonomis. Restu bertanggung jawab atas:</p>
       <ul class="list-disc pl-6 mb-4 space-y-2">
         <li>Desain sistem estetika premium yang ramah mata (High-Contrast Dark Mode) guna memastikan layar tetap terbaca jelas saat terjadi pemadaman listrik akibat bencana.</li>

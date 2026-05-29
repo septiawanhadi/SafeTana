@@ -7,7 +7,7 @@ const DEFAULT_ARTICLES = [
     slug: "tentang-safetana-ai-mitigasi-bencana",
     content: `
       <p><strong>SafeTana AI</strong> adalah platform progresif perintis yang dirancang khusus untuk memperkuat resiliensi masyarakat terhadap bencana alam dan krisis kesehatan. Dengan menggabungkan kekuatan pemetaan geospasial real-time, kecerdasan buatan (<strong>Google Gemini AI</strong>), dan modul layanan medis prediktif (Klinik AI), platform ini memberikan perlindungan menyeluruh—baik dari ancaman alam maupun risiko kesehatan personal.</p>
-      <p>Mengusung jargon <em>"Cerdas Berbagi, Sigap Mitigasi, & Peduli Kesehatan"</em>, SafeTana memadukan teknologi canggih seperti:</p>
+      <p>Mengusung jargon <em>"Cerdas Berbagi, Sigap Mitigasi, dan Peduli Kesehatan"</em>, SafeTana memadukan teknologi canggih seperti:</p>
       <ul>
         <li><strong>AI Early Detection Engine & Voice Assistant (TTS):</strong> Integrasi Gemini AI untuk memandu evakuasi dengan asisten suara lantang.</li>
         <li><strong>Live User Tracking & SOS System:</strong> Fitur tracking lokasi anonim menggunakan algoritma Haversine dan enkripsi koordinat demi menjaga privasi penuh pengguna.</li>
@@ -36,18 +36,18 @@ const DEFAULT_ARTICLES = [
     publishedAt: "2026-05-28T09:30:00Z"
   },
   {
-    title: "Di Balik Layar SafeTana AI: Mengenal Septiawan Hadi Prasetyo & Restu Utami",
+    title: "Di Balik Layar SafeTana AI: Mengenal Septiawan Hadi Prasetyo dan Restu Utami",
     slug: "mengenal-developer-safetana-ai",
     content: `
       <p>Inovasi besar lahir dari dedikasi dan visi yang kuat. Platform <strong>SafeTana AI</strong> yang tangguh dan estetik ini dirancang serta dibangun oleh kolaborasi hebat talenta pengembang terbaik:</p>
-      <h3><strong>1. Septiawan Hadi Prasetyo – Lead Developer & Security Architect</strong></h3>
+      <h3><strong>1. Septiawan Hadi Prasetyo – Lead Developer dan Security Architect</strong></h3>
       <p>Bertindak sebagai arsitek utama sistem, Septiawan mendedikasikan keahliannya dalam menyusun infrastruktur web yang sangat aman dan berkinerja tinggi. Septiawan bertanggung jawab atas:</p>
       <ul>
         <li>Penerapan <strong>Triple-Tier AI Fallback Chain</strong> (Gemini -> Groq -> OpenAI) yang memastikan asisten AI tidak pernah padam saat bencana melanda.</li>
         <li>Enkripsi koordinat lokasi real-time dan penyamaran data PII (Personal Identifiable Information) demi keamanan privasi mutlak pengguna.</li>
         <li>Implementasi arsitektur <em>Service Pattern</em> tersentralisasi pada backend serverless Vercel.</li>
       </ul>
-      <h3><strong>2. Restu Utami – Co-Developer & UI/UX Specialist</strong></h3>
+      <h3><strong>2. Restu Utami – Co-Developer dan UI/UX Specialist</strong></h3>
       <p>Menjadi otak di balik kemudahan interaksi dan visual premium SafeTana, Restu merancang antarmuka pengguna yang memukau dan ergonomis. Restu bertanggung jawab atas:</p>
       <ul>
         <li>Desain sistem estetika premium yang ramah mata (High-Contrast Dark Mode) guna memastikan layar tetap terbaca jelas saat terjadi pemadaman listrik akibat bencana.</li>
